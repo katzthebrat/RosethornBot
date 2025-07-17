@@ -1,0 +1,1930 @@
+2025-07-15 03:08:38 WARNING  discord.client PyNaCl is not installed, voice will NOT be supported
+2025-07-15 03:08:38 INFO     discord.client logging in using static token
+2025-07-15 03:08:39 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: d84e75d20fa8eeeb6c03053d019ba69e).
+2025-07-15 03:08:42 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:08:54 WARNING  discord.client PyNaCl is not installed, voice will NOT be supported
+2025-07-15 03:08:54 INFO     discord.client logging in using static token
+2025-07-15 03:08:54 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 5d068facf8f38867a7ee41cb6ebc4bc1).
+2025-07-15 03:09:41 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:12:49 WARNING  discord.client PyNaCl is not installed, voice will NOT be supported
+2025-07-15 03:12:49 INFO     discord.client logging in using static token
+2025-07-15 03:12:49 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: d70ea23aaf48e171867851c5686e6c2f).
+2025-07-15 03:12:52 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:15:41 WARNING  discord.client PyNaCl is not installed, voice will NOT be supported
+2025-07-15 03:15:41 INFO     discord.client logging in using static token
+2025-07-15 03:15:42 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 976f310d85ddf9d0a0e1bc87b20d702e).
+2025-07-15 03:15:44 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:15:55 INFO     root         /rules command triggered by katzthebrat
+2025-07-15 03:15:55 INFO     root         Embed fields added
+2025-07-15 03:15:55 INFO     root         Rules embed sent successfully
+2025-07-15 03:16:05 INFO     root         'I Agree' clicked by katzthebrat
+2025-07-15 03:20:41 WARNING  discord.client PyNaCl is not installed, voice will NOT be supported
+2025-07-15 03:20:41 INFO     discord.client logging in using static token
+2025-07-15 03:20:42 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: aaf550c42482334ea084309744414f10).
+2025-07-15 03:20:44 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:20:59 INFO     root         /rules command triggered by katzthebrat
+2025-07-15 03:21:00 INFO     root         Rules embed sent successfully
+2025-07-15 03:21:05 INFO     root         Assigned role '✅' to katzthebrat
+2025-07-15 03:21:46 INFO     root         /rules command triggered by katzthebrat
+2025-07-15 03:21:46 INFO     root         Rules embed sent successfully
+2025-07-15 03:22:02 INFO     root         Assigned role '✅' to little_insomniac666
+2025-07-15 03:30:28 WARNING  discord.client PyNaCl is not installed, voice will NOT be supported
+2025-07-15 03:32:45 INFO     discord.client logging in using static token
+2025-07-15 03:32:46 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: d8472758c8b09ded0b51c38109c0d111).
+2025-07-15 03:32:48 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:33:04 INFO     root         /welcome command triggered by katzthebrat
+2025-07-15 03:33:04 INFO     root         Welcome embed sent successfully
+2025-07-15 03:34:36 INFO     discord.client logging in using static token
+2025-07-15 03:34:37 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: eb89f458745ed20261b934b604316455).
+2025-07-15 03:34:39 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:35:29 INFO     discord.client logging in using static token
+2025-07-15 03:35:29 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: b8112a948881b754a26c9dc3696b7319).
+2025-07-15 03:35:31 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:35:55 INFO     root         /rules command triggered by katzthebrat
+2025-07-15 03:35:55 INFO     root         Rules embed sent successfully
+2025-07-15 03:41:14 INFO     discord.client logging in using static token
+2025-07-15 03:41:14 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 9027cca50b0e7b909d8076fe83c7929d).
+2025-07-15 03:41:17 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:41:26 INFO     root         /rules command triggered by katzthebrat
+2025-07-15 03:41:26 INFO     root         Rules embed sent successfully
+2025-07-15 03:41:37 INFO     root         'Thorn' DM received from katzthebrat
+2025-07-15 03:41:38 ERROR    root         Failed to send Thorn modal: 'User' object has no attribute 'send_modal'
+Traceback (most recent call last):
+  File "/root/RosethornBot/thorn.py", line 76, in on_message
+    await message.author.send_modal(ThornForm(message.author))
+AttributeError: 'User' object has no attribute 'send_modal'
+2025-07-15 03:44:33 INFO     discord.client logging in using static token
+2025-07-15 03:44:33 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: be608434fc0e6ce9c438a4c1c75d6273).
+2025-07-15 03:44:36 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:44:43 INFO     root         'Thorn' DM received from katzthebrat
+2025-07-15 03:45:06 INFO     root         'Thorn' DM received from katzthebrat
+2025-07-15 03:46:55 INFO     discord.client logging in using static token
+2025-07-15 03:46:56 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 19f83511e72737e2b575126cbd1d5a43).
+2025-07-15 03:46:58 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:47:09 INFO     root         'Thorn' DM received from katzthebrat
+2025-07-15 03:47:45 ERROR    root         Failed to update nickname: 403 Forbidden (error code: 50013): Missing Permissions
+Traceback (most recent call last):
+  File "/root/RosethornBot/thorn.py", line 45, in approve
+    await self.member.edit(nick=new_name)
+  File "/usr/local/lib/python3.10/dist-packages/discord/member.py", line 939, in edit
+    data = await http.edit_member(guild_id, self.id, reason=reason, **payload)
+  File "/usr/local/lib/python3.10/dist-packages/discord/http.py", line 756, in request
+    raise Forbidden(response, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50013): Missing Permissions
+2025-07-15 03:52:10 INFO     discord.client logging in using static token
+2025-07-15 03:52:10 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 4ea9de5fbf04caef97e1790008abc2bb).
+2025-07-15 03:52:13 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 03:52:40 INFO     root         'Thorn' DM received from katzthebrat
+2025-07-15 03:53:02 ERROR    root         Failed to update nickname: 403 Forbidden (error code: 50013): Missing Permissions
+Traceback (most recent call last):
+  File "/root/RosethornBot/thorn.py", line 58, in approve
+    await self.member.edit(nick=new_name)
+  File "/usr/local/lib/python3.10/dist-packages/discord/member.py", line 939, in edit
+    data = await http.edit_member(guild_id, self.id, reason=reason, **payload)
+  File "/usr/local/lib/python3.10/dist-packages/discord/http.py", line 756, in request
+    raise Forbidden(response, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50013): Missing Permissions
+2025-07-15 03:53:33 ERROR    root         Failed to update nickname: 403 Forbidden (error code: 50013): Missing Permissions
+Traceback (most recent call last):
+  File "/root/RosethornBot/thorn.py", line 58, in approve
+    await self.member.edit(nick=new_name)
+  File "/usr/local/lib/python3.10/dist-packages/discord/member.py", line 939, in edit
+    data = await http.edit_member(guild_id, self.id, reason=reason, **payload)
+  File "/usr/local/lib/python3.10/dist-packages/discord/http.py", line 756, in request
+    raise Forbidden(response, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50013): Missing Permissions
+2025-07-15 03:54:50 ERROR    root         Failed to update nickname: 403 Forbidden (error code: 50013): Missing Permissions
+Traceback (most recent call last):
+  File "/root/RosethornBot/thorn.py", line 58, in approve
+    await self.member.edit(nick=new_name)
+  File "/usr/local/lib/python3.10/dist-packages/discord/member.py", line 939, in edit
+    data = await http.edit_member(guild_id, self.id, reason=reason, **payload)
+  File "/usr/local/lib/python3.10/dist-packages/discord/http.py", line 756, in request
+    raise Forbidden(response, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50013): Missing Permissions
+2025-07-15 03:55:02 INFO     root         'Thorn' DM received from katzthebrat
+2025-07-15 03:55:27 ERROR    root         Failed to update nickname: 403 Forbidden (error code: 50013): Missing Permissions
+Traceback (most recent call last):
+  File "/root/RosethornBot/thorn.py", line 58, in approve
+    await self.member.edit(nick=new_name)
+  File "/usr/local/lib/python3.10/dist-packages/discord/member.py", line 939, in edit
+    data = await http.edit_member(guild_id, self.id, reason=reason, **payload)
+  File "/usr/local/lib/python3.10/dist-packages/discord/http.py", line 756, in request
+    raise Forbidden(response, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50013): Missing Permissions
+2025-07-15 03:57:25 INFO     root         'Thorn' DM received from little_insomniac666
+2025-07-15 03:58:07 INFO     root         'Thorn' DM received from megabratzfan
+2025-07-15 03:58:45 INFO     root         Nickname updated for little_insomniac666 to Eri [Stoneysus666]
+2025-07-15 03:58:50 INFO     root         Nickname updated for megabratzfan to Your [Mom]
+2025-07-15 04:04:05 INFO     discord.client logging in using static token
+2025-07-15 04:04:06 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 079270604e6dff6ff64c8da2027b5086).
+2025-07-15 04:04:08 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:05:13 INFO     discord.client logging in using static token
+2025-07-15 04:05:14 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 048c241c73b2d6a24c6256b9efc6ec91).
+2025-07-15 04:05:16 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:05:42 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'ticket' not found
+2025-07-15 04:07:30 INFO     discord.client logging in using static token
+2025-07-15 04:07:31 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: ac04dc1924666baa8803391fad45328e).
+2025-07-15 04:07:33 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:08:50 INFO     discord.client logging in using static token
+2025-07-15 04:08:51 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 9e11f1debb8a709388db8d0b5f4d35ee).
+2025-07-15 04:08:53 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:11:56 INFO     discord.client logging in using static token
+2025-07-15 04:11:56 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: bb5f38c0612ad52c68ffd808b0454b85).
+2025-07-15 04:11:58 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:14:23 INFO     discord.client logging in using static token
+2025-07-15 04:14:24 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: e8b4eea4fb951798172aa95c06adaf81).
+2025-07-15 04:14:27 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:14:36 ERROR    discord.app_commands.tree Ignoring exception in command 'tickets'
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+  File "/root/RosethornBot/tickets.py", line 138, in tickets
+    await channel.send(embed=embed, view=view)
+AttributeError: 'NoneType' object has no attribute 'send'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'tickets' raised an exception: AttributeError: 'NoneType' object has no attribute 'send'
+2025-07-15 04:17:56 INFO     discord.client logging in using static token
+2025-07-15 04:17:56 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 4dd724a7b2965dc2d78765a43748a084).
+2025-07-15 04:17:59 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:23:21 INFO     discord.client logging in using static token
+2025-07-15 04:23:22 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 52bc14bd2c192e42627b35d2f30e78ac).
+2025-07-15 04:23:24 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:24:40 INFO     root         Deleted ticket channel 🎟️│katzthebrat-report after closure.
+2025-07-15 04:25:02 INFO     root         Deleted ticket channel 🎟️│katzthebrat-review after closure.
+2025-07-15 04:26:12 INFO     root         Deleted ticket channel 🎟️│katzthebrat-permissions after closure.
+2025-07-15 04:26:28 INFO     root         Deleted ticket channel 🎟️│katzthebrat-general after closure.
+2025-07-15 04:31:03 INFO     discord.client logging in using static token
+2025-07-15 04:31:03 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 8c1038b58aba838ebb2f16e9a19c4e22).
+2025-07-15 04:31:06 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 04:32:03 INFO     root         Deleted ticket channel 🎟️│katzthebrat-general after closure.
+2025-07-15 04:32:41 INFO     root         Assigned role '✅' to casey242001
+2025-07-15 07:57:35 INFO     discord.gateway Shard ID None has successfully RESUMED session 8c1038b58aba838ebb2f16e9a19c4e22.
+2025-07-15 10:13:40 INFO     discord.gateway Shard ID None has successfully RESUMED session 8c1038b58aba838ebb2f16e9a19c4e22.
+2025-07-15 10:19:01 INFO     discord.gateway Shard ID None has successfully RESUMED session 8c1038b58aba838ebb2f16e9a19c4e22.
+2025-07-15 11:09:38 INFO     discord.gateway Shard ID None has successfully RESUMED session 8c1038b58aba838ebb2f16e9a19c4e22.
+2025-07-15 12:21:29 INFO     discord.client logging in using static token
+2025-07-15 12:21:29 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 3ade01b28f207a832736e0be7707bb3e).
+2025-07-15 12:21:31 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 12:26:07 INFO     discord.client logging in using static token
+2025-07-15 12:26:07 INFO     discord.client logging in using static token
+2025-07-15 12:26:08 INFO     discord.client logging in using static token
+2025-07-15 12:26:08 INFO     discord.client logging in using static token
+2025-07-15 12:26:08 INFO     discord.client logging in using static token
+2025-07-15 12:26:09 INFO     discord.client logging in using static token
+2025-07-15 12:26:09 INFO     discord.client logging in using static token
+2025-07-15 12:26:09 INFO     discord.client logging in using static token
+2025-07-15 12:26:09 INFO     discord.client logging in using static token
+2025-07-15 12:26:10 INFO     discord.client logging in using static token
+2025-07-15 12:26:10 INFO     discord.client logging in using static token
+2025-07-15 12:26:10 INFO     discord.client logging in using static token
+2025-07-15 12:26:11 INFO     discord.client logging in using static token
+2025-07-15 12:26:11 INFO     discord.client logging in using static token
+2025-07-15 12:26:11 INFO     discord.client logging in using static token
+2025-07-15 12:26:12 INFO     discord.client logging in using static token
+2025-07-15 12:26:12 INFO     discord.client logging in using static token
+2025-07-15 12:26:12 INFO     discord.client logging in using static token
+2025-07-15 12:26:13 INFO     discord.client logging in using static token
+2025-07-15 12:26:13 INFO     discord.client logging in using static token
+2025-07-15 12:26:13 INFO     discord.client logging in using static token
+2025-07-15 12:26:14 INFO     discord.client logging in using static token
+2025-07-15 12:26:14 INFO     discord.client logging in using static token
+2025-07-15 12:26:14 INFO     discord.client logging in using static token
+2025-07-15 12:26:14 INFO     discord.client logging in using static token
+2025-07-15 12:26:15 INFO     discord.client logging in using static token
+2025-07-15 12:26:15 INFO     discord.client logging in using static token
+2025-07-15 12:26:15 ERROR    asyncio      Fatal error on SSL transport
+protocol: <asyncio.sslproto.SSLProtocol object at 0x7fa357b161a0>
+transport: <_SelectorSocketTransport closing fd=8>
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 924, in write
+    n = self._sock.send(data)
+OSError: [Errno 9] Bad file descriptor
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/sslproto.py", line 690, in _process_write_backlog
+    self._transport.write(chunk)
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 930, in write
+    self._fatal_error(exc, 'Fatal write error on socket transport')
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 725, in _fatal_error
+    self._force_close(exc)
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 737, in _force_close
+    self._loop.call_soon(self._call_connection_lost, exc)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 753, in call_soon
+    self._check_closed()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 515, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+2025-07-15 12:26:15 INFO     discord.client logging in using static token
+2025-07-15 12:26:16 INFO     discord.client logging in using static token
+2025-07-15 12:26:16 INFO     discord.client logging in using static token
+2025-07-15 12:26:16 INFO     discord.client logging in using static token
+2025-07-15 12:26:17 INFO     discord.client logging in using static token
+2025-07-15 12:26:17 INFO     discord.client logging in using static token
+2025-07-15 12:26:17 INFO     discord.client logging in using static token
+2025-07-15 12:26:18 INFO     discord.client logging in using static token
+2025-07-15 12:26:18 INFO     discord.client logging in using static token
+2025-07-15 12:26:18 INFO     discord.client logging in using static token
+2025-07-15 12:26:18 INFO     discord.client logging in using static token
+2025-07-15 12:26:19 INFO     discord.client logging in using static token
+2025-07-15 12:26:19 INFO     discord.client logging in using static token
+2025-07-15 12:26:19 INFO     discord.client logging in using static token
+2025-07-15 12:26:20 INFO     discord.client logging in using static token
+2025-07-15 12:26:20 INFO     discord.client logging in using static token
+2025-07-15 12:26:20 INFO     discord.client logging in using static token
+2025-07-15 12:26:21 INFO     discord.client logging in using static token
+2025-07-15 12:26:21 INFO     discord.client logging in using static token
+2025-07-15 12:26:21 INFO     discord.client logging in using static token
+2025-07-15 12:26:21 INFO     discord.client logging in using static token
+2025-07-15 12:26:22 INFO     discord.client logging in using static token
+2025-07-15 12:26:22 INFO     discord.client logging in using static token
+2025-07-15 12:26:22 INFO     discord.client logging in using static token
+2025-07-15 12:26:23 INFO     discord.client logging in using static token
+2025-07-15 12:26:23 INFO     discord.client logging in using static token
+2025-07-15 12:26:24 INFO     discord.client logging in using static token
+2025-07-15 12:26:24 INFO     discord.client logging in using static token
+2025-07-15 12:26:24 INFO     discord.client logging in using static token
+2025-07-15 12:26:25 INFO     discord.client logging in using static token
+2025-07-15 12:26:25 INFO     discord.client logging in using static token
+2025-07-15 12:26:25 INFO     discord.client logging in using static token
+2025-07-15 12:26:25 INFO     discord.client logging in using static token
+2025-07-15 12:26:26 INFO     discord.client logging in using static token
+2025-07-15 12:26:26 INFO     discord.client logging in using static token
+2025-07-15 12:26:26 INFO     discord.client logging in using static token
+2025-07-15 12:26:27 INFO     discord.client logging in using static token
+2025-07-15 12:26:27 INFO     discord.client logging in using static token
+2025-07-15 12:26:27 INFO     discord.client logging in using static token
+2025-07-15 12:26:28 INFO     discord.client logging in using static token
+2025-07-15 12:26:28 INFO     discord.client logging in using static token
+2025-07-15 12:26:28 INFO     discord.client logging in using static token
+2025-07-15 12:26:29 INFO     discord.client logging in using static token
+2025-07-15 12:26:29 INFO     discord.client logging in using static token
+2025-07-15 12:26:29 INFO     discord.client logging in using static token
+2025-07-15 12:26:29 INFO     discord.client logging in using static token
+2025-07-15 12:26:30 INFO     discord.client logging in using static token
+2025-07-15 12:26:30 INFO     discord.client logging in using static token
+2025-07-15 12:26:30 INFO     discord.client logging in using static token
+2025-07-15 12:26:31 INFO     discord.client logging in using static token
+2025-07-15 12:26:31 INFO     discord.client logging in using static token
+2025-07-15 12:26:31 INFO     discord.client logging in using static token
+2025-07-15 12:26:32 INFO     discord.client logging in using static token
+2025-07-15 12:26:32 INFO     discord.client logging in using static token
+2025-07-15 12:26:32 INFO     discord.client logging in using static token
+2025-07-15 12:26:33 INFO     discord.client logging in using static token
+2025-07-15 12:26:33 INFO     discord.client logging in using static token
+2025-07-15 12:26:33 INFO     discord.client logging in using static token
+2025-07-15 12:26:33 INFO     discord.client logging in using static token
+2025-07-15 12:26:34 INFO     discord.client logging in using static token
+2025-07-15 12:26:34 ERROR    asyncio      Fatal error on SSL transport
+protocol: <asyncio.sslproto.SSLProtocol object at 0x7fd7f11124d0>
+transport: <_SelectorSocketTransport closing fd=8>
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 924, in write
+    n = self._sock.send(data)
+OSError: [Errno 9] Bad file descriptor
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/sslproto.py", line 690, in _process_write_backlog
+    self._transport.write(chunk)
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 930, in write
+    self._fatal_error(exc, 'Fatal write error on socket transport')
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 725, in _fatal_error
+    self._force_close(exc)
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 737, in _force_close
+    self._loop.call_soon(self._call_connection_lost, exc)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 753, in call_soon
+    self._check_closed()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 515, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+2025-07-15 12:26:34 INFO     discord.client logging in using static token
+2025-07-15 12:26:34 INFO     discord.client logging in using static token
+2025-07-15 12:26:35 INFO     discord.client logging in using static token
+2025-07-15 12:26:35 INFO     discord.client logging in using static token
+2025-07-15 12:26:35 INFO     discord.client logging in using static token
+2025-07-15 12:26:36 INFO     discord.client logging in using static token
+2025-07-15 12:26:36 INFO     discord.client logging in using static token
+2025-07-15 12:26:36 INFO     discord.client logging in using static token
+2025-07-15 12:26:37 INFO     discord.client logging in using static token
+2025-07-15 12:26:37 INFO     discord.client logging in using static token
+2025-07-15 12:26:37 INFO     discord.client logging in using static token
+2025-07-15 12:26:37 INFO     discord.client logging in using static token
+2025-07-15 12:26:38 INFO     discord.client logging in using static token
+2025-07-15 12:26:38 INFO     discord.client logging in using static token
+2025-07-15 12:26:38 INFO     discord.client logging in using static token
+2025-07-15 12:26:39 INFO     discord.client logging in using static token
+2025-07-15 12:26:39 INFO     discord.client logging in using static token
+2025-07-15 12:26:39 INFO     discord.client logging in using static token
+2025-07-15 12:26:40 INFO     discord.client logging in using static token
+2025-07-15 12:26:40 INFO     discord.client logging in using static token
+2025-07-15 12:26:40 INFO     discord.client logging in using static token
+2025-07-15 12:26:41 INFO     discord.client logging in using static token
+2025-07-15 12:26:41 INFO     discord.client logging in using static token
+2025-07-15 12:26:41 INFO     discord.client logging in using static token
+2025-07-15 12:26:41 INFO     discord.client logging in using static token
+2025-07-15 12:26:42 INFO     discord.client logging in using static token
+2025-07-15 12:26:42 INFO     discord.client logging in using static token
+2025-07-15 12:26:42 INFO     discord.client logging in using static token
+2025-07-15 12:26:43 INFO     discord.client logging in using static token
+2025-07-15 12:26:43 INFO     discord.client logging in using static token
+2025-07-15 12:26:43 INFO     discord.client logging in using static token
+2025-07-15 12:26:44 INFO     discord.client logging in using static token
+2025-07-15 12:26:44 INFO     discord.client logging in using static token
+2025-07-15 12:26:44 INFO     discord.client logging in using static token
+2025-07-15 12:26:45 INFO     discord.client logging in using static token
+2025-07-15 12:26:45 INFO     discord.client logging in using static token
+2025-07-15 12:26:45 INFO     discord.client logging in using static token
+2025-07-15 12:26:46 INFO     discord.client logging in using static token
+2025-07-15 12:26:46 INFO     discord.client logging in using static token
+2025-07-15 12:26:46 INFO     discord.client logging in using static token
+2025-07-15 12:26:46 INFO     discord.client logging in using static token
+2025-07-15 12:26:47 INFO     discord.client logging in using static token
+2025-07-15 12:26:47 INFO     discord.client logging in using static token
+2025-07-15 12:26:47 INFO     discord.client logging in using static token
+2025-07-15 12:26:48 INFO     discord.client logging in using static token
+2025-07-15 12:26:48 INFO     discord.client logging in using static token
+2025-07-15 12:26:48 INFO     discord.client logging in using static token
+2025-07-15 12:26:49 INFO     discord.client logging in using static token
+2025-07-15 12:26:49 INFO     discord.client logging in using static token
+2025-07-15 12:26:49 INFO     discord.client logging in using static token
+2025-07-15 12:26:50 INFO     discord.client logging in using static token
+2025-07-15 12:26:50 INFO     discord.client logging in using static token
+2025-07-15 12:26:50 INFO     discord.client logging in using static token
+2025-07-15 12:26:50 INFO     discord.client logging in using static token
+2025-07-15 12:26:51 INFO     discord.client logging in using static token
+2025-07-15 12:26:51 INFO     discord.client logging in using static token
+2025-07-15 12:26:51 INFO     discord.client logging in using static token
+2025-07-15 12:26:52 INFO     discord.client logging in using static token
+2025-07-15 12:26:52 INFO     discord.client logging in using static token
+2025-07-15 12:26:52 INFO     discord.client logging in using static token
+2025-07-15 12:26:53 INFO     discord.client logging in using static token
+2025-07-15 12:26:53 INFO     discord.client logging in using static token
+2025-07-15 12:26:53 INFO     discord.client logging in using static token
+2025-07-15 12:26:54 INFO     discord.client logging in using static token
+2025-07-15 12:26:54 INFO     discord.client logging in using static token
+2025-07-15 12:26:54 INFO     discord.client logging in using static token
+2025-07-15 12:26:54 INFO     discord.client logging in using static token
+2025-07-15 12:26:55 INFO     discord.client logging in using static token
+2025-07-15 12:26:55 INFO     discord.client logging in using static token
+2025-07-15 12:26:55 INFO     discord.client logging in using static token
+2025-07-15 12:26:56 INFO     discord.client logging in using static token
+2025-07-15 12:26:56 INFO     discord.client logging in using static token
+2025-07-15 12:26:57 INFO     discord.client logging in using static token
+2025-07-15 12:26:57 INFO     discord.client logging in using static token
+2025-07-15 12:26:57 INFO     discord.client logging in using static token
+2025-07-15 12:26:57 INFO     discord.client logging in using static token
+2025-07-15 12:26:58 INFO     discord.client logging in using static token
+2025-07-15 12:26:58 INFO     discord.client logging in using static token
+2025-07-15 12:26:58 INFO     discord.client logging in using static token
+2025-07-15 12:26:59 INFO     discord.client logging in using static token
+2025-07-15 12:26:59 INFO     discord.client logging in using static token
+2025-07-15 12:26:59 INFO     discord.client logging in using static token
+2025-07-15 12:27:00 INFO     discord.client logging in using static token
+2025-07-15 12:27:00 INFO     discord.client logging in using static token
+2025-07-15 12:27:00 INFO     discord.client logging in using static token
+2025-07-15 12:27:01 INFO     discord.client logging in using static token
+2025-07-15 12:27:01 INFO     discord.client logging in using static token
+2025-07-15 12:27:01 INFO     discord.client logging in using static token
+2025-07-15 12:27:02 INFO     discord.client logging in using static token
+2025-07-15 12:27:02 INFO     discord.client logging in using static token
+2025-07-15 12:27:02 INFO     discord.client logging in using static token
+2025-07-15 12:27:03 INFO     discord.client logging in using static token
+2025-07-15 12:27:03 INFO     discord.client logging in using static token
+2025-07-15 12:27:03 INFO     discord.client logging in using static token
+2025-07-15 12:27:03 INFO     discord.client logging in using static token
+2025-07-15 12:27:04 INFO     discord.client logging in using static token
+2025-07-15 12:27:04 INFO     discord.client logging in using static token
+2025-07-15 12:27:04 INFO     discord.client logging in using static token
+2025-07-15 12:27:05 INFO     discord.client logging in using static token
+2025-07-15 12:27:05 INFO     discord.client logging in using static token
+2025-07-15 12:27:05 INFO     discord.client logging in using static token
+2025-07-15 12:27:06 INFO     discord.client logging in using static token
+2025-07-15 12:27:06 INFO     discord.client logging in using static token
+2025-07-15 12:27:06 INFO     discord.client logging in using static token
+2025-07-15 12:27:07 INFO     discord.client logging in using static token
+2025-07-15 12:27:07 INFO     discord.client logging in using static token
+2025-07-15 12:27:07 INFO     discord.client logging in using static token
+2025-07-15 12:27:08 INFO     discord.client logging in using static token
+2025-07-15 12:27:08 INFO     discord.client logging in using static token
+2025-07-15 12:27:08 INFO     discord.client logging in using static token
+2025-07-15 12:27:09 INFO     discord.client logging in using static token
+2025-07-15 12:27:09 INFO     discord.client logging in using static token
+2025-07-15 12:27:09 INFO     discord.client logging in using static token
+2025-07-15 12:27:10 INFO     discord.client logging in using static token
+2025-07-15 12:27:10 INFO     discord.client logging in using static token
+2025-07-15 12:27:10 INFO     discord.client logging in using static token
+2025-07-15 12:27:11 INFO     discord.client logging in using static token
+2025-07-15 12:27:11 INFO     discord.client logging in using static token
+2025-07-15 12:27:11 INFO     discord.client logging in using static token
+2025-07-15 12:27:11 INFO     discord.client logging in using static token
+2025-07-15 12:27:12 INFO     discord.client logging in using static token
+2025-07-15 12:27:12 INFO     discord.client logging in using static token
+2025-07-15 12:27:12 INFO     discord.client logging in using static token
+2025-07-15 12:27:13 INFO     discord.client logging in using static token
+2025-07-15 12:27:13 INFO     discord.client logging in using static token
+2025-07-15 12:27:13 INFO     discord.client logging in using static token
+2025-07-15 12:27:14 INFO     discord.client logging in using static token
+2025-07-15 12:27:14 INFO     discord.client logging in using static token
+2025-07-15 12:27:14 INFO     discord.client logging in using static token
+2025-07-15 12:27:15 INFO     discord.client logging in using static token
+2025-07-15 12:27:15 INFO     discord.client logging in using static token
+2025-07-15 12:27:15 INFO     discord.client logging in using static token
+2025-07-15 12:27:16 INFO     discord.client logging in using static token
+2025-07-15 12:27:16 INFO     discord.client logging in using static token
+2025-07-15 12:27:16 INFO     discord.client logging in using static token
+2025-07-15 12:27:16 INFO     discord.client logging in using static token
+2025-07-15 12:27:17 INFO     discord.client logging in using static token
+2025-07-15 12:27:17 INFO     discord.client logging in using static token
+2025-07-15 12:27:17 INFO     discord.client logging in using static token
+2025-07-15 12:27:18 INFO     discord.client logging in using static token
+2025-07-15 12:27:18 INFO     discord.client logging in using static token
+2025-07-15 12:27:18 INFO     discord.client logging in using static token
+2025-07-15 12:27:19 INFO     discord.client logging in using static token
+2025-07-15 12:27:19 INFO     discord.client logging in using static token
+2025-07-15 12:27:19 INFO     discord.client logging in using static token
+2025-07-15 12:27:20 INFO     discord.client logging in using static token
+2025-07-15 12:27:20 INFO     discord.client logging in using static token
+2025-07-15 12:27:20 INFO     discord.client logging in using static token
+2025-07-15 12:27:20 INFO     discord.client logging in using static token
+2025-07-15 12:27:21 INFO     discord.client logging in using static token
+2025-07-15 12:27:21 INFO     discord.client logging in using static token
+2025-07-15 12:27:21 INFO     discord.client logging in using static token
+2025-07-15 12:27:22 INFO     discord.client logging in using static token
+2025-07-15 12:27:22 INFO     discord.client logging in using static token
+2025-07-15 12:27:22 INFO     discord.client logging in using static token
+2025-07-15 12:27:23 INFO     discord.client logging in using static token
+2025-07-15 12:27:23 INFO     discord.client logging in using static token
+2025-07-15 12:27:23 INFO     discord.client logging in using static token
+2025-07-15 12:27:24 INFO     discord.client logging in using static token
+2025-07-15 12:27:24 INFO     discord.client logging in using static token
+2025-07-15 12:27:24 INFO     discord.client logging in using static token
+2025-07-15 12:27:24 INFO     discord.client logging in using static token
+2025-07-15 12:27:25 INFO     discord.client logging in using static token
+2025-07-15 12:27:25 INFO     discord.client logging in using static token
+2025-07-15 12:27:25 INFO     discord.client logging in using static token
+2025-07-15 12:27:26 INFO     discord.client logging in using static token
+2025-07-15 12:27:26 INFO     discord.client logging in using static token
+2025-07-15 12:27:26 INFO     discord.client logging in using static token
+2025-07-15 12:27:27 INFO     discord.client logging in using static token
+2025-07-15 12:27:27 INFO     discord.client logging in using static token
+2025-07-15 12:27:27 INFO     discord.client logging in using static token
+2025-07-15 12:27:27 INFO     discord.client logging in using static token
+2025-07-15 12:27:28 INFO     discord.client logging in using static token
+2025-07-15 12:27:28 INFO     discord.client logging in using static token
+2025-07-15 12:27:28 INFO     discord.client logging in using static token
+2025-07-15 12:27:29 INFO     discord.client logging in using static token
+2025-07-15 12:27:29 INFO     discord.client logging in using static token
+2025-07-15 12:27:29 INFO     discord.client logging in using static token
+2025-07-15 12:27:30 INFO     discord.client logging in using static token
+2025-07-15 12:27:30 INFO     discord.client logging in using static token
+2025-07-15 12:27:30 INFO     discord.client logging in using static token
+2025-07-15 12:27:31 INFO     discord.client logging in using static token
+2025-07-15 12:27:31 INFO     discord.client logging in using static token
+2025-07-15 12:27:31 INFO     discord.client logging in using static token
+2025-07-15 12:27:31 INFO     discord.client logging in using static token
+2025-07-15 12:27:32 INFO     discord.client logging in using static token
+2025-07-15 12:27:32 INFO     discord.client logging in using static token
+2025-07-15 12:27:32 INFO     discord.client logging in using static token
+2025-07-15 12:27:33 INFO     discord.client logging in using static token
+2025-07-15 12:27:33 INFO     discord.client logging in using static token
+2025-07-15 12:27:33 INFO     discord.client logging in using static token
+2025-07-15 12:27:34 INFO     discord.client logging in using static token
+2025-07-15 12:27:34 INFO     discord.client logging in using static token
+2025-07-15 12:27:34 INFO     discord.client logging in using static token
+2025-07-15 12:27:34 INFO     discord.client logging in using static token
+2025-07-15 12:27:35 INFO     discord.client logging in using static token
+2025-07-15 12:27:35 INFO     discord.client logging in using static token
+2025-07-15 12:27:35 INFO     discord.client logging in using static token
+2025-07-15 12:27:36 INFO     discord.client logging in using static token
+2025-07-15 12:27:36 INFO     discord.client logging in using static token
+2025-07-15 12:27:36 INFO     discord.client logging in using static token
+2025-07-15 12:27:37 INFO     discord.client logging in using static token
+2025-07-15 12:27:37 INFO     discord.client logging in using static token
+2025-07-15 12:27:37 INFO     discord.client logging in using static token
+2025-07-15 12:27:38 INFO     discord.client logging in using static token
+2025-07-15 12:27:38 INFO     discord.client logging in using static token
+2025-07-15 12:27:38 INFO     discord.client logging in using static token
+2025-07-15 12:27:39 INFO     discord.client logging in using static token
+2025-07-15 12:27:39 INFO     discord.client logging in using static token
+2025-07-15 12:27:39 INFO     discord.client logging in using static token
+2025-07-15 12:27:39 INFO     discord.client logging in using static token
+2025-07-15 12:27:40 INFO     discord.client logging in using static token
+2025-07-15 12:27:40 INFO     discord.client logging in using static token
+2025-07-15 12:27:40 INFO     discord.client logging in using static token
+2025-07-15 12:27:41 INFO     discord.client logging in using static token
+2025-07-15 12:27:41 INFO     discord.client logging in using static token
+2025-07-15 12:27:41 INFO     discord.client logging in using static token
+2025-07-15 12:27:42 INFO     discord.client logging in using static token
+2025-07-15 12:27:42 INFO     discord.client logging in using static token
+2025-07-15 12:27:42 INFO     discord.client logging in using static token
+2025-07-15 12:27:43 INFO     discord.client logging in using static token
+2025-07-15 12:27:43 INFO     discord.client logging in using static token
+2025-07-15 12:27:43 INFO     discord.client logging in using static token
+2025-07-15 12:27:44 INFO     discord.client logging in using static token
+2025-07-15 12:27:44 INFO     discord.client logging in using static token
+2025-07-15 12:27:44 INFO     discord.client logging in using static token
+2025-07-15 12:27:44 INFO     discord.client logging in using static token
+2025-07-15 12:27:45 INFO     discord.client logging in using static token
+2025-07-15 12:27:45 INFO     discord.client logging in using static token
+2025-07-15 12:27:45 INFO     discord.client logging in using static token
+2025-07-15 12:27:46 INFO     discord.client logging in using static token
+2025-07-15 12:27:46 INFO     discord.client logging in using static token
+2025-07-15 12:27:46 INFO     discord.client logging in using static token
+2025-07-15 12:27:47 INFO     discord.client logging in using static token
+2025-07-15 12:27:47 INFO     discord.client logging in using static token
+2025-07-15 12:27:47 INFO     discord.client logging in using static token
+2025-07-15 12:27:48 INFO     discord.client logging in using static token
+2025-07-15 12:27:48 INFO     discord.client logging in using static token
+2025-07-15 12:27:48 INFO     discord.client logging in using static token
+2025-07-15 12:27:48 ERROR    asyncio      Fatal error on SSL transport
+protocol: <asyncio.sslproto.SSLProtocol object at 0x7f0b65be2260>
+transport: <_SelectorSocketTransport closing fd=8>
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 924, in write
+    n = self._sock.send(data)
+OSError: [Errno 9] Bad file descriptor
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/sslproto.py", line 690, in _process_write_backlog
+    self._transport.write(chunk)
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 930, in write
+    self._fatal_error(exc, 'Fatal write error on socket transport')
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 725, in _fatal_error
+    self._force_close(exc)
+  File "/usr/lib/python3.10/asyncio/selector_events.py", line 737, in _force_close
+    self._loop.call_soon(self._call_connection_lost, exc)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 753, in call_soon
+    self._check_closed()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 515, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+2025-07-15 12:27:49 INFO     discord.client logging in using static token
+2025-07-15 12:27:49 INFO     discord.client logging in using static token
+2025-07-15 12:27:49 INFO     discord.client logging in using static token
+2025-07-15 12:27:49 INFO     discord.client logging in using static token
+2025-07-15 12:27:50 INFO     discord.client logging in using static token
+2025-07-15 12:27:50 INFO     discord.client logging in using static token
+2025-07-15 12:27:50 INFO     discord.client logging in using static token
+2025-07-15 12:27:51 INFO     discord.client logging in using static token
+2025-07-15 12:27:51 INFO     discord.client logging in using static token
+2025-07-15 12:27:51 INFO     discord.client logging in using static token
+2025-07-15 12:27:52 INFO     discord.client logging in using static token
+2025-07-15 12:27:52 INFO     discord.client logging in using static token
+2025-07-15 12:27:52 INFO     discord.client logging in using static token
+2025-07-15 12:27:53 INFO     discord.client logging in using static token
+2025-07-15 12:27:53 INFO     discord.client logging in using static token
+2025-07-15 12:27:53 INFO     discord.client logging in using static token
+2025-07-15 12:27:53 INFO     discord.client logging in using static token
+2025-07-15 12:27:54 INFO     discord.client logging in using static token
+2025-07-15 12:27:54 INFO     discord.client logging in using static token
+2025-07-15 12:27:54 INFO     discord.client logging in using static token
+2025-07-15 12:27:55 INFO     discord.client logging in using static token
+2025-07-15 12:27:55 INFO     discord.client logging in using static token
+2025-07-15 12:27:55 INFO     discord.client logging in using static token
+2025-07-15 12:27:56 INFO     discord.client logging in using static token
+2025-07-15 12:27:56 INFO     discord.client logging in using static token
+2025-07-15 12:27:56 INFO     discord.client logging in using static token
+2025-07-15 12:27:56 INFO     discord.client logging in using static token
+2025-07-15 12:27:57 INFO     discord.client logging in using static token
+2025-07-15 12:27:57 INFO     discord.client logging in using static token
+2025-07-15 12:27:57 INFO     discord.client logging in using static token
+2025-07-15 12:27:58 INFO     discord.client logging in using static token
+2025-07-15 12:27:58 INFO     discord.client logging in using static token
+2025-07-15 12:27:58 INFO     discord.client logging in using static token
+2025-07-15 12:27:59 INFO     discord.client logging in using static token
+2025-07-15 12:27:59 INFO     discord.client logging in using static token
+2025-07-15 12:27:59 INFO     discord.client logging in using static token
+2025-07-15 12:28:00 INFO     discord.client logging in using static token
+2025-07-15 12:28:00 INFO     discord.client logging in using static token
+2025-07-15 12:28:00 INFO     discord.client logging in using static token
+2025-07-15 12:28:01 INFO     discord.client logging in using static token
+2025-07-15 12:28:01 INFO     discord.client logging in using static token
+2025-07-15 12:28:01 INFO     discord.client logging in using static token
+2025-07-15 12:28:01 INFO     discord.client logging in using static token
+2025-07-15 12:28:02 INFO     discord.client logging in using static token
+2025-07-15 12:28:02 INFO     discord.client logging in using static token
+2025-07-15 12:28:02 INFO     discord.client logging in using static token
+2025-07-15 12:28:03 INFO     discord.client logging in using static token
+2025-07-15 12:28:03 INFO     discord.client logging in using static token
+2025-07-15 12:28:03 INFO     discord.client logging in using static token
+2025-07-15 12:28:04 INFO     discord.client logging in using static token
+2025-07-15 12:28:04 INFO     discord.client logging in using static token
+2025-07-15 12:28:04 INFO     discord.client logging in using static token
+2025-07-15 12:28:05 INFO     discord.client logging in using static token
+2025-07-15 12:28:05 INFO     discord.client logging in using static token
+2025-07-15 12:28:05 INFO     discord.client logging in using static token
+2025-07-15 12:28:05 INFO     discord.client logging in using static token
+2025-07-15 12:28:06 INFO     discord.client logging in using static token
+2025-07-15 12:28:06 INFO     discord.client logging in using static token
+2025-07-15 12:28:06 INFO     discord.client logging in using static token
+2025-07-15 12:28:07 INFO     discord.client logging in using static token
+2025-07-15 12:28:07 INFO     discord.client logging in using static token
+2025-07-15 12:28:07 INFO     discord.client logging in using static token
+2025-07-15 12:28:08 INFO     discord.client logging in using static token
+2025-07-15 12:28:08 INFO     discord.client logging in using static token
+2025-07-15 12:28:08 INFO     discord.client logging in using static token
+2025-07-15 12:28:09 INFO     discord.client logging in using static token
+2025-07-15 12:28:09 INFO     discord.client logging in using static token
+2025-07-15 12:28:09 INFO     discord.client logging in using static token
+2025-07-15 12:28:09 INFO     discord.client logging in using static token
+2025-07-15 12:28:10 INFO     discord.client logging in using static token
+2025-07-15 12:28:10 INFO     discord.client logging in using static token
+2025-07-15 12:28:10 INFO     discord.client logging in using static token
+2025-07-15 12:28:11 INFO     discord.client logging in using static token
+2025-07-15 12:28:11 INFO     discord.client logging in using static token
+2025-07-15 12:28:11 INFO     discord.client logging in using static token
+2025-07-15 12:28:12 INFO     discord.client logging in using static token
+2025-07-15 12:28:12 INFO     discord.client logging in using static token
+2025-07-15 12:28:12 INFO     discord.client logging in using static token
+2025-07-15 12:28:13 INFO     discord.client logging in using static token
+2025-07-15 12:28:13 INFO     discord.client logging in using static token
+2025-07-15 12:28:13 INFO     discord.client logging in using static token
+2025-07-15 12:28:14 INFO     discord.client logging in using static token
+2025-07-15 12:28:14 INFO     discord.client logging in using static token
+2025-07-15 12:28:14 INFO     discord.client logging in using static token
+2025-07-15 12:28:14 INFO     discord.client logging in using static token
+2025-07-15 12:28:15 INFO     discord.client logging in using static token
+2025-07-15 12:28:15 INFO     discord.client logging in using static token
+2025-07-15 12:28:15 INFO     discord.client logging in using static token
+2025-07-15 12:28:16 INFO     discord.client logging in using static token
+2025-07-15 12:28:16 INFO     discord.client logging in using static token
+2025-07-15 12:28:16 INFO     discord.client logging in using static token
+2025-07-15 12:28:17 INFO     discord.client logging in using static token
+2025-07-15 12:28:17 INFO     discord.client logging in using static token
+2025-07-15 12:28:17 INFO     discord.client logging in using static token
+2025-07-15 12:28:17 INFO     discord.client logging in using static token
+2025-07-15 12:28:18 INFO     discord.client logging in using static token
+2025-07-15 12:28:18 INFO     discord.client logging in using static token
+2025-07-15 12:28:18 INFO     discord.client logging in using static token
+2025-07-15 12:28:19 INFO     discord.client logging in using static token
+2025-07-15 12:28:19 INFO     discord.client logging in using static token
+2025-07-15 12:28:19 INFO     discord.client logging in using static token
+2025-07-15 12:28:20 INFO     discord.client logging in using static token
+2025-07-15 12:28:20 INFO     discord.client logging in using static token
+2025-07-15 12:28:20 INFO     discord.client logging in using static token
+2025-07-15 12:28:21 INFO     discord.client logging in using static token
+2025-07-15 12:28:21 INFO     discord.client logging in using static token
+2025-07-15 12:28:21 INFO     discord.client logging in using static token
+2025-07-15 12:28:21 INFO     discord.client logging in using static token
+2025-07-15 12:28:22 INFO     discord.client logging in using static token
+2025-07-15 12:28:22 INFO     discord.client logging in using static token
+2025-07-15 12:28:22 INFO     discord.client logging in using static token
+2025-07-15 12:28:23 INFO     discord.client logging in using static token
+2025-07-15 12:28:23 INFO     discord.client logging in using static token
+2025-07-15 12:28:23 INFO     discord.client logging in using static token
+2025-07-15 12:28:24 INFO     discord.client logging in using static token
+2025-07-15 12:28:24 INFO     discord.client logging in using static token
+2025-07-15 12:28:24 INFO     discord.client logging in using static token
+2025-07-15 12:28:25 INFO     discord.client logging in using static token
+2025-07-15 12:28:25 INFO     discord.client logging in using static token
+2025-07-15 12:28:25 INFO     discord.client logging in using static token
+2025-07-15 12:28:25 INFO     discord.client logging in using static token
+2025-07-15 12:28:26 INFO     discord.client logging in using static token
+2025-07-15 12:28:26 INFO     discord.client logging in using static token
+2025-07-15 12:28:26 INFO     discord.client logging in using static token
+2025-07-15 12:28:27 INFO     discord.client logging in using static token
+2025-07-15 12:28:27 INFO     discord.client logging in using static token
+2025-07-15 12:28:27 INFO     discord.client logging in using static token
+2025-07-15 12:28:28 INFO     discord.client logging in using static token
+2025-07-15 12:28:28 INFO     discord.client logging in using static token
+2025-07-15 12:28:28 INFO     discord.client logging in using static token
+2025-07-15 12:28:28 INFO     discord.client logging in using static token
+2025-07-15 12:28:29 INFO     discord.client logging in using static token
+2025-07-15 12:28:29 INFO     discord.client logging in using static token
+2025-07-15 12:28:29 INFO     discord.client logging in using static token
+2025-07-15 12:28:30 INFO     discord.client logging in using static token
+2025-07-15 12:28:30 INFO     discord.client logging in using static token
+2025-07-15 12:28:30 INFO     discord.client logging in using static token
+2025-07-15 12:28:31 INFO     discord.client logging in using static token
+2025-07-15 12:28:31 INFO     discord.client logging in using static token
+2025-07-15 12:28:31 INFO     discord.client logging in using static token
+2025-07-15 12:28:32 INFO     discord.client logging in using static token
+2025-07-15 12:28:32 INFO     discord.client logging in using static token
+2025-07-15 12:28:32 INFO     discord.client logging in using static token
+2025-07-15 12:28:33 INFO     discord.client logging in using static token
+2025-07-15 12:28:33 INFO     discord.client logging in using static token
+2025-07-15 12:28:33 INFO     discord.client logging in using static token
+2025-07-15 12:28:33 INFO     discord.client logging in using static token
+2025-07-15 12:28:34 INFO     discord.client logging in using static token
+2025-07-15 12:28:34 INFO     discord.client logging in using static token
+2025-07-15 12:28:34 INFO     discord.client logging in using static token
+2025-07-15 12:28:35 INFO     discord.client logging in using static token
+2025-07-15 12:28:35 INFO     discord.client logging in using static token
+2025-07-15 12:28:35 INFO     discord.client logging in using static token
+2025-07-15 12:28:36 INFO     discord.client logging in using static token
+2025-07-15 12:28:36 INFO     discord.client logging in using static token
+2025-07-15 12:28:36 INFO     discord.client logging in using static token
+2025-07-15 12:28:37 INFO     discord.client logging in using static token
+2025-07-15 12:28:37 INFO     discord.client logging in using static token
+2025-07-15 12:28:37 INFO     discord.client logging in using static token
+2025-07-15 12:28:37 INFO     discord.client logging in using static token
+2025-07-15 12:28:38 INFO     discord.client logging in using static token
+2025-07-15 12:28:38 INFO     discord.client logging in using static token
+2025-07-15 12:28:38 INFO     discord.client logging in using static token
+2025-07-15 12:28:39 INFO     discord.client logging in using static token
+2025-07-15 12:28:39 INFO     discord.client logging in using static token
+2025-07-15 12:28:39 INFO     discord.client logging in using static token
+2025-07-15 12:28:40 INFO     discord.client logging in using static token
+2025-07-15 12:28:40 INFO     discord.client logging in using static token
+2025-07-15 12:28:40 INFO     discord.client logging in using static token
+2025-07-15 12:28:40 INFO     discord.client logging in using static token
+2025-07-15 12:28:41 INFO     discord.client logging in using static token
+2025-07-15 12:28:41 INFO     discord.client logging in using static token
+2025-07-15 12:28:41 INFO     discord.client logging in using static token
+2025-07-15 12:28:42 INFO     discord.client logging in using static token
+2025-07-15 12:28:42 INFO     discord.client logging in using static token
+2025-07-15 12:28:42 INFO     discord.client logging in using static token
+2025-07-15 12:28:43 INFO     discord.client logging in using static token
+2025-07-15 12:28:43 INFO     discord.client logging in using static token
+2025-07-15 12:28:43 INFO     discord.client logging in using static token
+2025-07-15 12:28:44 INFO     discord.client logging in using static token
+2025-07-15 12:28:44 INFO     discord.client logging in using static token
+2025-07-15 12:28:44 INFO     discord.client logging in using static token
+2025-07-15 12:28:44 INFO     discord.client logging in using static token
+2025-07-15 12:28:45 INFO     discord.client logging in using static token
+2025-07-15 12:28:45 INFO     discord.client logging in using static token
+2025-07-15 12:28:45 INFO     discord.client logging in using static token
+2025-07-15 12:28:46 INFO     discord.client logging in using static token
+2025-07-15 12:28:46 INFO     discord.client logging in using static token
+2025-07-15 12:28:46 INFO     discord.client logging in using static token
+2025-07-15 12:28:47 INFO     discord.client logging in using static token
+2025-07-15 12:28:47 INFO     discord.client logging in using static token
+2025-07-15 12:28:47 INFO     discord.client logging in using static token
+2025-07-15 12:28:47 INFO     discord.client logging in using static token
+2025-07-15 12:28:48 INFO     discord.client logging in using static token
+2025-07-15 12:28:48 INFO     discord.client logging in using static token
+2025-07-15 12:28:48 INFO     discord.client logging in using static token
+2025-07-15 12:28:49 INFO     discord.client logging in using static token
+2025-07-15 12:28:49 INFO     discord.client logging in using static token
+2025-07-15 12:28:49 INFO     discord.client logging in using static token
+2025-07-15 12:28:50 INFO     discord.client logging in using static token
+2025-07-15 12:28:50 INFO     discord.client logging in using static token
+2025-07-15 12:28:50 INFO     discord.client logging in using static token
+2025-07-15 12:28:50 INFO     discord.client logging in using static token
+2025-07-15 12:28:51 INFO     discord.client logging in using static token
+2025-07-15 12:28:51 INFO     discord.client logging in using static token
+2025-07-15 12:28:51 INFO     discord.client logging in using static token
+2025-07-15 12:28:52 INFO     discord.client logging in using static token
+2025-07-15 12:28:52 INFO     discord.client logging in using static token
+2025-07-15 12:28:52 INFO     discord.client logging in using static token
+2025-07-15 12:28:53 INFO     discord.client logging in using static token
+2025-07-15 12:28:53 INFO     discord.client logging in using static token
+2025-07-15 12:28:53 INFO     discord.client logging in using static token
+2025-07-15 12:28:53 INFO     discord.client logging in using static token
+2025-07-15 12:28:54 INFO     discord.client logging in using static token
+2025-07-15 12:28:54 INFO     discord.client logging in using static token
+2025-07-15 12:28:54 INFO     discord.client logging in using static token
+2025-07-15 12:28:55 INFO     discord.client logging in using static token
+2025-07-15 12:28:55 INFO     discord.client logging in using static token
+2025-07-15 12:28:55 INFO     discord.client logging in using static token
+2025-07-15 12:28:56 INFO     discord.client logging in using static token
+2025-07-15 12:28:56 INFO     discord.client logging in using static token
+2025-07-15 12:28:56 INFO     discord.client logging in using static token
+2025-07-15 12:28:56 INFO     discord.client logging in using static token
+2025-07-15 12:28:57 INFO     discord.client logging in using static token
+2025-07-15 12:28:57 INFO     discord.client logging in using static token
+2025-07-15 12:28:57 INFO     discord.client logging in using static token
+2025-07-15 12:28:58 INFO     discord.client logging in using static token
+2025-07-15 12:28:58 INFO     discord.client logging in using static token
+2025-07-15 12:28:58 INFO     discord.client logging in using static token
+2025-07-15 12:28:59 INFO     discord.client logging in using static token
+2025-07-15 12:28:59 INFO     discord.client logging in using static token
+2025-07-15 12:28:59 INFO     discord.client logging in using static token
+2025-07-15 12:29:00 INFO     discord.client logging in using static token
+2025-07-15 12:29:00 INFO     discord.client logging in using static token
+2025-07-15 12:29:00 INFO     discord.client logging in using static token
+2025-07-15 12:29:01 INFO     discord.client logging in using static token
+2025-07-15 12:29:01 INFO     discord.client logging in using static token
+2025-07-15 12:29:01 INFO     discord.client logging in using static token
+2025-07-15 12:29:02 INFO     discord.client logging in using static token
+2025-07-15 12:29:02 INFO     discord.client logging in using static token
+2025-07-15 12:29:02 INFO     discord.client logging in using static token
+2025-07-15 12:29:03 INFO     discord.client logging in using static token
+2025-07-15 12:29:03 INFO     discord.client logging in using static token
+2025-07-15 12:29:03 INFO     discord.client logging in using static token
+2025-07-15 12:29:03 INFO     discord.client logging in using static token
+2025-07-15 12:29:04 INFO     discord.client logging in using static token
+2025-07-15 12:29:04 INFO     discord.client logging in using static token
+2025-07-15 12:29:04 INFO     discord.client logging in using static token
+2025-07-15 12:29:05 INFO     discord.client logging in using static token
+2025-07-15 12:29:05 INFO     discord.client logging in using static token
+2025-07-15 12:29:05 INFO     discord.client logging in using static token
+2025-07-15 12:29:06 INFO     discord.client logging in using static token
+2025-07-15 12:29:06 INFO     discord.client logging in using static token
+2025-07-15 12:29:06 INFO     discord.client logging in using static token
+2025-07-15 12:29:07 INFO     discord.client logging in using static token
+2025-07-15 12:29:07 INFO     discord.client logging in using static token
+2025-07-15 12:29:07 INFO     discord.client logging in using static token
+2025-07-15 12:29:07 INFO     discord.client logging in using static token
+2025-07-15 12:29:08 INFO     discord.client logging in using static token
+2025-07-15 12:29:08 INFO     discord.client logging in using static token
+2025-07-15 12:29:08 INFO     discord.client logging in using static token
+2025-07-15 12:29:09 INFO     discord.client logging in using static token
+2025-07-15 12:29:09 INFO     discord.client logging in using static token
+2025-07-15 12:29:09 INFO     discord.client logging in using static token
+2025-07-15 12:29:10 INFO     discord.client logging in using static token
+2025-07-15 12:29:10 INFO     discord.client logging in using static token
+2025-07-15 12:29:10 INFO     discord.client logging in using static token
+2025-07-15 12:29:11 INFO     discord.client logging in using static token
+2025-07-15 12:29:11 INFO     discord.client logging in using static token
+2025-07-15 12:29:11 INFO     discord.client logging in using static token
+2025-07-15 12:29:11 INFO     discord.client logging in using static token
+2025-07-15 12:29:12 INFO     discord.client logging in using static token
+2025-07-15 12:29:12 INFO     discord.client logging in using static token
+2025-07-15 12:29:12 INFO     discord.client logging in using static token
+2025-07-15 12:29:13 INFO     discord.client logging in using static token
+2025-07-15 12:29:13 INFO     discord.client logging in using static token
+2025-07-15 12:29:13 INFO     discord.client logging in using static token
+2025-07-15 12:29:14 INFO     discord.client logging in using static token
+2025-07-15 12:29:14 INFO     discord.client logging in using static token
+2025-07-15 12:29:14 INFO     discord.client logging in using static token
+2025-07-15 12:29:15 INFO     discord.client logging in using static token
+2025-07-15 12:29:15 INFO     discord.client logging in using static token
+2025-07-15 12:29:15 INFO     discord.client logging in using static token
+2025-07-15 12:29:15 INFO     discord.client logging in using static token
+2025-07-15 12:29:16 INFO     discord.client logging in using static token
+2025-07-15 12:29:16 INFO     discord.client logging in using static token
+2025-07-15 12:29:16 INFO     discord.client logging in using static token
+2025-07-15 12:29:17 INFO     discord.client logging in using static token
+2025-07-15 12:29:17 INFO     discord.client logging in using static token
+2025-07-15 12:29:17 INFO     discord.client logging in using static token
+2025-07-15 12:29:18 INFO     discord.client logging in using static token
+2025-07-15 12:29:18 INFO     discord.client logging in using static token
+2025-07-15 12:29:18 INFO     discord.client logging in using static token
+2025-07-15 12:29:18 INFO     discord.client logging in using static token
+2025-07-15 12:29:19 INFO     discord.client logging in using static token
+2025-07-15 12:29:19 INFO     discord.client logging in using static token
+2025-07-15 12:29:19 INFO     discord.client logging in using static token
+2025-07-15 12:29:20 INFO     discord.client logging in using static token
+2025-07-15 12:29:20 INFO     discord.client logging in using static token
+2025-07-15 12:29:20 INFO     discord.client logging in using static token
+2025-07-15 12:29:21 INFO     discord.client logging in using static token
+2025-07-15 12:29:21 INFO     discord.client logging in using static token
+2025-07-15 12:29:21 INFO     discord.client logging in using static token
+2025-07-15 12:29:21 INFO     discord.client logging in using static token
+2025-07-15 12:29:22 INFO     discord.client logging in using static token
+2025-07-15 12:29:22 INFO     discord.client logging in using static token
+2025-07-15 12:29:22 INFO     discord.client logging in using static token
+2025-07-15 12:29:23 INFO     discord.client logging in using static token
+2025-07-15 12:29:23 INFO     discord.client logging in using static token
+2025-07-15 12:29:23 INFO     discord.client logging in using static token
+2025-07-15 12:29:24 INFO     discord.client logging in using static token
+2025-07-15 12:29:24 INFO     discord.client logging in using static token
+2025-07-15 12:29:24 INFO     discord.client logging in using static token
+2025-07-15 12:29:25 INFO     discord.client logging in using static token
+2025-07-15 12:29:25 INFO     discord.client logging in using static token
+2025-07-15 12:29:25 INFO     discord.client logging in using static token
+2025-07-15 12:29:25 INFO     discord.client logging in using static token
+2025-07-15 12:29:26 INFO     discord.client logging in using static token
+2025-07-15 12:29:26 INFO     discord.client logging in using static token
+2025-07-15 12:29:26 INFO     discord.client logging in using static token
+2025-07-15 12:29:27 INFO     discord.client logging in using static token
+2025-07-15 12:29:27 INFO     discord.client logging in using static token
+2025-07-15 12:29:27 INFO     discord.client logging in using static token
+2025-07-15 12:29:28 INFO     discord.client logging in using static token
+2025-07-15 12:29:28 INFO     discord.client logging in using static token
+2025-07-15 12:29:28 INFO     discord.client logging in using static token
+2025-07-15 12:29:29 INFO     discord.client logging in using static token
+2025-07-15 12:29:29 INFO     discord.client logging in using static token
+2025-07-15 12:29:29 INFO     discord.client logging in using static token
+2025-07-15 12:29:29 INFO     discord.client logging in using static token
+2025-07-15 12:29:30 INFO     discord.client logging in using static token
+2025-07-15 12:29:30 INFO     discord.client logging in using static token
+2025-07-15 12:29:30 INFO     discord.client logging in using static token
+2025-07-15 12:29:31 INFO     discord.client logging in using static token
+2025-07-15 12:29:31 INFO     discord.client logging in using static token
+2025-07-15 12:29:31 INFO     discord.client logging in using static token
+2025-07-15 12:29:32 INFO     discord.client logging in using static token
+2025-07-15 12:29:32 INFO     discord.client logging in using static token
+2025-07-15 12:29:32 INFO     discord.client logging in using static token
+2025-07-15 12:29:32 INFO     discord.client logging in using static token
+2025-07-15 12:29:33 INFO     discord.client logging in using static token
+2025-07-15 12:29:33 INFO     discord.client logging in using static token
+2025-07-15 12:29:33 INFO     discord.client logging in using static token
+2025-07-15 12:29:34 INFO     discord.client logging in using static token
+2025-07-15 12:29:34 INFO     discord.client logging in using static token
+2025-07-15 12:29:34 INFO     discord.client logging in using static token
+2025-07-15 12:29:35 INFO     discord.client logging in using static token
+2025-07-15 12:29:35 INFO     discord.client logging in using static token
+2025-07-15 12:29:35 INFO     discord.client logging in using static token
+2025-07-15 12:29:36 INFO     discord.client logging in using static token
+2025-07-15 12:29:36 INFO     discord.client logging in using static token
+2025-07-15 12:29:36 INFO     discord.client logging in using static token
+2025-07-15 12:29:36 INFO     discord.client logging in using static token
+2025-07-15 12:29:37 INFO     discord.client logging in using static token
+2025-07-15 12:29:37 INFO     discord.client logging in using static token
+2025-07-15 12:29:37 INFO     discord.client logging in using static token
+2025-07-15 12:29:38 INFO     discord.client logging in using static token
+2025-07-15 12:29:38 INFO     discord.client logging in using static token
+2025-07-15 12:29:38 INFO     discord.client logging in using static token
+2025-07-15 12:29:39 INFO     discord.client logging in using static token
+2025-07-15 12:29:39 INFO     discord.client logging in using static token
+2025-07-15 12:29:39 INFO     discord.client logging in using static token
+2025-07-15 12:29:40 INFO     discord.client logging in using static token
+2025-07-15 12:29:40 INFO     discord.client logging in using static token
+2025-07-15 12:29:40 INFO     discord.client logging in using static token
+2025-07-15 12:29:41 INFO     discord.client logging in using static token
+2025-07-15 12:29:41 INFO     discord.client logging in using static token
+2025-07-15 12:29:41 INFO     discord.client logging in using static token
+2025-07-15 12:29:42 INFO     discord.client logging in using static token
+2025-07-15 12:29:42 INFO     discord.client logging in using static token
+2025-07-15 12:29:42 INFO     discord.client logging in using static token
+2025-07-15 12:29:42 INFO     discord.client logging in using static token
+2025-07-15 12:29:43 INFO     discord.client logging in using static token
+2025-07-15 12:29:43 INFO     discord.client logging in using static token
+2025-07-15 12:29:43 INFO     discord.client logging in using static token
+2025-07-15 12:29:44 INFO     discord.client logging in using static token
+2025-07-15 12:29:44 INFO     discord.client logging in using static token
+2025-07-15 12:29:44 INFO     discord.client logging in using static token
+2025-07-15 12:29:44 INFO     discord.client logging in using static token
+2025-07-15 12:29:45 INFO     discord.client logging in using static token
+2025-07-15 12:29:45 INFO     discord.client logging in using static token
+2025-07-15 12:29:45 INFO     discord.client logging in using static token
+2025-07-15 12:29:46 INFO     discord.client logging in using static token
+2025-07-15 12:29:46 INFO     discord.client logging in using static token
+2025-07-15 12:29:46 INFO     discord.client logging in using static token
+2025-07-15 12:29:47 INFO     discord.client logging in using static token
+2025-07-15 12:29:47 INFO     discord.client logging in using static token
+2025-07-15 12:29:47 INFO     discord.client logging in using static token
+2025-07-15 12:29:48 INFO     discord.client logging in using static token
+2025-07-15 12:29:48 INFO     discord.client logging in using static token
+2025-07-15 12:29:48 INFO     discord.client logging in using static token
+2025-07-15 12:29:48 INFO     discord.client logging in using static token
+2025-07-15 12:29:49 INFO     discord.client logging in using static token
+2025-07-15 12:29:49 INFO     discord.client logging in using static token
+2025-07-15 12:29:49 INFO     discord.client logging in using static token
+2025-07-15 12:29:50 INFO     discord.client logging in using static token
+2025-07-15 12:29:50 INFO     discord.client logging in using static token
+2025-07-15 12:29:50 INFO     discord.client logging in using static token
+2025-07-15 12:29:51 INFO     discord.client logging in using static token
+2025-07-15 12:29:51 INFO     discord.client logging in using static token
+2025-07-15 12:29:51 INFO     discord.client logging in using static token
+2025-07-15 12:29:51 INFO     discord.client logging in using static token
+2025-07-15 12:29:52 INFO     discord.client logging in using static token
+2025-07-15 12:29:52 INFO     discord.client logging in using static token
+2025-07-15 12:29:52 INFO     discord.client logging in using static token
+2025-07-15 12:29:53 INFO     discord.client logging in using static token
+2025-07-15 12:29:53 INFO     discord.client logging in using static token
+2025-07-15 12:29:53 INFO     discord.client logging in using static token
+2025-07-15 12:29:54 INFO     discord.client logging in using static token
+2025-07-15 12:29:54 INFO     discord.client logging in using static token
+2025-07-15 12:29:54 INFO     discord.client logging in using static token
+2025-07-15 12:29:55 INFO     discord.client logging in using static token
+2025-07-15 12:29:55 INFO     discord.client logging in using static token
+2025-07-15 12:29:55 INFO     discord.client logging in using static token
+2025-07-15 12:29:55 INFO     discord.client logging in using static token
+2025-07-15 12:29:56 INFO     discord.client logging in using static token
+2025-07-15 12:29:56 INFO     discord.client logging in using static token
+2025-07-15 12:29:56 INFO     discord.client logging in using static token
+2025-07-15 12:29:57 INFO     discord.client logging in using static token
+2025-07-15 12:29:57 INFO     discord.client logging in using static token
+2025-07-15 12:29:57 INFO     discord.client logging in using static token
+2025-07-15 12:29:58 INFO     discord.client logging in using static token
+2025-07-15 12:29:58 INFO     discord.client logging in using static token
+2025-07-15 12:29:58 INFO     discord.client logging in using static token
+2025-07-15 12:29:59 INFO     discord.client logging in using static token
+2025-07-15 12:29:59 INFO     discord.client logging in using static token
+2025-07-15 12:29:59 INFO     discord.client logging in using static token
+2025-07-15 12:29:59 INFO     discord.client logging in using static token
+2025-07-15 12:30:00 INFO     discord.client logging in using static token
+2025-07-15 12:30:00 INFO     discord.client logging in using static token
+2025-07-15 12:30:00 INFO     discord.client logging in using static token
+2025-07-15 12:30:01 INFO     discord.client logging in using static token
+2025-07-15 12:30:01 INFO     discord.client logging in using static token
+2025-07-15 12:30:01 INFO     discord.client logging in using static token
+2025-07-15 12:30:02 INFO     discord.client logging in using static token
+2025-07-15 12:30:02 INFO     discord.client logging in using static token
+2025-07-15 12:30:02 INFO     discord.client logging in using static token
+2025-07-15 12:30:03 INFO     discord.client logging in using static token
+2025-07-15 12:30:03 INFO     discord.client logging in using static token
+2025-07-15 12:30:03 INFO     discord.client logging in using static token
+2025-07-15 12:30:03 INFO     discord.client logging in using static token
+2025-07-15 12:30:04 INFO     discord.client logging in using static token
+2025-07-15 12:30:04 INFO     discord.client logging in using static token
+2025-07-15 12:30:04 INFO     discord.client logging in using static token
+2025-07-15 12:30:05 INFO     discord.client logging in using static token
+2025-07-15 12:30:05 INFO     discord.client logging in using static token
+2025-07-15 12:30:05 INFO     discord.client logging in using static token
+2025-07-15 12:30:06 INFO     discord.client logging in using static token
+2025-07-15 12:30:06 INFO     discord.client logging in using static token
+2025-07-15 12:30:06 INFO     discord.client logging in using static token
+2025-07-15 12:30:06 INFO     discord.client logging in using static token
+2025-07-15 12:30:07 INFO     discord.client logging in using static token
+2025-07-15 12:30:07 INFO     discord.client logging in using static token
+2025-07-15 12:30:07 INFO     discord.client logging in using static token
+2025-07-15 12:30:08 INFO     discord.client logging in using static token
+2025-07-15 12:30:08 INFO     discord.client logging in using static token
+2025-07-15 12:30:08 INFO     discord.client logging in using static token
+2025-07-15 12:30:09 INFO     discord.client logging in using static token
+2025-07-15 12:30:09 INFO     discord.client logging in using static token
+2025-07-15 12:30:09 INFO     discord.client logging in using static token
+2025-07-15 12:30:10 INFO     discord.client logging in using static token
+2025-07-15 12:30:10 INFO     discord.client logging in using static token
+2025-07-15 12:30:10 INFO     discord.client logging in using static token
+2025-07-15 12:30:10 INFO     discord.client logging in using static token
+2025-07-15 12:30:11 INFO     discord.client logging in using static token
+2025-07-15 12:30:11 INFO     discord.client logging in using static token
+2025-07-15 12:30:11 INFO     discord.client logging in using static token
+2025-07-15 12:30:12 INFO     discord.client logging in using static token
+2025-07-15 12:30:12 INFO     discord.client logging in using static token
+2025-07-15 12:30:12 INFO     discord.client logging in using static token
+2025-07-15 12:30:13 INFO     discord.client logging in using static token
+2025-07-15 12:30:13 INFO     discord.client logging in using static token
+2025-07-15 12:30:14 INFO     discord.client logging in using static token
+2025-07-15 12:30:14 INFO     discord.client logging in using static token
+2025-07-15 12:30:14 INFO     discord.client logging in using static token
+2025-07-15 12:30:15 INFO     discord.client logging in using static token
+2025-07-15 12:30:15 INFO     discord.client logging in using static token
+2025-07-15 12:30:15 INFO     discord.client logging in using static token
+2025-07-15 12:30:15 INFO     discord.client logging in using static token
+2025-07-15 12:30:16 INFO     discord.client logging in using static token
+2025-07-15 12:30:16 INFO     discord.client logging in using static token
+2025-07-15 12:30:16 INFO     discord.client logging in using static token
+2025-07-15 12:30:17 INFO     discord.client logging in using static token
+2025-07-15 12:30:17 INFO     discord.client logging in using static token
+2025-07-15 12:30:17 INFO     discord.client logging in using static token
+2025-07-15 12:30:18 INFO     discord.client logging in using static token
+2025-07-15 12:30:18 INFO     discord.client logging in using static token
+2025-07-15 12:30:18 INFO     discord.client logging in using static token
+2025-07-15 12:30:19 INFO     discord.client logging in using static token
+2025-07-15 12:30:19 INFO     discord.client logging in using static token
+2025-07-15 12:30:19 INFO     discord.client logging in using static token
+2025-07-15 12:30:19 INFO     discord.client logging in using static token
+2025-07-15 12:30:20 INFO     discord.client logging in using static token
+2025-07-15 12:30:20 INFO     discord.client logging in using static token
+2025-07-15 12:30:20 INFO     discord.client logging in using static token
+2025-07-15 12:30:21 INFO     discord.client logging in using static token
+2025-07-15 12:30:21 INFO     discord.client logging in using static token
+2025-07-15 12:30:21 INFO     discord.client logging in using static token
+2025-07-15 12:30:22 INFO     discord.client logging in using static token
+2025-07-15 12:30:22 INFO     discord.client logging in using static token
+2025-07-15 12:30:22 INFO     discord.client logging in using static token
+2025-07-15 12:30:22 INFO     discord.client logging in using static token
+2025-07-15 12:30:23 INFO     discord.client logging in using static token
+2025-07-15 12:30:23 INFO     discord.client logging in using static token
+2025-07-15 12:30:23 INFO     discord.client logging in using static token
+2025-07-15 12:30:24 INFO     discord.client logging in using static token
+2025-07-15 12:30:24 INFO     discord.client logging in using static token
+2025-07-15 12:30:24 INFO     discord.client logging in using static token
+2025-07-15 12:30:25 INFO     discord.client logging in using static token
+2025-07-15 12:30:25 INFO     discord.client logging in using static token
+2025-07-15 12:30:25 INFO     discord.client logging in using static token
+2025-07-15 12:30:26 INFO     discord.client logging in using static token
+2025-07-15 12:30:26 INFO     discord.client logging in using static token
+2025-07-15 12:30:26 INFO     discord.client logging in using static token
+2025-07-15 12:30:27 INFO     discord.client logging in using static token
+2025-07-15 12:30:27 INFO     discord.client logging in using static token
+2025-07-15 12:30:27 INFO     discord.client logging in using static token
+2025-07-15 12:30:27 INFO     discord.client logging in using static token
+2025-07-15 12:30:28 INFO     discord.client logging in using static token
+2025-07-15 12:30:28 INFO     discord.client logging in using static token
+2025-07-15 12:30:28 INFO     discord.client logging in using static token
+2025-07-15 12:30:29 INFO     discord.client logging in using static token
+2025-07-15 12:30:29 INFO     discord.client logging in using static token
+2025-07-15 12:30:29 INFO     discord.client logging in using static token
+2025-07-15 12:30:30 INFO     discord.client logging in using static token
+2025-07-15 12:30:30 INFO     discord.client logging in using static token
+2025-07-15 12:30:30 INFO     discord.client logging in using static token
+2025-07-15 12:30:30 INFO     discord.client logging in using static token
+2025-07-15 12:30:31 INFO     discord.client logging in using static token
+2025-07-15 12:30:31 INFO     discord.client logging in using static token
+2025-07-15 12:30:31 INFO     discord.client logging in using static token
+2025-07-15 12:30:32 INFO     discord.client logging in using static token
+2025-07-15 12:30:32 INFO     discord.client logging in using static token
+2025-07-15 12:30:32 INFO     discord.client logging in using static token
+2025-07-15 12:30:33 INFO     discord.client logging in using static token
+2025-07-15 12:30:33 INFO     discord.client logging in using static token
+2025-07-15 12:30:33 INFO     discord.client logging in using static token
+2025-07-15 12:30:33 INFO     discord.client logging in using static token
+2025-07-15 12:30:34 INFO     discord.client logging in using static token
+2025-07-15 12:30:34 INFO     discord.client logging in using static token
+2025-07-15 12:30:34 INFO     discord.client logging in using static token
+2025-07-15 12:30:35 INFO     discord.client logging in using static token
+2025-07-15 12:30:35 INFO     discord.client logging in using static token
+2025-07-15 12:30:35 INFO     discord.client logging in using static token
+2025-07-15 12:30:36 INFO     discord.client logging in using static token
+2025-07-15 12:30:36 INFO     discord.client logging in using static token
+2025-07-15 12:30:36 INFO     discord.client logging in using static token
+2025-07-15 12:30:36 INFO     discord.client logging in using static token
+2025-07-15 12:30:37 INFO     discord.client logging in using static token
+2025-07-15 12:30:37 INFO     discord.client logging in using static token
+2025-07-15 12:30:37 INFO     discord.client logging in using static token
+2025-07-15 12:30:38 INFO     discord.client logging in using static token
+2025-07-15 12:30:38 INFO     discord.client logging in using static token
+2025-07-15 12:30:38 INFO     discord.client logging in using static token
+2025-07-15 12:30:39 INFO     discord.client logging in using static token
+2025-07-15 12:30:39 INFO     discord.client logging in using static token
+2025-07-15 12:30:39 INFO     discord.client logging in using static token
+2025-07-15 12:30:40 INFO     discord.client logging in using static token
+2025-07-15 12:30:40 INFO     discord.client logging in using static token
+2025-07-15 12:30:40 INFO     discord.client logging in using static token
+2025-07-15 12:30:40 INFO     discord.client logging in using static token
+2025-07-15 12:30:41 INFO     discord.client logging in using static token
+2025-07-15 12:30:41 INFO     discord.client logging in using static token
+2025-07-15 12:30:41 INFO     discord.client logging in using static token
+2025-07-15 12:30:42 INFO     discord.client logging in using static token
+2025-07-15 12:30:42 INFO     discord.client logging in using static token
+2025-07-15 12:30:42 INFO     discord.client logging in using static token
+2025-07-15 12:30:43 INFO     discord.client logging in using static token
+2025-07-15 12:30:43 INFO     discord.client logging in using static token
+2025-07-15 12:30:43 INFO     discord.client logging in using static token
+2025-07-15 12:30:44 INFO     discord.client logging in using static token
+2025-07-15 12:30:44 INFO     discord.client logging in using static token
+2025-07-15 12:30:44 INFO     discord.client logging in using static token
+2025-07-15 12:30:45 INFO     discord.client logging in using static token
+2025-07-15 12:30:45 INFO     discord.client logging in using static token
+2025-07-15 12:30:45 INFO     discord.client logging in using static token
+2025-07-15 12:30:45 INFO     discord.client logging in using static token
+2025-07-15 12:30:46 INFO     discord.client logging in using static token
+2025-07-15 12:30:46 INFO     discord.client logging in using static token
+2025-07-15 12:30:46 INFO     discord.client logging in using static token
+2025-07-15 12:30:47 INFO     discord.client logging in using static token
+2025-07-15 12:30:47 INFO     discord.client logging in using static token
+2025-07-15 12:30:47 INFO     discord.client logging in using static token
+2025-07-15 12:30:47 INFO     discord.client logging in using static token
+2025-07-15 12:30:48 INFO     discord.client logging in using static token
+2025-07-15 12:30:48 INFO     discord.client logging in using static token
+2025-07-15 12:30:48 INFO     discord.client logging in using static token
+2025-07-15 12:30:49 INFO     discord.client logging in using static token
+2025-07-15 12:30:49 INFO     discord.client logging in using static token
+2025-07-15 12:30:49 INFO     discord.client logging in using static token
+2025-07-15 12:30:50 INFO     discord.client logging in using static token
+2025-07-15 12:30:50 INFO     discord.client logging in using static token
+2025-07-15 12:30:51 INFO     discord.client logging in using static token
+2025-07-15 12:30:51 INFO     discord.client logging in using static token
+2025-07-15 12:30:51 INFO     discord.client logging in using static token
+2025-07-15 12:30:52 INFO     discord.client logging in using static token
+2025-07-15 12:30:52 INFO     discord.client logging in using static token
+2025-07-15 12:30:52 INFO     discord.client logging in using static token
+2025-07-15 12:30:52 INFO     discord.client logging in using static token
+2025-07-15 12:30:53 INFO     discord.client logging in using static token
+2025-07-15 12:30:53 INFO     discord.client logging in using static token
+2025-07-15 12:30:53 INFO     discord.client logging in using static token
+2025-07-15 12:30:54 INFO     discord.client logging in using static token
+2025-07-15 12:30:54 INFO     discord.client logging in using static token
+2025-07-15 12:30:54 INFO     discord.client logging in using static token
+2025-07-15 12:30:55 INFO     discord.client logging in using static token
+2025-07-15 12:30:55 INFO     discord.client logging in using static token
+2025-07-15 12:30:55 INFO     discord.client logging in using static token
+2025-07-15 12:30:56 INFO     discord.client logging in using static token
+2025-07-15 12:30:56 INFO     discord.client logging in using static token
+2025-07-15 12:30:56 INFO     discord.client logging in using static token
+2025-07-15 12:30:56 INFO     discord.client logging in using static token
+2025-07-15 12:30:57 INFO     discord.client logging in using static token
+2025-07-15 12:30:57 INFO     discord.client logging in using static token
+2025-07-15 12:30:57 INFO     discord.client logging in using static token
+2025-07-15 12:30:58 INFO     discord.client logging in using static token
+2025-07-15 12:30:58 INFO     discord.client logging in using static token
+2025-07-15 12:30:59 INFO     discord.client logging in using static token
+2025-07-15 12:30:59 ERROR    asyncio      Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x7f2826010b20>
+2025-07-15 12:30:59 INFO     discord.client logging in using static token
+2025-07-15 12:30:59 ERROR    asyncio      Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x7f7758c10b20>
+2025-07-15 12:31:00 INFO     discord.client logging in using static token
+2025-07-15 12:31:00 INFO     discord.client logging in using static token
+2025-07-15 12:31:01 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 64cec9cb95fcd0f095c9258c77d9e140).
+2025-07-15 12:31:03 INFO     root         Bot is ready and logged in as Rosethorn🥀
+2025-07-15 15:21:11 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-15 16:07:06 INFO     root         'Thorn' DM received from katzthebrat
+2025-07-15 16:30:29 INFO     root         /welcome command triggered by katzthebrat
+2025-07-15 16:30:30 INFO     root         Welcome embed sent successfully
+2025-07-15 16:30:41 INFO     root         /rules command triggered by katzthebrat
+2025-07-15 16:30:41 INFO     root         Rules embed sent successfully
+2025-07-15 17:19:53 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-15 18:50:40 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-15 19:39:01 INFO     root         Assigned role '✅' to book.dragon_
+2025-07-15 20:32:14 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-15 21:21:31 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 00:08:48 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'liststreamers' not found
+2025-07-16 00:09:42 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'addstreamer' not found
+2025-07-16 00:16:29 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'testalert' not found
+2025-07-16 00:17:35 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'twitchsync' not found
+2025-07-16 00:18:39 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'twitchsync' not found
+2025-07-16 00:19:02 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'liststreamers' not found
+2025-07-16 00:19:08 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'twitchsync' not found
+2025-07-16 00:20:04 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'twitchsync' not found
+2025-07-16 00:21:43 INFO     root         Welcome message sent for megabratzfan
+2025-07-16 00:21:52 INFO     root         Assigned role '✅' to megabratzfan
+2025-07-16 00:22:14 INFO     root         'Thorn' DM received from megabratzfan
+2025-07-16 00:22:59 INFO     root         Nickname updated for megabratzfan to Your [Mom]
+2025-07-16 00:32:37 INFO     root         Welcome message sent for megabratzfan
+2025-07-16 00:35:07 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 00:38:20 INFO     root         /welcome command triggered by katzthebrat
+2025-07-16 00:38:21 INFO     root         Welcome embed sent successfully
+2025-07-16 00:41:24 INFO     root         Welcome message sent for megabratzfan
+2025-07-16 00:47:58 INFO     root         'Get Started' clicked by katzthebrat
+2025-07-16 00:51:40 INFO     root         'Get Started' clicked by katzthebrat
+2025-07-16 01:03:31 INFO     root         'Get Started' clicked by katzthebrat
+2025-07-16 01:06:51 INFO     root         'Get Started' clicked by tim_tarly
+2025-07-16 01:07:20 INFO     root         /rules command triggered by tim_tarly
+2025-07-16 01:07:21 INFO     root         Rules embed sent successfully
+2025-07-16 01:07:43 ERROR    discord.ui.view Ignoring exception in view <AgreeButton timeout=None children=1> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='I Agree' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/ui/view.py", line 435, in _scheduled_task
+    await item.callback(interaction)
+  File "/root/RosethornBot/rules.py", line 13, in agree
+    role = interaction.guild.get_role(role_id)
+AttributeError: 'NoneType' object has no attribute 'get_role'
+2025-07-16 01:07:56 ERROR    discord.ui.view Ignoring exception in view <AgreeButton timeout=None children=1> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='I Agree' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/ui/view.py", line 435, in _scheduled_task
+    await item.callback(interaction)
+  File "/root/RosethornBot/rules.py", line 13, in agree
+    role = interaction.guild.get_role(role_id)
+AttributeError: 'NoneType' object has no attribute 'get_role'
+2025-07-16 01:08:12 INFO     root         'Thorn' DM received from tim_tarly
+2025-07-16 01:09:11 INFO     root         Nickname updated for tim_tarly to Tim [TimTarly710]
+2025-07-16 02:14:33 INFO     root         Deleted ticket channel 🎟️│katzthebrat-permissions after closure.
+2025-07-16 02:39:21 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'twitchsync' not found
+2025-07-16 03:26:01 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 05:05:08 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 05:41:22 INFO     root         Deleted ticket channel 🎟️│katzthebrat-report after closure.
+2025-07-16 05:45:54 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 07:12:00 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 08:45:31 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 08:52:42 INFO     root         Assigned role '✅' to boxstopper
+2025-07-16 11:11:01 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 13:11:37 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 16:06:03 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'infractions' not found
+2025-07-16 16:07:00 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'infractions' not found
+2025-07-16 16:07:20 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'remindrules' not found
+2025-07-16 16:10:09 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'userinfo' not found
+2025-07-16 16:36:19 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 18:49:37 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 19:10:35 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 20:42:59 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-16 21:04:23 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'heartbeat' not found
+2025-07-16 21:04:28 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 21:05:44 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 21:05:51 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 21:06:02 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:06:10 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'heartbeat' not found
+2025-07-16 21:10:08 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:17:49 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:17:58 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:18:14 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 21:22:13 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:22:51 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'heartbeat' not found
+2025-07-16 21:22:58 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:23:12 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 21:25:49 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:26:58 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 21:30:36 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:33:52 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 21:36:04 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 21:39:43 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 21:40:40 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 22:37:34 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'purge' not found
+2025-07-16 22:37:46 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 22:37:52 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 22:41:45 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 22:43:16 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 22:53:14 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 22:54:12 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 22:58:17 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 22:59:10 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 23:02:13 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'review_all' not found
+2025-07-16 23:05:12 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 23:06:14 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 23:07:59 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 23:09:40 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 23:16:27 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 23:16:37 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 23:17:21 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 23:18:19 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 23:24:04 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 23:24:13 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 23:24:56 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-16 23:26:14 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-16 23:50:32 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-17 02:22:12 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-17 02:35:39 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-17 02:35:46 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 02:35:52 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-17 02:37:11 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'purge' not found
+2025-07-17 02:46:28 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 02:47:03 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 02:47:12 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-17 02:49:01 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 02:53:56 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 02:55:02 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-17 02:57:38 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 02:58:45 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-17 03:14:19 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 03:15:08 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-17 03:21:47 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 03:22:33 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'resync' not found
+2025-07-17 03:22:41 ERROR    discord.app_commands.tree Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+  File "/usr/local/lib/python3.10/dist-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'apply' not found
+2025-07-17 05:09:15 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-17 07:27:30 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-17 09:03:48 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-17 11:19:37 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-17 13:15:22 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.

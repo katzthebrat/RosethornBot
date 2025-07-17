@@ -1,0 +1,10 @@
+# Rosethorn Bot Configuration
+
+STAFF_ROLE_ID = 1320538700656148541
+EMPLOYEE_ROLE_ID = 1394853894437343422
+
+REVIEW_CHANNEL_ID = 1320540890141556746
+
+APPLICATION_LOG_COLOR = 0x711417      # Rosethorn red
+JOB_LOG_COLOR = 0x1abc9c              # Realm teal
+SCORECARD_COLOR = 0x5865f2            # Discord blurple
