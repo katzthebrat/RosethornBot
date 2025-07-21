@@ -1,0 +1,3 @@
+[submodule "Realms/Realms/playerlist"]
+	path = Realms/Realms/playerlist
+	url = https://github.com/AstreaTSS/RealmsPlayerlistBot.git
