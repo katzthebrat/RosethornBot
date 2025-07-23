@@ -1932,3 +1932,4 @@ discord.app_commands.errors.CommandNotFound: Application command 'apply' not fou
 2025-07-17 16:02:31 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
 2025-07-17 18:48:24 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
 2025-07-17 21:18:51 INFO     discord.gateway Shard ID None has successfully RESUMED session 64cec9cb95fcd0f095c9258c77d9e140.
+2025-07-17 23:29:49 INFO     discord.gateway Shard ID None session has been invalidated.

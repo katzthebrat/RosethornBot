@@ -2,6 +2,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import asyncio
+from eligibility import is_eligible
+from datetime import datetime, timedelta
 
 STAFF_ROLE_ID = 1308905911489921124
 STAFF_LOG_CHANNEL_ID = 1320540890141556746
@@ -153,12 +155,26 @@ class ApplicationCog(commands.Cog):
 
     @app_commands.command(name="apply", description="Start a Rosethorn staff application")
     async def apply(self, interaction: discord.Interaction):
+        member = interaction.user
+
+        if not is_eligible(member):
+            join_time = member.joined_at.strftime("%B %d, %Y") if member.joined_at else "Unknown"
+            days_remaining = max(0, 14 - (datetime.utcnow() - member.joined_at).days) if member.joined_at else "?"
+
+            await interaction.response.send_message(
+                f"⛔ You must be a member for at least **2 weeks** to apply.\n\n"
+                f"📅 You joined: **{join_time}**\n"
+                f"🕰️ You’ll be eligible in **{days_remaining} day(s)** — hang tight!",
+                ephemeral=True
+            )
+            return
+
         embed = discord.Embed(
             title="🌸 Apply to Join Rosethorn Staff",
             description="Choose which role you're applying for:",
             color=discord.Color.from_rgb(113, 20, 23)
         )
-        await interaction.response.send_message(embed=embed, view=ApplicationTypeView(interaction.user), ephemeral=True)
+        await interaction.channel.send(embed=embed, view=ApplicationTypeView(member))
 
 async def setup(bot):
     await bot.add_cog(ApplicationCog(bot))

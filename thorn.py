@@ -1,18 +1,23 @@
 import discord
 import logging
+from datetime import datetime
 
-# Modal form
+# ─── Config ───
+LOG_CHANNEL_ID = 1311529665348767835      # Channel where admin reviews are posted
+REQUIRED_ROLE_ID = 1308905911489921124    # Role required to approve forms
+
+# ─── Thorn Modal ───
 class ThornForm(discord.ui.Modal, title="Rosethorn | Member Form"):
     preferred_name = discord.ui.TextInput(label="Preferred Name", required=True, placeholder="e.g. Enchanted")
     gamertag = discord.ui.TextInput(label="Gamertag", required=True, placeholder="e.g. Enchanted547")
     birthdate = discord.ui.TextInput(label="Birthdate", required=True, placeholder="DD-MM-YYYY")
 
     def __init__(self, member: discord.Member):
-        super().__init__()
+        super().__init__(timeout=None)
         self.member = member
 
     async def on_submit(self, interaction: discord.Interaction):
-        log_channel = interaction.client.get_channel(1311529665348767835)
+        log_channel = interaction.client.get_channel(LOG_CHANNEL_ID)
 
         embed = discord.Embed(
             title="📥 Member Info Submitted",
@@ -30,7 +35,7 @@ class ThornForm(discord.ui.Modal, title="Rosethorn | Member Form"):
         await log_channel.send(embed=embed, view=view)
         await interaction.response.send_message("✅ Your info has been sent to admins!", ephemeral=True)
 
-# Admin review buttons
+# ─── Admin Review ───
 class AdminReviewView(discord.ui.View):
     def __init__(self, member, name, gamertag):
         super().__init__(timeout=None)
@@ -40,10 +45,9 @@ class AdminReviewView(discord.ui.View):
 
     @discord.ui.button(label="Approve", style=discord.ButtonStyle.success)
     async def approve(self, interaction: discord.Interaction, button: discord.ui.Button):
-        required_role_id = 1308905911489921124
         approver = interaction.user
         guild = interaction.guild
-        required_role = guild.get_role(required_role_id)
+        required_role = guild.get_role(REQUIRED_ROLE_ID)
 
         if required_role not in approver.roles:
             await interaction.response.send_message(
@@ -73,7 +77,7 @@ class AdminReviewView(discord.ui.View):
         await interaction.message.edit(content=f"❌ Denied by {interaction.user.mention}", embed=embed, view=None)
         logging.info(f"Form denied for {self.member.name}")
 
-# DM button view
+# ─── DM Starter View ───
 class ThornStarter(discord.ui.View):
     def __init__(self, member):
         super().__init__(timeout=None)
@@ -83,7 +87,7 @@ class ThornStarter(discord.ui.View):
     async def start(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(ThornForm(self.member))
 
-# Setup DM listener
+# ─── Listener Setup ───
 async def setup_thorn(bot):
     @bot.event
     async def on_message(message):
