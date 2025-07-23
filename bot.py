@@ -60,9 +60,11 @@ async def resync(interaction: discord.Interaction):
 
     async with resync_lock:
         try:
-            synced = await bot.tree.sync()
+            guild = discord.Object(id=PRIMARY_GUILD_ID)
+            bot.tree.clear_commands(guild=guild)
+            synced = await bot.tree.sync(guild=guild)
             await interaction.followup.send(
-                f"✅ Synced {len(synced)} command(s) globally at <t:{int(time.time())}:T>",
+                f"✅ Resynced {len(synced)} command(s) to guild at <t:{int(time.time())}:T>",
                 ephemeral=True
             )
         except Exception as e:
@@ -82,7 +84,7 @@ async def memory_monitor():
     process = psutil.Process()
     channel = bot.get_channel(HEARTBEAT_CHANNEL_ID)
 
-    process.cpu_percent(interval=None)  # Warm up CPU reading
+    process.cpu_percent(interval=None)
 
     while not bot.is_closed():
         mem = process.memory_info().rss / (1024 * 1024)
@@ -99,7 +101,7 @@ async def memory_monitor():
 # ─── Setup Hook ───
 @bot.event
 async def setup_hook():
-    # Load modular function cogs
+    # ─── Load all modular cogs first ───
     from events import setup_events
     from tickets import setup_tickets
     from moderation import setup_moderation
@@ -110,23 +112,28 @@ async def setup_hook():
     await setup_moderation(bot)
     await setup_twitchwatch(bot)
 
-    # Load extension-based cogs
+    # ─── Load extension-based cogs ───
     await bot.load_extension("application")
     await bot.load_extension("review_flow")
     await bot.load_extension("realm_membership")
     await bot.load_extension("help_panel")
     await bot.load_extension("rosenotes")
-#    await bot.load_extension("announce")  # or "cogs.announce" if it's in a folder
- 
-   # Activate Thorn DM onboarding
+#    await bot.load_extension("announce")
+
+    # ─── Thorn DM onboarding ───
     from thorn import setup_thorn
     await setup_thorn(bot)
 
-    # ─── Instant Guild Slash Sync ───
-    guild = discord.Object(id=PRIMARY_GUILD_ID)
-    await bot.tree.sync(guild=guild)
-    print(f"[Rosethorn] Slash commands instantly synced for guild {PRIMARY_GUILD_ID}")
-
+    # ─── Now safely purge & sync commands ───
+    if not hasattr(bot, "synced"):
+        await asyncio.sleep(2)
+        guild = discord.Object(id=PRIMARY_GUILD_ID)
+        bot.tree.clear_commands(guild=guild)
+        synced = await bot.tree.sync(guild=guild)
+        bot.synced = True
+        print(f"[Rosethorn] Synced {len(synced)} command(s) to guild {PRIMARY_GUILD_ID}:")
+        for cmd in synced:
+            print(f" - /{cmd.name} → {cmd.description}")
     # ─── Memory Monitoring ───
     asyncio.create_task(memory_monitor())
 
