@@ -5,3 +5,4 @@ __pycache__/
 data/
 Realms/Realms/playerlist
 Realms/RealmsPlayerlistBot/
+.env
