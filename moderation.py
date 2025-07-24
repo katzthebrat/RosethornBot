@@ -8,9 +8,9 @@ import asyncio
 
 INFRACTIONS_FILE = "infractions.json"
 MUTE_ROLE_NAME = "Muted"
-GUILD_ID = 1308904661578813540  # 👈 Your server
+GUILD_ID = 1308904661578813540
 
-class Moderation(commands.Cog):
+class Moderation(commands.GroupCog, name="moderation"):
     def __init__(self, bot):
         self.bot = bot
 
@@ -142,6 +142,12 @@ class Moderation(commands.Cog):
         except discord.Forbidden:
             await interaction.response.send_message(f"❌ Couldn’t DM `{member.display_name}`.", ephemeral=True)
 
-async def setup_moderation(bot):
+# ─── Extension-based loader ───
+async def setup(bot):
     await bot.add_cog(Moderation(bot))
     print("[Rosethorn] Moderation cog loaded.")
+
+    # 🔒 Guild sync
+    GUILD = discord.Object(id=1308904661578813540)
+    bot.tree.copy_global_to(guild=GUILD)
+    await bot.tree.sync(guild=GUILD)

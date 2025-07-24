@@ -40,10 +40,11 @@ class Announce(commands.Cog):
         # Confirm quietly
         await interaction.response.send_message(f"📣 Announced in {channel.mention}.", ephemeral=True)
 
-async def setup(bot: commands.Bot):
+# At the bottom of each file — e.g. help_panel.py or announce.py
+async def setup(bot):
     await bot.add_cog(Announce(bot))
+    print("[Rosethorn] Announce cog loaded.")
 
-    # 🔒 Guild-only sync to avoid duplicates
-    GUILD = discord.Object(id=PRIMARY_GUILD_ID)
-    bot.tree.copy_global_to(guild=GUILD)
-    await bot.tree.sync(guild=GUILD)
+    guild = discord.Object(id=1308904661578813540)
+    bot.tree.copy_global_to(guild=guild)
+    await bot.tree.sync(guild=guild)

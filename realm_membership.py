@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from datetime import datetime
 
-GUILD_ID = 1308904661578813540  # 👈 Replace with your guild ID
+GUILD_ID = 1308904661578813540  # 🌱 Your guild ID
 
 class MembershipCheckView(discord.ui.View):
     def __init__(self):
@@ -41,7 +41,7 @@ class RealmMembership(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="membershipcheck", description="Check your eligibility to apply for Rosethorn staff")
-    @app_commands.guilds(discord.Object(id=GUILD_ID))  # 👈 Instant sync for dev guild
+    @app_commands.guilds(discord.Object(id=GUILD_ID))
     async def membershipcheck(self, interaction: discord.Interaction):
         try:
             embed = discord.Embed(
@@ -51,15 +51,12 @@ class RealmMembership(commands.Cog):
             )
             embed.set_footer(text="Rosethorn Bot | Eligibility Check")
 
-            # Step 1: Confirm to user
             await interaction.response.send_message(
                 "🔍 Membership eligibility check posted to this channel.",
                 ephemeral=True
             )
 
-            # Step 2: Public standalone embed with button
-            channel = interaction.channel
-            await channel.send(
+            await interaction.channel.send(
                 embed=embed,
                 view=MembershipCheckView(),
                 allowed_mentions=discord.AllowedMentions.none()
@@ -71,5 +68,12 @@ class RealmMembership(commands.Cog):
                 ephemeral=True
             )
 
+# ─── Extension Loader ───
 async def setup(bot):
     await bot.add_cog(RealmMembership(bot))
+    print("[Rosethorn] RealmMembership cog loaded.")
+
+    # 🔒 Guild sync
+    GUILD = discord.Object(id=1308904661578813540)
+    bot.tree.copy_global_to(guild=GUILD)
+    await bot.tree.sync(guild=GUILD)

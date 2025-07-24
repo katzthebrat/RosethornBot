@@ -3,17 +3,16 @@ from discord import app_commands
 from discord.ext import commands
 import asyncio
 from eligibility import is_eligible
-from datetime import datetime, timedelta
+from datetime import datetime
 
 STAFF_ROLE_ID = 1308905911489921124
 STAFF_LOG_CHANNEL_ID = 1320540890141556746
 
-# ─── Admin Modal ───
+# ─── Application Modal Classes ───
 class AdminApplicationModal(discord.ui.Modal, title="Admin Application"):
     def __init__(self, thread):
         super().__init__(timeout=None)
         self.thread = thread
-
         self.add_item(discord.ui.TextInput(label="What responsibilities interest you?", style=discord.TextStyle.paragraph))
         self.add_item(discord.ui.TextInput(label="Do you have experience with moderation or leadership?", style=discord.TextStyle.paragraph))
         self.add_item(discord.ui.TextInput(label="How would you handle conflict between members?", style=discord.TextStyle.paragraph))
@@ -24,12 +23,11 @@ class AdminApplicationModal(discord.ui.Modal, title="Admin Application"):
         embed = discord.Embed(
             title="📝 Admin Application Submitted",
             description=f"{interaction.user.mention} has completed their application.",
-            color=0x5865f2
+            color=discord.Color.blurple()
         )
         for field in self.children:
             embed.add_field(name=field.label, value=field.value, inline=False)
         embed.set_footer(text="Rosethorn Bot | Admin Form")
-
         await self.thread.send(content=f"<@&{STAFF_ROLE_ID}>", embed=embed, view=ReviewPanel(interaction.user, self.thread, "Admin"))
 
         staff_channel = interaction.client.get_channel(STAFF_LOG_CHANNEL_ID)
@@ -38,12 +36,10 @@ class AdminApplicationModal(discord.ui.Modal, title="Admin Application"):
 
         await interaction.response.send_message("✅ Your admin application was posted!", ephemeral=True)
 
-# ─── Realm Modal ───
 class RealmJobApplicationModal(discord.ui.Modal, title="Realm Job Application"):
     def __init__(self, thread):
         super().__init__(timeout=None)
         self.thread = thread
-
         self.add_item(discord.ui.TextInput(label="Which realm job interests you most?", style=discord.TextStyle.short))
         self.add_item(discord.ui.TextInput(label="Tell us about your creative experience or skills.", style=discord.TextStyle.paragraph))
         self.add_item(discord.ui.TextInput(label="Do you have any specific ideas you'd bring?", style=discord.TextStyle.paragraph))
@@ -54,12 +50,11 @@ class RealmJobApplicationModal(discord.ui.Modal, title="Realm Job Application"):
         embed = discord.Embed(
             title="📦 Realm Job Application Submitted",
             description=f"{interaction.user.mention} has submitted their creative application.",
-            color=0x2f3136
+            color=discord.Color.dark_gray()
         )
         for field in self.children:
             embed.add_field(name=field.label, value=field.value, inline=False)
         embed.set_footer(text="Rosethorn Bot | Realm Form")
-
         await self.thread.send(content=f"<@&{STAFF_ROLE_ID}>", embed=embed, view=ReviewPanel(interaction.user, self.thread, "Realm Job"))
 
         staff_channel = interaction.client.get_channel(STAFF_LOG_CHANNEL_ID)
@@ -68,7 +63,7 @@ class RealmJobApplicationModal(discord.ui.Modal, title="Realm Job Application"):
 
         await interaction.response.send_message("✅ Your realm job application was posted!", ephemeral=True)
 
-# ─── Review Panel ───
+# ─── Review Flow ───
 class ReviewPanel(discord.ui.View):
     def __init__(self, applicant, thread, role_name):
         super().__init__(timeout=None)
@@ -95,7 +90,6 @@ class ReviewPanel(discord.ui.View):
     async def deny(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(DenialReasonModal(self.applicant, self.thread, self.role_name, interaction.user))
 
-# ─── Denial Modal ───
 class DenialReasonModal(discord.ui.Modal, title="Denial Reason"):
     def __init__(self, applicant, thread, role_name, reviewer):
         super().__init__(timeout=None)
@@ -103,12 +97,10 @@ class DenialReasonModal(discord.ui.Modal, title="Denial Reason"):
         self.thread = thread
         self.role_name = role_name
         self.reviewer = reviewer
-
         self.add_item(discord.ui.TextInput(label="Why was this application denied?", style=discord.TextStyle.paragraph))
 
     async def on_submit(self, interaction: discord.Interaction):
         reason = self.children[0].value
-
         try:
             await self.applicant.send(f"❌ Your application for **{self.role_name}** was denied.\n\n**Reason:** {reason}")
         except:
@@ -122,7 +114,6 @@ class DenialReasonModal(discord.ui.Modal, title="Denial Reason"):
         await asyncio.sleep(10)
         await self.thread.delete()
 
-# ─── Application Selector ───
 class ApplicationTypeView(discord.ui.View):
     def __init__(self, member: discord.Member):
         super().__init__(timeout=None)
@@ -137,18 +128,16 @@ class ApplicationTypeView(discord.ui.View):
     )
     async def select_callback(self, interaction: discord.Interaction, select: discord.ui.Select):
         await interaction.response.defer(ephemeral=True)
-
         thread = await interaction.channel.create_thread(
             name=f"{self.member.name} – {select.values[0]} Application",
             type=discord.ChannelType.public_thread
         )
-
         if select.values[0] == "Admin":
             await interaction.followup.send_modal(AdminApplicationModal(thread))
         else:
             await interaction.followup.send_modal(RealmJobApplicationModal(thread))
 
-# ─── Slash Command ───
+# ─── Cog Definition ───
 class ApplicationCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -156,11 +145,9 @@ class ApplicationCog(commands.Cog):
     @app_commands.command(name="apply", description="Start a Rosethorn staff application")
     async def apply(self, interaction: discord.Interaction):
         member = interaction.user
-
         if not is_eligible(member):
             join_time = member.joined_at.strftime("%B %d, %Y") if member.joined_at else "Unknown"
             days_remaining = max(0, 14 - (datetime.utcnow() - member.joined_at).days) if member.joined_at else "?"
-
             await interaction.response.send_message(
                 f"⛔ You must be a member for at least **2 weeks** to apply.\n\n"
                 f"📅 You joined: **{join_time}**\n"
@@ -168,7 +155,6 @@ class ApplicationCog(commands.Cog):
                 ephemeral=True
             )
             return
-
         embed = discord.Embed(
             title="🌸 Apply to Join Rosethorn Staff",
             description="Choose which role you're applying for:",
@@ -176,5 +162,12 @@ class ApplicationCog(commands.Cog):
         )
         await interaction.channel.send(embed=embed, view=ApplicationTypeView(member))
 
+# ─── Extension Loader ───
 async def setup(bot):
     await bot.add_cog(ApplicationCog(bot))
+    print("[Rosethorn] Application cog loaded.")
+
+    guild = discord.Object(id=1308904661578813540)
+    bot.tree.copy_global_to(guild=guild)
+    await bot.tree.sync(guild=guild)
+

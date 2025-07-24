@@ -36,5 +36,12 @@ class HelpPanel(commands.Cog):
         embed.set_footer(text="Rosethorn Bot | Command Reference")
         await interaction.followup.send(embed=embed)
 
+# At the bottom of each file — e.g. help_panel.py or announce.py
 async def setup(bot):
     await bot.add_cog(HelpPanel(bot))
+    print("[Rosethorn] HelpPanel cog loaded.")
+
+    # 🔒 Guild sync
+    GUILD = discord.Object(id=1308904661578813540)
+    bot.tree.copy_global_to(guild=GUILD)
+    await bot.tree.sync(guild=GUILD)

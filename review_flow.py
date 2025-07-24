@@ -124,3 +124,9 @@ class ReviewCog(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(ReviewCog(bot))
+    print("[Rosethorn] review cog loaded.")
+
+    # 🔒 Guild sync
+    GUILD = discord.Object(id=1308904661578813540)
+    bot.tree.copy_global_to(guild=GUILD)
+    await bot.tree.sync(guild=GUILD)

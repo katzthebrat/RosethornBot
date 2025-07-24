@@ -2,8 +2,8 @@ import discord
 import logging
 from discord.ext import commands
 
-WELCOME_CHANNEL_ID = 1311536156009037945       # 🌸 Welcome Channel
-LOG_CHANNEL_ID = 1327959433464123466           # 🗂️ Message Log Channel
+WELCOME_CHANNEL_ID = 1311536156009037945
+LOG_CHANNEL_ID = 1327959433464123466
 
 class WelcomeButton(discord.ui.View):
     def __init__(self):
@@ -46,9 +46,12 @@ class WelcomeButton(discord.ui.View):
                 ephemeral=True
             )
 
-async def setup_events(bot):
-    @bot.event
-    async def on_member_join(member: discord.Member):
+class Events(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
         logging.info(f"🪄 New member joined: {member.name}#{member.discriminator} (ID: {member.id})")
 
         embed = discord.Embed(
@@ -71,8 +74,8 @@ async def setup_events(bot):
         else:
             logging.warning(f"❌ Welcome channel ID {WELCOME_CHANNEL_ID} not found in guild {member.guild.name}")
 
-    @bot.event
-    async def on_message_edit(before: discord.Message, after: discord.Message):
+    @commands.Cog.listener()
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if before.author.bot or before.content == after.content:
             return
 
@@ -92,8 +95,8 @@ async def setup_events(bot):
 
         await log_channel.send(embed=embed)
 
-    @bot.event
-    async def on_message_delete(message: discord.Message):
+    @commands.Cog.listener()
+    async def on_message_delete(self, message: discord.Message):
         if message.author.bot:
             return
 
@@ -111,3 +114,8 @@ async def setup_events(bot):
         embed.timestamp = discord.utils.utcnow()
 
         await log_channel.send(embed=embed)
+
+# ─── Extension Loader ───
+async def setup(bot):
+    await bot.add_cog(Events(bot))
+    print("[Rosethorn] Events cog loaded.")

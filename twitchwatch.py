@@ -13,7 +13,7 @@ TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
 TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET")
 STREAMERS_FILE = "streamers.json"
 CHECK_INTERVAL_MINUTES = 10
-ALERT_CHANNEL_ID = 1325102526143664148  # ✅ Your channel ID
+ALERT_CHANNEL_ID = 1325102526143664148
 
 class TwitchWatch(commands.Cog):
     def __init__(self, bot):
@@ -158,6 +158,12 @@ class TwitchWatch(commands.Cog):
         await channel.send(embed=embed)
         await interaction.response.send_message("✅ Test alert sent.", ephemeral=True)
 
-async def setup_twitchwatch(bot):
+# ─── Extension Loader ───
+async def setup(bot):
     await bot.add_cog(TwitchWatch(bot))
     print("[Rosethorn] TwitchWatch cog loaded.")
+
+    # 🔒 Guild sync
+    GUILD = discord.Object(id=1308904661578813540)
+    bot.tree.copy_global_to(guild=GUILD)
+    await bot.tree.sync(guild=GUILD)

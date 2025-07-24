@@ -14,6 +14,14 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 start_time = time.time()
 logging.basicConfig(level=logging.INFO)
 
+# ─── Constants ───
+PRIMARY_GUILD_ID = 1308904661578813540
+HEARTBEAT_CHANNEL_ID = 1394659138591526992
+EXTENSIONS = [
+    "events", "tickets", "twitchwatch", "thorn", "moderation", "application",
+    "review_flow", "realm_membership", "help_panel", "rosenotes", "announce", "rosestatus"
+]
+
 # ─── Intents & Bot Instance ───
 intents = discord.Intents.default()
 intents.guilds = True
@@ -21,8 +29,7 @@ intents.members = True
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-PRIMARY_GUILD_ID = 1308904661578813540
-HEARTBEAT_CHANNEL_ID = 1394659138591526992
+bot.remove_command("help")
 
 # ─── Slash Command: /heartbeat ───
 @bot.tree.command(name="heartbeat", description="Check if Rosethorn is alive")
@@ -64,77 +71,32 @@ async def resync(interaction: discord.Interaction):
             bot.tree.clear_commands(guild=guild)
             synced = await bot.tree.sync(guild=guild)
             await interaction.followup.send(
-                f"✅ Resynced {len(synced)} command(s) to guild at <t:{int(time.time())}:T>",
+                f"✅ Resynced {len(synced)} command(s) at <t:{int(time.time())}:T>",
                 ephemeral=True
             )
         except Exception as e:
             await interaction.followup.send(f"❌ Sync failed: `{e}`", ephemeral=True)
 
-# ─── Command: !testjoin ───
-@bot.command(name="testjoin")
-@commands.is_owner()
-async def testjoin(ctx):
-    member = ctx.author
-    bot.dispatch("member_join", member)
-    await ctx.send("🧪 Simulated member join.")
-
-# ─── Memory Watchdog ───
-async def memory_monitor():
-    await bot.wait_until_ready()
-    process = psutil.Process()
-    channel = bot.get_channel(HEARTBEAT_CHANNEL_ID)
-
-    process.cpu_percent(interval=None)
-
-    while not bot.is_closed():
-        mem = process.memory_info().rss / (1024 * 1024)
-        cpu = process.cpu_percent(interval=None)
-
-        if mem > 300:
-            msg = f"⚠️ Rosethorn memory high: {mem:.1f}MB"
-            logging.warning(msg)
-            if channel:
-                await channel.send(msg)
-
-        await asyncio.sleep(60)
-
 # ─── Setup Hook ───
 @bot.event
 async def setup_hook():
-    # ─── Load all modular cogs first ───
-    from events import setup_events
-    from tickets import setup_tickets
-    from moderation import setup_moderation
-    from twitchwatch import setup_twitchwatch
+    print(f"[Startup] Extension loading began at {time.strftime('%X')}")
 
-    await setup_events(bot)
-    await setup_tickets(bot)
-    await setup_moderation(bot)
-    await setup_twitchwatch(bot)
+    for cog_name in EXTENSIONS:
+        try:
+            await bot.load_extension(cog_name)
+            print(f"[Rosethorn] Loaded extension: {cog_name}")
+        except Exception as e:
+            print(f"[Rosethorn] Failed to load {cog_name}: {e}")
 
-    # ─── Load extension-based cogs ───
-    await bot.load_extension("application")
-    await bot.load_extension("review_flow")
-    await bot.load_extension("realm_membership")
-    await bot.load_extension("help_panel")
-    await bot.load_extension("rosenotes")
-#    await bot.load_extension("announce")
+    guild = discord.Object(id=PRIMARY_GUILD_ID)
+    bot.tree.clear_commands(guild=guild)
+    synced = await bot.tree.sync(guild=guild)
 
-    # ─── Thorn DM onboarding ───
-    from thorn import setup_thorn
-    await setup_thorn(bot)
+    print(f"[Startup] Synced {len(synced)} command(s) to guild {PRIMARY_GUILD_ID}:")
+    for cmd in synced:
+        print(f" - /{cmd.name} → {cmd.description}")
 
-    # ─── Now safely purge & sync commands ───
-    if not hasattr(bot, "synced"):
-        await asyncio.sleep(2)
-        guild = discord.Object(id=PRIMARY_GUILD_ID)
-        bot.tree.clear_commands(guild=guild)
-        synced = await bot.tree.sync(guild=guild)
-        bot.synced = True
-        print(f"[Rosethorn] Synced {len(synced)} command(s) to guild {PRIMARY_GUILD_ID}:")
-        for cmd in synced:
-            print(f" - /{cmd.name} → {cmd.description}")
-    # ─── Memory Monitoring ───
     asyncio.create_task(memory_monitor())
 
 # ─── On Ready ───
@@ -156,9 +118,36 @@ async def on_ready():
     channel = bot.get_channel(HEARTBEAT_CHANNEL_ID)
     if channel:
         await channel.send(embed=embed)
-        print(f"[Rosethorn] Heartbeat sent to #{channel.name}")
+        print(f"[Rosethorn] Heartbeat sent to #{channel.name} at {time.strftime('%X')}")
     else:
         print("[Rosethorn] Heartbeat channel not found.")
+
+# ─── Command: !testjoin ───
+@bot.command(name="testjoin")
+@commands.is_owner()
+async def testjoin(ctx):
+    member = ctx.author
+    bot.dispatch("member_join", member)
+    await ctx.send("🧪 Simulated member join.")
+
+# ─── Memory Monitor ───
+async def memory_monitor():
+    await bot.wait_until_ready()
+    process = psutil.Process()
+    channel = bot.get_channel(HEARTBEAT_CHANNEL_ID)
+    process.cpu_percent(interval=None)
+
+    while not bot.is_closed():
+        mem = process.memory_info().rss / (1024 * 1024)
+        cpu = process.cpu_percent(interval=None)
+
+        if mem > 300:
+            msg = f"⚠️ Rosethorn memory high: {mem:.1f}MB"
+            logging.warning(msg)
+            if channel:
+                await channel.send(msg)
+
+        await asyncio.sleep(60)
 
 # ─── Launch ───
 bot.run(TOKEN)

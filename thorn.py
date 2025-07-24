@@ -1,12 +1,11 @@
 import discord
 import logging
 from datetime import datetime
+from discord.ext import commands
 
-# ─── Config ───
-LOG_CHANNEL_ID = 1311529665348767835      # Channel where admin reviews are posted
-REQUIRED_ROLE_ID = 1308905911489921124    # Role required to approve forms
+LOG_CHANNEL_ID = 1311529665348767835
+REQUIRED_ROLE_ID = 1308905911489921124
 
-# ─── Thorn Modal ───
 class ThornForm(discord.ui.Modal, title="Rosethorn | Member Form"):
     preferred_name = discord.ui.TextInput(label="Preferred Name", required=True, placeholder="e.g. Enchanted")
     gamertag = discord.ui.TextInput(label="Gamertag", required=True, placeholder="e.g. Enchanted547")
@@ -35,7 +34,6 @@ class ThornForm(discord.ui.Modal, title="Rosethorn | Member Form"):
         await log_channel.send(embed=embed, view=view)
         await interaction.response.send_message("✅ Your info has been sent to admins!", ephemeral=True)
 
-# ─── Admin Review ───
 class AdminReviewView(discord.ui.View):
     def __init__(self, member, name, gamertag):
         super().__init__(timeout=None)
@@ -77,7 +75,6 @@ class AdminReviewView(discord.ui.View):
         await interaction.message.edit(content=f"❌ Denied by {interaction.user.mention}", embed=embed, view=None)
         logging.info(f"Form denied for {self.member.name}")
 
-# ─── DM Starter View ───
 class ThornStarter(discord.ui.View):
     def __init__(self, member):
         super().__init__(timeout=None)
@@ -87,25 +84,29 @@ class ThornStarter(discord.ui.View):
     async def start(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(ThornForm(self.member))
 
-# ─── Listener Setup ───
-async def setup_thorn(bot):
-    @bot.event
-    async def on_message(message):
-        if message.guild or message.author == bot.user:
-            return
+class Thorn(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
 
-        if message.content.strip().lower() == "thorn":
-            logging.info(f"'Thorn' DM received from {message.author}")
+        @bot.event
+        async def on_message(message: discord.Message):
+            if message.guild or message.author == bot.user:
+                return
 
-            member = None
-            for guild in bot.guilds:
-                m = guild.get_member(message.author.id)
-                if m:
-                    member = m
-                    break
+            if message.content.strip().lower() == "thorn":
+                logging.info(f"'Thorn' DM received from {message.author}")
 
-            if member:
-                view = ThornStarter(member)
-                await message.author.send("📋 Click below to begin your Rosethorn onboarding:", view=view)
-            else:
-                await message.author.send("⚠️ You're not in a mutual server with Rosethorn. Please join the server first.")
+                # ✅ This is where your guild loop goes
+                for guild in bot.guilds:
+                    member = guild.get_member(message.author.id)
+                    if member:
+                        view = ThornStarter(member)
+                        await message.author.send("📋 Click below to begin your Rosethorn onboarding:", view=view)
+                        break  # Prevents multiple messages if in multiple guilds
+                else:
+                    await message.author.send("⚠️ You're not in a mutual server with Rosethorn. Please join the server first.")
+
+# ─── Extension Loader ───
+async def setup(bot):
+    await bot.add_cog(Thorn(bot))
+    print("[Rosethorn] Thorn onboarding cog loaded.")
