@@ -1459,52 +1459,50 @@ async def rules_command(interaction: discord.Interaction):
         color=EMBED_COLOR
     )
     
-    rules_text = """
-**1. Building Restrictions**
-Do **NOT** build within 1000 blocks of spawn in any direction. If your base is visible from spawn, you are too close and will be asked to move.
+    rules_part1 = """**1. Building Restrictions**
+Do **NOT** build within 1000 blocks of spawn in any direction. If your base is visible from spawn, you are too close.
 
 **2. No Stealing or Griefing**
-Theft, destruction, or griefing will **not** be tolerated. Violators **will** be caught and permanently banned—no second chances.
+Theft, destruction, or griefing will **not** be tolerated. Violators **will** be permanently banned—no second chances.
 
 **3. No Spamming**
 Avoid excessive messaging in-game or on Discord. Due to varying time zones, responses may be delayed.
 
 **4. Respect Messaging Boundaries**
-Do **NOT** DM members without their permission. Use <#1325432475387957288> before reaching out. Do **NOT** DM admins about open tickets.
-
-**5. Respect Personal Space**
-Avoid building too close to others. If you can see another player's base from yours, you're too close. Set up your land claim to protect your base.
+Do **NOT** DM members without permission. Use <#1325432475387957288> before reaching out."""
+    
+    rules_part2 = """**5. Respect Personal Space**
+Avoid building too close to others. If you can see another player's base from yours, you're too close. Set up your land claim.
 
 **6. Auto Farms Regulations**
-All auto farms **must receive admin approval**, be designated for community use, & include a manual on/off switch to prevent lag.
+All auto farms **must receive admin approval**, be designated for community use, & include a manual on/off switch.
 
 **7. Zero Tolerance for Harassment**
-Treat everyone with respect. **Harassment, witch-hunting, racism, sexism, and hate speech are strictly forbidden**—violators will be immediately banned.
+Treat everyone with respect. **Harassment, witch-hunting, racism, sexism, and hate speech are strictly forbidden**.
 
 **8. Keep Chats Organized**
-Use the appropriate channels for discussions. We aim to keep the server welcoming and cozy for all members.
-"""
+Use appropriate channels for discussions. We aim to keep the server welcoming and cozy for all members."""
     
-    embed.add_field(name="🏰 Core Rules", value=rules_text, inline=False)
+    embed.add_field(name="🏰 Core Rules (1-4)", value=rules_part1, inline=False)
+    embed.add_field(name="🛡️ Core Rules (5-8)", value=rules_part2, inline=False)
     
-    additional_rules = """
-**9. Member Mode Requirements**
+    member_requirements = """**9. Member Mode Requirements**
 To access member mode, you must:
 ✅ Add your gamertag 
 ✅ Confirm agreement to these rules
 ✅ Respond to bot DM (Message "Thorn" if you can't find it)
 
 **10. Realm Code Sharing**
-Sharing the realm code requires admin approval. New players must join Discord and agree to the rules.
-
-**11. Admin Requests**
+Sharing the realm code requires admin approval. New players must join Discord and agree to the rules."""
+    
+    admin_guidelines = """**11. Admin Requests**
 Admins will only provide basic building blocks. Support community shops by purchasing resources from fellow players.
 
 **12. Ticket System**
-Once a ticket is opened, you have **12 hours** to respond. Do **NOT** DM admins regarding open tickets.
-"""
+Once a ticket is opened, you have **12 hours** to respond. Do **NOT** DM admins regarding open tickets."""
     
-    embed.add_field(name="📋 Additional Guidelines", value=additional_rules, inline=False)
+    embed.add_field(name="📋 Member Requirements (9-10)", value=member_requirements, inline=False)
+    embed.add_field(name="⚖️ Admin Guidelines (11-12)", value=admin_guidelines, inline=False)
     embed.add_field(name="⚖️ Violations", value="If you violate any rules, a ticket will be created to review the situation, allowing you to explain your perspective.", inline=False)
     embed.set_footer(text="By clicking 'I Agree', you accept these rules • Updated regularly")
     
