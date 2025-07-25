@@ -140,10 +140,14 @@ async def work_command(interaction: discord.Interaction):
     embed.set_footer(text="Well done! Return in a few hours for more work")
     await interaction.response.send_message(embed=embed)
 
-# MODERATION COMMANDS (ALL PUBLIC EMBEDS)
+# MODERATION COMMANDS (ALL PUBLIC EMBEDS) - Only for specific admin
 @bot.tree.command(name="warn", description="⚠️ Issue a formal warning to a member")
 @discord.app_commands.default_permissions(moderate_members=True)
 async def warn_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Violating manor etiquette"):
+    # Check if user is the specific admin
+    if interaction.user.id != 1308905911489921124:
+        await interaction.response.send_message("❌ Only the manor administrator can issue warnings", ephemeral=True)
+        return
     embed = discord.Embed(title="⚠️ Manor Warning Issued", description="A formal warning has been recorded", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=member.mention, inline=True)
     embed.add_field(name="📋 Reason", value=reason, inline=False)
@@ -154,6 +158,10 @@ async def warn_command(interaction: discord.Interaction, member: discord.Member,
 @bot.tree.command(name="mute", description="🔇 Temporarily silence a member")
 @discord.app_commands.default_permissions(moderate_members=True)
 async def mute_command(interaction: discord.Interaction, member: discord.Member, duration: str = "10m", reason: str = "Disrupting manor peace"):
+    # Check if user is the specific admin
+    if interaction.user.id != 1308905911489921124:
+        await interaction.response.send_message("❌ Only the manor administrator can mute members", ephemeral=True)
+        return
     embed = discord.Embed(title="🔇 Manor Silence", description="Member has been temporarily silenced", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=member.mention, inline=True)
     embed.add_field(name="⏱️ Duration", value=duration, inline=True)
@@ -164,6 +172,10 @@ async def mute_command(interaction: discord.Interaction, member: discord.Member,
 @bot.tree.command(name="ban", description="🚫 Permanently ban a member from the manor")
 @discord.app_commands.default_permissions(ban_members=True)
 async def ban_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Violating manor rules"):
+    # Check if user is the specific admin
+    if interaction.user.id != 1308905911489921124:
+        await interaction.response.send_message("❌ Only the manor administrator can ban members", ephemeral=True)
+        return
     embed = discord.Embed(title="🚫 Manor Banishment", description="Member has been permanently removed from the manor", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=member.mention, inline=True)
     embed.add_field(name="📋 Reason", value=reason, inline=False)
@@ -174,6 +186,10 @@ async def ban_command(interaction: discord.Interaction, member: discord.Member, 
 @bot.tree.command(name="kick", description="👢 Remove a member temporarily")
 @discord.app_commands.default_permissions(kick_members=True)
 async def kick_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Disrupting manor peace"):
+    # Check if user is the specific admin
+    if interaction.user.id != 1308905911489921124:
+        await interaction.response.send_message("❌ Only the manor administrator can kick members", ephemeral=True)
+        return
     embed = discord.Embed(title="👢 Manor Removal", description="Member has been temporarily removed", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=member.mention, inline=True)
     embed.add_field(name="📋 Reason", value=reason, inline=False)
@@ -504,8 +520,11 @@ class ApplicationReviewView(discord.ui.View):
     
     @discord.ui.button(label="Approve", style=discord.ButtonStyle.success, emoji="✅")
     async def approve_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Check if user has admin permissions
-        if not hasattr(interaction.user, 'roles') or not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+        # Check if user has admin permissions - Allow specific admin ID and admin role
+        is_admin = (interaction.user.id == 1308905911489921124 or 
+                   (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)))
+        
+        if not is_admin:
             await interaction.response.send_message("❌ Only admin staff can review applications", ephemeral=True)
             return
         
@@ -541,8 +560,11 @@ class ApplicationReviewView(discord.ui.View):
     
     @discord.ui.button(label="Deny", style=discord.ButtonStyle.danger, emoji="❌")
     async def deny_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Check if user has admin permissions
-        if not hasattr(interaction.user, 'roles') or not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+        # Check if user has admin permissions - Allow specific admin ID and admin role
+        is_admin = (interaction.user.id == 1308905911489921124 or 
+                   (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)))
+        
+        if not is_admin:
             await interaction.response.send_message("❌ Only admin staff can review applications", ephemeral=True)
             return
         
@@ -738,8 +760,11 @@ class TicketManageView(discord.ui.View):
     
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.primary, emoji="✋")
     async def claim_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Check if user is staff
-        if not hasattr(interaction.user, 'roles') or not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+        # Check if user is staff - Allow specific admin ID and admin role
+        is_admin = (interaction.user.id == 1308905911489921124 or 
+                   (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)))
+        
+        if not is_admin:
             await interaction.response.send_message("❌ Only staff can claim tickets", ephemeral=True)
             return
         
@@ -761,8 +786,11 @@ class TicketManageView(discord.ui.View):
     
     @discord.ui.button(label="Close", style=discord.ButtonStyle.danger, emoji="🔒")
     async def close_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Check if user is staff
-        if not hasattr(interaction.user, 'roles') or not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+        # Check if user is staff - Allow specific admin ID and admin role
+        is_admin = (interaction.user.id == 1308905911489921124 or 
+                   (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)))
+        
+        if not is_admin:
             await interaction.response.send_message("❌ Only staff can close tickets", ephemeral=True)
             return
         
