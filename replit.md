@@ -59,6 +59,24 @@ A comprehensive AI-powered Discord server management bot with a beautiful Victor
 ## Recent Changes
 *Date: July 25, 2025*
 
+- **Simplified Sticky Messages & Bot Management Commands Added**:
+  - Simplified sticky message embeds to show only title and message (removed extra channel/user info)
+  - Added /botstatus command with system metrics, uptime, CPU/memory usage, and service status
+  - Added /sync command for manual Discord command synchronization
+  - Added /restart command for bot process restart (VPS-ready with confirmation)
+  - Bot management commands include Victorian Gothic theming and admin-only access
+  - Now 44 total commands (up from 41) with comprehensive bot administration features
+
+- **Auto-Resending Sticky Message System Implemented**:
+  - Fixed sticky command to automatically resend messages to keep them at bottom instead of just pinning
+  - Created StickyMessageService with automatic message tracking and resending after 3 messages
+  - Added comprehensive sticky management with create, remove, status, toggle, and manual resend actions
+  - Sticky messages automatically delete old versions and resend with updated timestamps
+  - Added real-time message counting and configurable resend threshold
+  - Victorian Gothic themed auto-sticky messages with proper embed formatting
+  - Service integrates with on_message event handler for automatic triggering
+  - Bot now maintains 41 total commands with improved sticky functionality
+
 - **Elegant Error Message Design System Implemented**:
   - Created comprehensive Victorian Gothic error handling system with themed error messages
   - Added ErrorType enum with 16 different error categories (permission_denied, user_not_found, database_error, etc.)

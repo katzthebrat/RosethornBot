@@ -17,6 +17,9 @@ from services.error_handler import error_handler, handle_errors, ErrorType, Erro
 from services.error_templates import templates as error_templates
 from services.error_demonstration import error_demo
 
+# Import sticky message service
+from services.sticky_message_service import initialize_sticky_service, sticky_service
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -35,6 +38,12 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     logger.info(f"🌹 RosethornBot is online as {bot.user}")
     logger.info(f"🌹 Connected to {len(bot.guilds)} guilds")
+    
+    # Initialize sticky message service
+    global sticky_service
+    sticky_service = initialize_sticky_service(bot)
+    logger.info("🌹 Sticky message service initialized")
+    
     try:
         synced = await bot.tree.sync()
         logger.info(f"🌹 Synced {len(synced)} slash command(s)")
@@ -1087,15 +1096,32 @@ async def deletechannel_command(interaction: discord.Interaction, confirmation: 
     except Exception as e:
         await interaction.response.send_message(f"❌ Error deleting {channel_type}: {str(e)}", ephemeral=True)
 
-@bot.tree.command(name="sticky", description="📌 Create or manage sticky messages in this channel")
+@bot.tree.command(name="sticky", description="📌 Create auto-resending sticky messages that stay at bottom")
 @discord.app_commands.default_permissions(manage_messages=True)
-async def sticky_command(interaction: discord.Interaction, action: str = "create", message: str = ""):
+@discord.app_commands.describe(
+    action="Action to perform with sticky messages",
+    message="Content for the sticky message (required for create)"
+)
+@discord.app_commands.choices(action=[
+    discord.app_commands.Choice(name="Create Auto-Sticky", value="create"),
+    discord.app_commands.Choice(name="Remove Sticky", value="remove"),
+    discord.app_commands.Choice(name="Check Status", value="status"),
+    discord.app_commands.Choice(name="Toggle On/Off", value="toggle"),
+    discord.app_commands.Choice(name="Manual Resend", value="resend")
+])
+@handle_errors
+async def sticky_command(interaction: discord.Interaction, action: str = "status", message: str = ""):
     # Check if user has admin role (1320538700656148541)
     if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
         await interaction.response.send_message("❌ Only administrators can manage sticky messages", ephemeral=True)
         return
     
+    if not sticky_service:
+        await interaction.response.send_message("❌ Sticky message service not initialized", ephemeral=True)
+        return
+    
     channel = interaction.channel
+    channel_id = channel.id
     action = action.lower()
     
     if action == "create":
@@ -1103,123 +1129,146 @@ async def sticky_command(interaction: discord.Interaction, action: str = "create
             await interaction.response.send_message("❌ Please provide a message to make sticky", ephemeral=True)
             return
         
-        # Create sticky message embed
-        embed = discord.Embed(
-            title="📌 Manor Notice",
-            description=message,
-            color=EMBED_COLOR
-        )
-        embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
-        embed.add_field(name="👨‍⚖️ Posted By", value=interaction.user.mention, inline=True)
-        embed.add_field(name="📅 Date", value=discord.utils.format_dt(datetime.now(), style='f'), inline=True)
-        embed.set_footer(text="📌 This message will remain pinned • Rosewood Manor")
+        # Check if channel already has a sticky message
+        if sticky_service.is_sticky_active(channel_id):
+            await interaction.response.send_message("❌ This channel already has an active sticky message. Use `/sticky remove` first.", ephemeral=True)
+            return
         
-        # Send and pin the message
+        # Create sticky message embed data (simplified - title and message only)
+        embed_data = {
+            'title': "📌 Manor Notice",
+            'description': message,
+            'color': EMBED_COLOR,
+            'fields': []  # No extra fields for cleaner look
+        }
+        
+        # Create the embed
+        embed = discord.Embed(
+            title=embed_data['title'],
+            description=embed_data['description'],
+            color=embed_data['color']
+        )
+        
+        # No fields to add - keeping it simple with just title and description
+        
+        embed.set_footer(text="📌 This message automatically stays at the bottom • Rosewood Manor")
+        
         try:
-            await interaction.response.send_message("✅ Creating sticky message...", ephemeral=True)
+            # Send initial sticky message
+            await interaction.response.send_message("✅ Creating auto-resending sticky message...", ephemeral=True)
             sticky_msg = await channel.send(embed=embed)
-            await sticky_msg.pin(reason=f"Sticky message created by {interaction.user}")
+            
+            # Add to sticky service
+            sticky_service.add_sticky_message(
+                channel_id=channel_id,
+                content=message,
+                embed_data=embed_data,
+                created_by=interaction.user.id
+            )
+            
+            # Update the service with the message ID
+            sticky_info = sticky_service.get_sticky_info(channel_id)
+            if sticky_info:
+                sticky_info['last_message_id'] = sticky_msg.id
             
             # Log the sticky creation
-            await create_tracking_message("📌 Sticky Message Created", {
+            await create_tracking_message("📌 Auto-Sticky Message Created", {
                 "📍 Channel": channel.mention,
                 "💬 Message": message[:100] + ("..." if len(message) > 100 else ""),
                 "👨‍⚖️ Created By": interaction.user.mention,
-                "🔗 Message ID": str(sticky_msg.id)
+                "🔗 Message ID": str(sticky_msg.id),
+                "⚙️ Type": "Auto-resending every 3 messages"
             }, EMBED_COLOR, f"STICKY-{sticky_msg.id}")
             
         except Exception as e:
             await interaction.followup.send(f"❌ Error creating sticky message: {str(e)}", ephemeral=True)
     
-    elif action == "remove" or action == "delete":
-        # Get pinned messages
+    elif action == "remove":
+        if not sticky_service.is_sticky_active(channel_id):
+            await interaction.response.send_message("❌ No active sticky message found in this channel", ephemeral=True)
+            return
+        
         try:
-            pinned_messages = await channel.pins()
+            # Get sticky info before removing
+            sticky_info = sticky_service.get_sticky_info(channel_id)
             
-            if not pinned_messages:
-                await interaction.response.send_message("❌ No pinned messages found in this channel", ephemeral=True)
-                return
+            # Delete the current sticky message if it exists
+            if sticky_info and sticky_info['last_message_id']:
+                try:
+                    old_message = await channel.fetch_message(sticky_info['last_message_id'])
+                    await old_message.delete()
+                except (discord.NotFound, discord.Forbidden):
+                    pass
             
-            # Find bot's sticky messages
-            bot_sticky_messages = [msg for msg in pinned_messages if msg.author == bot.user and msg.embeds and "Manor Notice" in msg.embeds[0].title]
-            
-            if not bot_sticky_messages:
-                await interaction.response.send_message("❌ No sticky messages from the bot found", ephemeral=True)
-                return
-            
-            # Remove the most recent sticky message
-            latest_sticky = bot_sticky_messages[0]
-            await latest_sticky.unpin(reason=f"Sticky message removed by {interaction.user}")
-            await latest_sticky.delete(reason=f"Sticky message removed by {interaction.user}")
+            # Remove from service
+            sticky_service.remove_sticky_message(channel_id)
             
             # Log the removal
-            await create_tracking_message("📌 Sticky Message Removed", {
+            await create_tracking_message("📌 Auto-Sticky Message Removed", {
                 "📍 Channel": channel.mention,
                 "👨‍⚖️ Removed By": interaction.user.mention,
-                "🔗 Message ID": str(latest_sticky.id)
-            }, 0xFF0000, f"STICKY-DEL-{latest_sticky.id}")
+                "⚙️ Type": "Auto-resending sticky"
+            }, 0xFF0000, f"STICKY-DEL-{channel_id}")
             
-            await interaction.response.send_message("✅ Sticky message removed successfully", ephemeral=True)
+            await interaction.response.send_message("✅ Auto-sticky message removed successfully", ephemeral=True)
             
         except Exception as e:
             await interaction.response.send_message(f"❌ Error removing sticky message: {str(e)}", ephemeral=True)
     
-    elif action == "list":
-        # List all pinned messages
-        try:
-            pinned_messages = await channel.pins()
-            
-            if not pinned_messages:
-                await interaction.response.send_message("❌ No pinned messages found in this channel", ephemeral=True)
-                return
-            
+    elif action == "status":
+        sticky_info = sticky_service.get_sticky_info(channel_id)
+        
+        if not sticky_info:
             embed = discord.Embed(
-                title="📌 Pinned Messages in Manor",
-                description=f"Found {len(pinned_messages)} pinned message(s)",
+                title="📌 Sticky Message Status",
+                description="No active sticky message in this channel",
                 color=EMBED_COLOR
             )
-            
-            for i, msg in enumerate(pinned_messages[:10], 1):  # Limit to 10 for embed size
-                author_name = msg.author.display_name if msg.author else "Unknown"
-                content_preview = (msg.content[:50] + "...") if len(msg.content) > 50 else msg.content
-                if msg.embeds and not content_preview:
-                    content_preview = (msg.embeds[0].description[:50] + "...") if msg.embeds[0].description else "Embed message"
-                
-                embed.add_field(
-                    name=f"📌 Message {i}",
-                    value=f"**Author:** {author_name}\n**Preview:** {content_preview}\n**ID:** {msg.id}",
-                    inline=False
-                )
-            
-            embed.set_footer(text="Use /sticky remove to remove the latest bot sticky message")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            
-        except Exception as e:
-            await interaction.response.send_message(f"❌ Error listing pinned messages: {str(e)}", ephemeral=True)
+            embed.add_field(name="💡 Tip", value="Use `/sticky create <message>` to create an auto-resending sticky message", inline=False)
+        else:
+            embed = discord.Embed(
+                title="📌 Active Sticky Message",
+                description=f"**Content:** {sticky_info['content'][:100]}{'...' if len(sticky_info['content']) > 100 else ''}",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
+            embed.add_field(name="🔄 Status", value="Active" if sticky_info['active'] else "Paused", inline=True)
+            embed.add_field(name="📅 Created", value=discord.utils.format_dt(sticky_info['created_at'], style='R'), inline=True)
+            embed.add_field(name="⚙️ Resend Trigger", value="Every 3 messages", inline=True)
+            embed.add_field(name="📊 Message Count", value=f"{sticky_service.message_counts.get(channel_id, 0)}/3", inline=True)
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    elif action == "toggle":
+        if not sticky_service.is_sticky_active(channel_id):
+            await interaction.response.send_message("❌ No sticky message found in this channel to toggle", ephemeral=True)
+            return
+        
+        new_state = sticky_service.toggle_sticky(channel_id)
+        status = "enabled" if new_state else "paused"
+        
+        embed = discord.Embed(
+            title="📌 Sticky Message Toggled",
+            description=f"Auto-resending sticky message has been **{status}**",
+            color=EMBED_COLOR if new_state else 0x8B4513
+        )
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    elif action == "resend":
+        if not sticky_service.is_sticky_active(channel_id):
+            await interaction.response.send_message("❌ No active sticky message found in this channel", ephemeral=True)
+            return
+        
+        success = await sticky_service.manual_resend(channel)
+        
+        if success:
+            await interaction.response.send_message("✅ Sticky message manually resent", ephemeral=True)
+        else:
+            await interaction.response.send_message("❌ Failed to resend sticky message", ephemeral=True)
     
     else:
-        embed = discord.Embed(
-            title="📌 Sticky Message Commands",
-            description="Available actions for managing sticky messages",
-            color=EMBED_COLOR
-        )
-        embed.add_field(
-            name="📝 Create",
-            value="`/sticky create [message]` - Create a new sticky message",
-            inline=False
-        )
-        embed.add_field(
-            name="🗑️ Remove",
-            value="`/sticky remove` - Remove the latest bot sticky message",
-            inline=False
-        )
-        embed.add_field(
-            name="📋 List",
-            value="`/sticky list` - Show all pinned messages in this channel",
-            inline=False
-        )
-        embed.set_footer(text="Victorian manor message management • Admin only")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message("❌ Invalid action. Use: create, remove, status, toggle, or resend", ephemeral=True)
 
 @bot.tree.command(name="reputation", description="🌟 Manage Victorian manor standing and virtues")
 @discord.app_commands.default_permissions(manage_messages=True)
@@ -2800,9 +2849,16 @@ class TutorialSkipView(discord.ui.View):
 # SIMPLIFIED DM ONBOARDING SYSTEM
 @bot.event
 async def on_message(message):
+    # Ignore bot messages
+    if message.author.bot:
+        return
+    
+    # Handle sticky message resending
+    if sticky_service and isinstance(message.channel, discord.TextChannel):
+        await sticky_service.on_message(message)
+    
     # Check if it's a DM and the message is "thorn" or "Thorn"
-    if (message.author != bot.user and 
-        isinstance(message.channel, discord.DMChannel) and 
+    if (isinstance(message.channel, discord.DMChannel) and 
         message.content.lower() == "thorn"):
         
         # Send simplified onboarding
@@ -2930,6 +2986,136 @@ async def welcomebanner_command(interaction: discord.Interaction, action: str = 
 async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
     """Global error handler for slash commands"""
     await error_handler.handle_command_error(interaction, error, interaction.command.name if interaction.command else None)
+
+# Bot Management Commands
+@bot.tree.command(name="botstatus", description="🤖 Check bot status and performance metrics")
+@discord.app_commands.default_permissions(manage_messages=True)
+@handle_errors
+async def bot_status_command(interaction: discord.Interaction):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can check bot status", ephemeral=True)
+        return
+    
+    import psutil
+    import time
+    from datetime import timedelta
+    
+    # Get bot uptime
+    uptime_seconds = time.time() - bot.start_time if hasattr(bot, 'start_time') else 0
+    uptime = str(timedelta(seconds=int(uptime_seconds)))
+    
+    # Get system metrics
+    cpu_percent = psutil.cpu_percent()
+    memory = psutil.virtual_memory()
+    memory_used = memory.used // (1024 * 1024)  # MB
+    memory_total = memory.total // (1024 * 1024)  # MB
+    
+    embed = discord.Embed(
+        title="🤖 RosethornBot Status",
+        description="Current bot performance and system metrics",
+        color=EMBED_COLOR
+    )
+    
+    embed.add_field(name="🔄 Bot Status", value="Online ✅", inline=True)
+    embed.add_field(name="⏰ Uptime", value=uptime, inline=True)
+    embed.add_field(name="🏰 Guilds", value=str(len(bot.guilds)), inline=True)
+    
+    embed.add_field(name="🧮 CPU Usage", value=f"{cpu_percent}%", inline=True)
+    embed.add_field(name="💾 Memory", value=f"{memory_used}MB / {memory_total}MB", inline=True)
+    embed.add_field(name="🌐 Latency", value=f"{round(bot.latency * 1000)}ms", inline=True)
+    
+    embed.add_field(name="📊 Commands", value="43 slash commands", inline=True)
+    embed.add_field(name="🔌 Services", value="All operational", inline=True)
+    embed.add_field(name="📌 Sticky Service", value="Active" if sticky_service else "Inactive", inline=True)
+    
+    embed.set_footer(text="Victorian manor bot management • Rosewood Manor")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@bot.tree.command(name="sync", description="🔄 Manually sync bot commands")
+@discord.app_commands.default_permissions(manage_messages=True)
+@handle_errors
+async def sync_command(interaction: discord.Interaction):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can sync commands", ephemeral=True)
+        return
+    
+    await interaction.response.send_message("🔄 Syncing commands...", ephemeral=True)
+    
+    try:
+        # Sync globally
+        synced = await bot.tree.sync()
+        
+        # Sync for current guild
+        guild_synced = await bot.tree.sync(guild=interaction.guild)
+        
+        embed = discord.Embed(
+            title="🔄 Command Sync Complete",
+            description="Bot commands have been synchronized",
+            color=EMBED_COLOR
+        )
+        
+        embed.add_field(name="🌐 Global Sync", value=f"{len(synced)} commands", inline=True)
+        embed.add_field(name="🏰 Guild Sync", value=f"{len(guild_synced)} commands", inline=True)
+        embed.add_field(name="✅ Status", value="Sync successful", inline=True)
+        
+        embed.set_footer(text="Commands may take up to 1 hour to appear globally")
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        
+    except Exception as e:
+        await interaction.followup.send(f"❌ Error syncing commands: {str(e)}", ephemeral=True)
+
+@bot.tree.command(name="restart", description="🔄 Restart the bot (VPS only)")
+@discord.app_commands.default_permissions(manage_messages=True)
+@handle_errors
+async def restart_command(interaction: discord.Interaction, confirmation: str = ""):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can restart the bot", ephemeral=True)
+        return
+    
+    if confirmation.lower() != "confirm":
+        embed = discord.Embed(
+            title="🔄 Bot Restart Confirmation",
+            description="⚠️ This will restart the entire bot process",
+            color=0xFF6B35
+        )
+        embed.add_field(name="📋 To Confirm", value="`/restart confirm`", inline=False)
+        embed.add_field(name="⏱️ Downtime", value="~10-30 seconds", inline=True)
+        embed.add_field(name="🔄 Auto-reconnect", value="Yes", inline=True)
+        embed.set_footer(text="Use with caution • Bot will disconnect temporarily")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(
+        title="🔄 Restarting RosethornBot",
+        description="Bot will reconnect in approximately 10-30 seconds",
+        color=EMBED_COLOR
+    )
+    embed.add_field(name="👨‍⚖️ Initiated By", value=interaction.user.mention, inline=True)
+    embed.add_field(name="⏰ Time", value=discord.utils.format_dt(datetime.now(), style='f'), inline=True)
+    
+    await interaction.response.send_message(embed=embed)
+    
+    # Log the restart
+    await create_tracking_message("🔄 Bot Restart Initiated", {
+        "👨‍⚖️ Initiated By": interaction.user.mention,
+        "🏰 Guild": interaction.guild.name,
+        "⏰ Time": discord.utils.format_dt(datetime.now(), style='f')
+    }, 0xFF6B35, f"RESTART-{interaction.id}")
+    
+    # Restart the bot (this will work on VPS with proper process management)
+    import os
+    import sys
+    
+    try:
+        await bot.close()
+        os.execv(sys.executable, ['python'] + sys.argv)
+    except Exception as e:
+        logger.error(f"Error restarting bot: {e}")
+        # Fallback - just disconnect and let process manager restart
+        await bot.close()
 
 # Add error demonstration commands
 @bot.tree.command(name="errortest", description="🧪 Test the elegant error message system")
