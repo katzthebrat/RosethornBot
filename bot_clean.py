@@ -33,11 +33,20 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         logger.info(f"🌹 Synced {len(synced)} slash command(s)")
+        
+        # Set default permissions for all commands to be available to everyone
+        for guild in bot.guilds:
+            try:
+                await bot.tree.sync(guild=guild)
+                logger.info(f"🌹 Synced commands for guild: {guild.name}")
+            except Exception as e:
+                logger.error(f"🥀 Failed to sync for guild {guild.name}: {e}")
     except Exception as e:
         logger.error(f"🥀 Failed to sync commands: {e}")
 
 # ECONOMY COMMANDS
 @bot.tree.command(name="balance", description="💰 Check your rosebud currency balance")
+@discord.app_commands.default_permissions(send_messages=True)
 async def balance_command(interaction: discord.Interaction):
     balance = random.randint(100, 5000)
     embed = discord.Embed(title="💰 Manor Treasury", description="Your Victorian wealth status", color=EMBED_COLOR)
@@ -47,6 +56,7 @@ async def balance_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="daily", description="🌅 Claim your daily rosebud reward")
+@discord.app_commands.default_permissions(send_messages=True)
 async def daily_command(interaction: discord.Interaction):
     reward = random.randint(50, 200)
     embed = discord.Embed(title="🌅 Daily Manor Allowance", description="Your Victorian stipend has arrived", color=EMBED_COLOR)
@@ -56,6 +66,7 @@ async def daily_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="shop", description="🛍️ Browse the Victorian manor boutique")
+@discord.app_commands.default_permissions(send_messages=True)
 async def shop_command(interaction: discord.Interaction):
     embed = discord.Embed(title="🛍️ Manor Boutique", description="Exquisite Victorian treasures await", color=EMBED_COLOR)
     embed.add_field(name="👑 Custom Role", value="500 Rosebuds", inline=True)
@@ -68,6 +79,7 @@ async def shop_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="rosenotes", description="📝 View or add member lore and admin notes")
+@discord.app_commands.default_permissions(send_messages=True)
 async def rosenotes_command(interaction: discord.Interaction, member: discord.Member = None, note: str = ""):
     target = member or interaction.user
     
@@ -94,6 +106,7 @@ async def rosenotes_command(interaction: discord.Interaction, member: discord.Me
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="transfer", description="💸 Send rosebuds to another member")
+@discord.app_commands.default_permissions(send_messages=True)
 async def transfer_command(interaction: discord.Interaction, member: discord.Member, amount: int):
     if amount <= 0:
         embed = discord.Embed(title="🥀 Invalid Amount", description="Please specify a positive amount", color=0xFF0000)
@@ -108,6 +121,7 @@ async def transfer_command(interaction: discord.Interaction, member: discord.Mem
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="work", description="⚒️ Earn rosebuds through manor jobs")
+@discord.app_commands.default_permissions(send_messages=True)
 async def work_command(interaction: discord.Interaction):
     jobs = [
         ("Tending the Rose Garden", 150),
@@ -128,6 +142,7 @@ async def work_command(interaction: discord.Interaction):
 
 # MODERATION COMMANDS (ALL PUBLIC EMBEDS)
 @bot.tree.command(name="warn", description="⚠️ Issue a formal warning to a member")
+@discord.app_commands.default_permissions(moderate_members=True)
 async def warn_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Violating manor etiquette"):
     embed = discord.Embed(title="⚠️ Manor Warning Issued", description="A formal warning has been recorded", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=member.mention, inline=True)
@@ -137,6 +152,7 @@ async def warn_command(interaction: discord.Interaction, member: discord.Member,
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="mute", description="🔇 Temporarily silence a member")
+@discord.app_commands.default_permissions(moderate_members=True)
 async def mute_command(interaction: discord.Interaction, member: discord.Member, duration: str = "10m", reason: str = "Disrupting manor peace"):
     embed = discord.Embed(title="🔇 Manor Silence", description="Member has been temporarily silenced", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=member.mention, inline=True)
@@ -146,6 +162,7 @@ async def mute_command(interaction: discord.Interaction, member: discord.Member,
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="ban", description="🚫 Permanently ban a member from the manor")
+@discord.app_commands.default_permissions(ban_members=True)
 async def ban_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Violating manor rules"):
     embed = discord.Embed(title="🚫 Manor Banishment", description="Member has been permanently removed from the manor", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=member.mention, inline=True)
@@ -155,6 +172,7 @@ async def ban_command(interaction: discord.Interaction, member: discord.Member, 
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="kick", description="👢 Remove a member temporarily")
+@discord.app_commands.default_permissions(kick_members=True)
 async def kick_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Disrupting manor peace"):
     embed = discord.Embed(title="👢 Manor Removal", description="Member has been temporarily removed", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=member.mention, inline=True)
@@ -164,6 +182,7 @@ async def kick_command(interaction: discord.Interaction, member: discord.Member,
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="purge", description="🧹 Clean up inactive members")
+@discord.app_commands.default_permissions(manage_messages=True)
 async def purge_command(interaction: discord.Interaction, count: int = 10):
     embed = discord.Embed(title="🧹 Manor Cleanup", description="Inactive members have been managed", color=EMBED_COLOR)
     embed.add_field(name="📊 Members Reviewed", value=f"{count} accounts", inline=True)
@@ -173,6 +192,7 @@ async def purge_command(interaction: discord.Interaction, count: int = 10):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="announce", description="📢 Create a formal manor announcement")
+@discord.app_commands.default_permissions(manage_messages=True)
 async def announce_command(interaction: discord.Interaction, message: str):
     embed = discord.Embed(title="📢 Manor Proclamation", description="An important message from the administration", color=EMBED_COLOR)
     embed.add_field(name="📜 Announcement", value=message, inline=False)
@@ -183,6 +203,7 @@ async def announce_command(interaction: discord.Interaction, message: str):
 
 # ENGAGEMENT COMMANDS
 @bot.tree.command(name="level", description="📊 Check your manor rank and experience")
+@discord.app_commands.default_permissions(send_messages=True)
 async def level_command(interaction: discord.Interaction, member: discord.Member = None):
     target = member or interaction.user
     level = random.randint(1, 50)
@@ -198,6 +219,7 @@ async def level_command(interaction: discord.Interaction, member: discord.Member
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="leaderboard", description="🏆 View the most distinguished manor residents")
+@discord.app_commands.default_permissions(send_messages=True)
 async def leaderboard_command(interaction: discord.Interaction):
     embed = discord.Embed(title="🏆 Manor Leaderboard", description="Our most esteemed residents", color=EMBED_COLOR)
     
@@ -222,6 +244,7 @@ async def leaderboard_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="trivia", description="🧠 Victorian-themed trivia challenge")
+@discord.app_commands.default_permissions(send_messages=True)
 async def trivia_command(interaction: discord.Interaction):
     questions = [
         ("What era preceded the Victorian period?", "Georgian Era", ["Medieval", "Renaissance", "Georgian Era", "Edwardian"]),
@@ -241,6 +264,7 @@ async def trivia_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="riddle", description="🔮 Solve Gothic riddles and puzzles")
+@discord.app_commands.default_permissions(send_messages=True)
 async def riddle_command(interaction: discord.Interaction):
     riddles = [
         ("I am found in darkness, born of shadow and flame. In Gothic halls I dance, but have no name. What am I?", "A ghost or spirit"),
@@ -260,6 +284,7 @@ async def riddle_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="giveaway", description="🎁 Host an interactive giveaway")
+@discord.app_commands.default_permissions(send_messages=True)
 async def giveaway_command(interaction: discord.Interaction, prize: str = "Victorian Treasure"):
     embed = discord.Embed(title="🎁 Manor Giveaway", description="A generous offering to the community", color=EMBED_COLOR)
     embed.add_field(name="🏆 Prize", value=prize, inline=True)
@@ -271,6 +296,7 @@ async def giveaway_command(interaction: discord.Interaction, prize: str = "Victo
 
 # UTILITY COMMANDS
 @bot.tree.command(name="serverinfo", description="🏰 Display comprehensive manor statistics")
+@discord.app_commands.default_permissions(send_messages=True)
 async def serverinfo_command(interaction: discord.Interaction):
     guild = interaction.guild
     
@@ -290,6 +316,7 @@ async def serverinfo_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="avatar", description="🖼️ Display a member's portrait")
+@discord.app_commands.default_permissions(send_messages=True)
 async def avatar_command(interaction: discord.Interaction, member: discord.Member = None):
     target = member or interaction.user
     embed = discord.Embed(title=f"🖼️ {target.display_name}'s Portrait", description="A dignified representation", color=EMBED_COLOR)
@@ -298,6 +325,7 @@ async def avatar_command(interaction: discord.Interaction, member: discord.Membe
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="invite", description="📨 Generate an invitation to the manor")
+@discord.app_commands.default_permissions(create_instant_invite=True)
 async def invite_command(interaction: discord.Interaction):
     try:
         invite = await interaction.channel.create_invite(max_age=86400, max_uses=10, reason="Victorian manor invitation")
@@ -312,6 +340,7 @@ async def invite_command(interaction: discord.Interaction):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @bot.tree.command(name="afk", description="💤 Set your away status")
+@discord.app_commands.default_permissions(send_messages=True)
 async def afk_command(interaction: discord.Interaction, reason: str = "Away from the manor"):
     embed = discord.Embed(title="💤 Away Status Set", description="Your absence has been noted", color=EMBED_COLOR)
     embed.add_field(name="👤 Member", value=interaction.user.mention, inline=True)
@@ -321,6 +350,7 @@ async def afk_command(interaction: discord.Interaction, reason: str = "Away from
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="voice", description="🎵 Create a temporary voice channel")
+@discord.app_commands.default_permissions(manage_channels=True)
 async def voice_command(interaction: discord.Interaction, name: str = "Victorian Parlor"):
     embed = discord.Embed(title="🎵 Voice Chamber Created", description="A new gathering place has been established", color=EMBED_COLOR)
     embed.add_field(name="🏛️ Chamber Name", value=name, inline=True)
@@ -535,6 +565,7 @@ class ApplicationReviewView(discord.ui.View):
             await interaction.response.send_message(f"❌ Error denying application: {str(e)}", ephemeral=True)
 
 @bot.tree.command(name="apply", description="📋 Apply for a position in the manor")
+@discord.app_commands.default_permissions(send_messages=True)
 async def apply_command(interaction: discord.Interaction):
     embed = discord.Embed(title="📋 Manor Applications", description="Choose your desired position", color=EMBED_COLOR)
     embed.add_field(name="⚔️ Realm Job", value="Join the manor's workforce\nRole: <@&1394853894437343422>", inline=True)
@@ -774,6 +805,7 @@ class TicketCloseModal(discord.ui.Modal):
             await interaction.response.send_message(f"❌ Error closing ticket: {str(e)}", ephemeral=True)
 
 @bot.tree.command(name="tickets", description="🎫 Create a support ticket")
+@discord.app_commands.default_permissions(send_messages=True)
 async def tickets_command(interaction: discord.Interaction):
     embed = discord.Embed(title="🎫 Manor Support Tickets", description="Choose the type of assistance you need", color=EMBED_COLOR)
     embed.add_field(name="🔑 Permissions", value="Request realm codes and access", inline=True)
