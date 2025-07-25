@@ -438,14 +438,12 @@ class RealmJobModal(discord.ui.Modal):
             
             await thread.send(f"<@&1320538700656148541>", embed=embed, view=review_view)
             
-            # Log to tracking channel
-            log_channel = bot.get_channel(1320540890141556746)
-            if log_channel:
-                log_embed = discord.Embed(title="📋 Application Submitted", color=EMBED_COLOR)
-                log_embed.add_field(name="Type", value="Realm Job", inline=True)
-                log_embed.add_field(name="Applicant", value=interaction.user.mention, inline=True)
-                log_embed.add_field(name="Status", value="Pending Review", inline=True)
-                await log_channel.send(embed=log_embed)
+            # Log to tracking channel using unified system
+            await update_log_message("📋 Application Submitted", {
+                "Type": "Realm Job",
+                "Applicant": interaction.user.mention,
+                "Status": "Pending Review"
+            }, EMBED_COLOR)
             
             await interaction.response.send_message("✅ Your Realm Job application has been submitted!", ephemeral=True)
         except Exception as e:
@@ -499,14 +497,12 @@ class AdminModal(discord.ui.Modal):
             
             await thread.send(f"<@&1320538700656148541>", embed=embed, view=review_view)
             
-            # Log to tracking channel
-            log_channel = bot.get_channel(1320540890141556746)
-            if log_channel:
-                log_embed = discord.Embed(title="📋 Application Submitted", color=EMBED_COLOR)
-                log_embed.add_field(name="Type", value="Admin", inline=True)
-                log_embed.add_field(name="Applicant", value=interaction.user.mention, inline=True)
-                log_embed.add_field(name="Status", value="Pending Review", inline=True)
-                await log_channel.send(embed=log_embed)
+            # Log to tracking channel using unified system
+            await update_log_message("📋 Application Submitted", {
+                "Type": "Admin",
+                "Applicant": interaction.user.mention,
+                "Status": "Pending Review"
+            }, EMBED_COLOR)
             
             await interaction.response.send_message("✅ Your Admin application has been submitted!", ephemeral=True)
         except Exception as e:
@@ -540,14 +536,12 @@ class ApplicationReviewView(discord.ui.View):
             if role and hasattr(self.applicant, 'add_roles'):
                 await self.applicant.add_roles(role)
             
-            # Update log
-            log_channel = bot.get_channel(1320540890141556746)
-            if log_channel:
-                log_embed = discord.Embed(title="✅ Application Approved", color=0x00FF00)
-                log_embed.add_field(name="Type", value=role_name, inline=True)
-                log_embed.add_field(name="Applicant", value=self.applicant.mention, inline=True)
-                log_embed.add_field(name="Reviewer", value=interaction.user.mention, inline=True)
-                await log_channel.send(embed=log_embed)
+            # Update log using unified system
+            await update_log_message("✅ Application Approved", {
+                "Type": role_name,
+                "Applicant": self.applicant.mention,
+                "Reviewer": interaction.user.mention
+            }, 0x00FF00)
             
             await interaction.response.send_message(f"✅ {self.applicant.mention} has been approved for {role_name}!")
             
@@ -567,14 +561,12 @@ class ApplicationReviewView(discord.ui.View):
             return
         
         try:
-            # Update log
-            log_channel = bot.get_channel(1320540890141556746)
-            if log_channel:
-                log_embed = discord.Embed(title="❌ Application Denied", color=0xFF0000)
-                log_embed.add_field(name="Type", value=self.application_type.title(), inline=True)
-                log_embed.add_field(name="Applicant", value=self.applicant.mention, inline=True)
-                log_embed.add_field(name="Reviewer", value=interaction.user.mention, inline=True)
-                await log_channel.send(embed=log_embed)
+            # Update log using unified system
+            await update_log_message("❌ Application Denied", {
+                "Type": self.application_type.title(),
+                "Applicant": self.applicant.mention,
+                "Reviewer": interaction.user.mention
+            }, 0xFF0000)
             
             await interaction.response.send_message(f"❌ {self.applicant.mention}'s application has been denied.")
             
@@ -593,7 +585,9 @@ async def apply_command(interaction: discord.Interaction):
     embed.set_footer(text="Select a button below to begin your application")
     
     view = ApplicationView()
-    await interaction.response.send_message(embed=embed, view=view)
+    # Send as standalone message to channel, not as reply
+    await interaction.response.send_message("✅ Application system activated!", ephemeral=True)
+    await interaction.channel.send(embed=embed, view=view)
 
 # ADVANCED TICKET SYSTEM - 4 Types with Claim/Close Workflow
 class TicketView(discord.ui.View):
@@ -662,14 +656,12 @@ class PermissionsTicketModal(discord.ui.Modal):
             
             await thread.send(f"<@&1320538700656148541>", embed=embed, view=ticket_manage_view)
             
-            # Log to tracking channel
-            log_channel = bot.get_channel(1320540890141556746)
-            if log_channel:
-                log_embed = discord.Embed(title="🎫 Ticket Created", color=EMBED_COLOR)
-                log_embed.add_field(name="Type", value=ticket_type, inline=True)
-                log_embed.add_field(name="User", value=interaction.user.mention, inline=True)
-                log_embed.add_field(name="Status", value="Open", inline=True)
-                await log_channel.send(embed=log_embed)
+            # Log ticket creation using unified system
+            await update_log_message("🎫 Ticket Created", {
+                "Type": ticket_type,
+                "User": interaction.user.mention,
+                "Status": "Open"
+            }, EMBED_COLOR)
             
             await interaction.response.send_message(f"✅ Your {ticket_type} ticket has been created!", ephemeral=True)
         except Exception as e:
@@ -810,23 +802,24 @@ class TicketCloseModal(discord.ui.Modal):
     
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            # Log closure
-            log_channel = bot.get_channel(1320540890141556746)
-            if log_channel:
-                log_embed = discord.Embed(title="🔒 Ticket Closed", color=0x00FF00)
-                log_embed.add_field(name="Type", value=self.ticket_type, inline=True)
-                log_embed.add_field(name="User", value=self.user.mention, inline=True)
-                log_embed.add_field(name="Closed By", value=interaction.user.mention, inline=True)
-                log_embed.add_field(name="Resolution", value=self.resolution.value, inline=False)
-                await log_channel.send(embed=log_embed)
-            
             await interaction.response.send_message(f"🔒 Ticket closed successfully!")
+            
+            # Log closure
+            await update_log_message("🔒 Ticket Closed", {
+                "Type": self.ticket_type,
+                "User": self.user.mention,
+                "Closed By": interaction.user.mention,
+                "Resolution": self.resolution.value
+            }, 0x00FF00)
             
             # Wait 10 seconds then delete thread
             await asyncio.sleep(10)
             await interaction.channel.delete()
         except Exception as e:
-            await interaction.response.send_message(f"❌ Error closing ticket: {str(e)}", ephemeral=True)
+            try:
+                await interaction.followup.send(f"❌ Error closing ticket: {str(e)}", ephemeral=True)
+            except:
+                pass
 
 @bot.tree.command(name="tickets", description="🎫 Create a support ticket")
 @discord.app_commands.default_permissions(send_messages=True)
@@ -839,7 +832,107 @@ async def tickets_command(interaction: discord.Interaction):
     embed.set_footer(text="Staff will respond promptly • Select a button below")
     
     view = TicketView()
-    await interaction.response.send_message(embed=embed, view=view)
+    # Send as standalone message to channel, not as reply
+    await interaction.response.send_message("✅ Ticket system activated!", ephemeral=True)
+    await interaction.channel.send(embed=embed, view=view)
+
+# UNIFIED LOGGING SYSTEM
+MAIN_LOG_MESSAGE = None
+
+async def update_log_message(title, fields, color):
+    """Update the unified log message instead of creating new ones"""
+    global MAIN_LOG_MESSAGE
+    log_channel = bot.get_channel(1320540890141556746)
+    if not log_channel:
+        return
+    
+    try:
+        # Create embed
+        embed = discord.Embed(title="🌹 Manor Activity Log", description="Recent activity in the manor", color=EMBED_COLOR)
+        embed.add_field(name=f"⏰ {title}", value=f"**{datetime.now().strftime('%H:%M:%S')}**", inline=False)
+        
+        for field_name, field_value in fields.items():
+            embed.add_field(name=field_name, value=field_value, inline=True)
+        
+        embed.set_footer(text=f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        # If no main message exists, create one
+        if MAIN_LOG_MESSAGE is None:
+            MAIN_LOG_MESSAGE = await log_channel.send(embed=embed)
+        else:
+            # Try to edit the existing message
+            try:
+                await MAIN_LOG_MESSAGE.edit(embed=embed)
+            except discord.NotFound:
+                # Message was deleted, create a new one
+                MAIN_LOG_MESSAGE = await log_channel.send(embed=embed)
+    except Exception as e:
+        print(f"Error updating log message: {e}")
+
+# MISSING COMMANDS
+@bot.tree.command(name="purgechat", description="🧹 Delete multiple messages from this channel")
+@discord.app_commands.default_permissions(manage_messages=True)
+async def purgechat_command(interaction: discord.Interaction, count: int = 10):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can purge messages", ephemeral=True)
+        return
+    
+    if count < 1 or count > 100:
+        await interaction.response.send_message("❌ Please specify between 1-100 messages to delete", ephemeral=True)
+        return
+    
+    try:
+        await interaction.response.defer(ephemeral=True)
+        deleted = await interaction.channel.purge(limit=count)
+        
+        embed = discord.Embed(title="🧹 Messages Purged", description="Channel cleanup completed", color=EMBED_COLOR)
+        embed.add_field(name="📊 Messages Deleted", value=f"{len(deleted)} messages", inline=True)
+        embed.add_field(name="🛡️ Moderator", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📍 Channel", value=interaction.channel.mention, inline=True)
+        embed.set_footer(text="Manor maintenance completed")
+        
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        
+        # Log the action
+        await update_log_message("🧹 Messages Purged", {
+            "Channel": interaction.channel.mention,
+            "Count": f"{len(deleted)} messages",
+            "Moderator": interaction.user.mention
+        }, EMBED_COLOR)
+        
+    except Exception as e:
+        await interaction.followup.send(f"❌ Error purging messages: {str(e)}", ephemeral=True)
+
+@bot.tree.command(name="deletechannel", description="🗑️ Delete the current channel or thread")
+@discord.app_commands.default_permissions(manage_channels=True)
+async def deletechannel_command(interaction: discord.Interaction, confirmation: str = ""):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can delete channels", ephemeral=True)
+        return
+    
+    if confirmation.lower() != "confirm":
+        await interaction.response.send_message("❌ Please use `/deletechannel confirm` to confirm deletion", ephemeral=True)
+        return
+    
+    try:
+        channel_name = interaction.channel.name
+        channel_type = "thread" if hasattr(interaction.channel, 'parent') else "channel"
+        
+        # Log before deletion
+        await update_log_message(f"🗑️ {channel_type.title()} Deleted", {
+            "Name": channel_name,
+            "Type": channel_type,
+            "Deleted By": interaction.user.mention
+        }, 0xFF0000)
+        
+        await interaction.response.send_message(f"🗑️ Deleting {channel_type} in 5 seconds...", ephemeral=True)
+        await asyncio.sleep(5)
+        await interaction.channel.delete(reason=f"Deleted by {interaction.user}")
+        
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Error deleting {channel_type}: {str(e)}", ephemeral=True)
 
 async def run_discord_bot():
     """Run the Discord bot."""
