@@ -291,6 +291,63 @@ async def create_embed(ctx, *, content):
     embed.set_footer(text="Created with RosethornBot 🌹")
     await ctx.send(embed=embed)
 
+# Economy System Commands
+@bot.tree.command(name="balance", description="💰 Check your rosebud balance")
+async def balance_command(interaction: discord.Interaction):
+    balance = 1000  # Placeholder
+    
+    embed = discord.Embed(
+        title="🌹 Rosebud Wallet",
+        description="Your current balance in the Victorian treasury",
+        color=EMBED_COLOR
+    )
+    embed.add_field(name="💰 Balance", value=f"{balance:,} Rosebuds", inline=True)
+    embed.add_field(name="🏆 Rank", value="Noble Patron", inline=True)
+    embed.set_footer(text="Earn more rosebuds through activities and daily check-ins!")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="daily", description="🌅 Claim your daily rosebud allowance")
+async def daily_command(interaction: discord.Interaction):
+    daily_amount = 100
+    
+    embed = discord.Embed(
+        title="🌅 Daily Victorian Allowance",
+        description="You have received your daily stipend from the manor!",
+        color=EMBED_COLOR
+    )
+    embed.add_field(name="💰 Received", value=f"+{daily_amount} Rosebuds", inline=True)
+    embed.add_field(name="🕐 Next Claim", value="Available in 23h 59m", inline=True)
+    embed.set_footer(text="Return tomorrow for another allowance!")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="rosenotes", description="📝 View or add notes about a member")
+async def rosenotes_command(interaction: discord.Interaction, member: discord.Member, note: str = None):
+    if note:
+        if not interaction.user.guild_permissions.manage_guild:
+            embed = discord.Embed(title="🚫 Access Denied", description="Only administrators can add rosenotes", color=0xFF0000)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
+        embed = discord.Embed(title="📝 Rosenote Added", description=f"Note added for {member.display_name}", color=EMBED_COLOR)
+        embed.add_field(name="📋 Note", value=note, inline=False)
+        embed.set_footer(text=f"Added by {interaction.user.display_name}")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    else:
+        embed = discord.Embed(title=f"📝 Rosenotes for {member.display_name}", description="Member information and administrative notes", color=EMBED_COLOR)
+        embed.add_field(name="👤 Member Since", value=member.joined_at.strftime("%B %d, %Y") if member.joined_at else "Unknown", inline=True)
+        embed.add_field(name="🎭 Roles", value=f"{len(member.roles)-1} roles", inline=True)
+        embed.add_field(name="📋 Notes", value="No administrative notes on file", inline=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@bot.tree.command(name="shop", description="🛍️ Browse the Victorian manor shop")
+async def shop_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="🛍️ Victorian Manor Boutique", description="Elegant items available for purchase with rosebuds", color=EMBED_COLOR)
+    embed.add_field(name="🎭 Custom Role", value="500 Rosebuds - Create your own colored role", inline=False)
+    embed.add_field(name="🌹 Profile Badge", value="250 Rosebuds - Victorian achievement badge", inline=False)
+    embed.add_field(name="💬 Custom Command", value="1000 Rosebuds - Create a personal command", inline=False)
+    embed.set_footer(text="Use /buy <item> to purchase!")
+    await interaction.response.send_message(embed=embed)
+
 async def run_discord_bot():
     """Run the Discord bot."""
     try:
