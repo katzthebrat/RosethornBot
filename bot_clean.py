@@ -892,6 +892,49 @@ async def tickets_command(interaction: discord.Interaction):
     # Check tutorial progress
     await check_tutorial_progress(interaction.user.id, "tickets")
 
+# AI TEST COMMANDS  
+@bot.tree.command(name="aitest", description="🤖 Test free AI sentiment analysis and moderation")
+@discord.app_commands.default_permissions(send_messages=True)
+async def aitest_command(interaction: discord.Interaction, message: str):
+    try:
+        from services.huggingface_ai import free_ai
+        
+        # Initialize AI if needed
+        await free_ai.initialize()
+        
+        # Analyze sentiment and moderate content
+        sentiment = await free_ai.analyze_sentiment(message)
+        moderation = await free_ai.moderate_content(message)
+        
+        embed = discord.Embed(title="🤖 Free AI Analysis", description="Victorian intelligence at thy service", color=EMBED_COLOR)
+        embed.add_field(name="📝 Message", value=f"```{message[:100]}{'...' if len(message) > 100 else ''}```", inline=False)
+        embed.add_field(name="💭 Sentiment", value=f"**{sentiment.title()}**", inline=True)
+        
+        safety_status = "✅ Safe" if moderation['safe'] else "⚠️ Flagged"
+        embed.add_field(name="🛡️ Safety", value=safety_status, inline=True)
+        
+        if moderation['categories']:
+            embed.add_field(name="🔍 Issues", value=", ".join(moderation['categories']), inline=True)
+        
+        embed.set_footer(text="Powered by free AI libraries • No API costs required")
+        await interaction.response.send_message(embed=embed)
+        
+    except Exception as e:
+        await interaction.response.send_message(f"❌ AI Test Error: {str(e)}", ephemeral=True)
+
+@bot.tree.command(name="aiinfo", description="ℹ️ Information about free AI features")
+@discord.app_commands.default_permissions(send_messages=True)
+async def aiinfo_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="🤖 Free AI Features", description="RosethornBot's intelligence capabilities", color=EMBED_COLOR)
+    embed.add_field(name="💭 Sentiment Analysis", value="Detects positive, negative, neutral emotions", inline=True)
+    embed.add_field(name="🛡️ Content Moderation", value="Flags toxic, spam, and inappropriate content", inline=True)
+    embed.add_field(name="🌹 Welcome Messages", value="Generates Victorian Gothic greetings", inline=True)
+    embed.add_field(name="💰 No Costs", value="Uses free TextBlob & VADER libraries", inline=True)
+    embed.add_field(name="🔄 Fallback System", value="OpenAI first, then free AI backup", inline=True)
+    embed.add_field(name="🧪 Test Command", value="Use `/aitest` to try it out!", inline=True)
+    embed.set_footer(text="Completely free AI - no API keys required")
+    await interaction.response.send_message(embed=embed)
+
 # INDIVIDUAL TRACKING SYSTEM
 async def create_tracking_message(title, fields, color, ticket_id=None):
     """Create individual tracking message for each ticket/application"""
@@ -2770,32 +2813,6 @@ async def run_discord_bot():
     except Exception as e:
         logger.error(f"🥀 Bot startup error: {e}")
         raise
-
-# AI TEST COMMANDS
-@bot.tree.command(name="aitest", description="🤖 Test free AI sentiment analysis and moderation")
-@discord.app_commands.default_permissions(send_messages=True)
-async def aitest_command(interaction: discord.Interaction, message: str):
-    from services.huggingface_ai import free_ai
-    
-    # Initialize AI if needed
-    await free_ai.initialize()
-    
-    # Analyze sentiment and moderate content
-    sentiment = await free_ai.analyze_sentiment(message)
-    moderation = await free_ai.moderate_content(message)
-    
-    embed = discord.Embed(title="🤖 Free AI Analysis", description="Victorian intelligence at thy service", color=EMBED_COLOR)
-    embed.add_field(name="📝 Message", value=f"```{message[:100]}{'...' if len(message) > 100 else ''}```", inline=False)
-    embed.add_field(name="💭 Sentiment", value=f"**{sentiment.title()}**", inline=True)
-    
-    safety_status = "✅ Safe" if moderation['safe'] else "⚠️ Flagged"
-    embed.add_field(name="🛡️ Safety", value=safety_status, inline=True)
-    
-    if moderation['categories']:
-        embed.add_field(name="🔍 Issues", value=", ".join(moderation['categories']), inline=True)
-    
-    embed.set_footer(text="Powered by free AI libraries • No API costs required")
-    await interaction.response.send_message(embed=embed)
 
 if __name__ == "__main__":
     asyncio.run(run_discord_bot())
