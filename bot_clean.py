@@ -53,6 +53,10 @@ async def balance_command(interaction: discord.Interaction):
     embed.add_field(name="🌹 Rosebuds", value=f"{balance:,}", inline=True)
     embed.add_field(name="💎 Manor Rank", value="Distinguished Resident", inline=True)
     embed.set_footer(text="Wealth accumulated through Victorian endeavors")
+    
+    # Check tutorial progress
+    await check_tutorial_progress(interaction.user.id, "balance")
+    
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="daily", description="🌅 Claim your daily rosebud reward")
@@ -102,6 +106,9 @@ async def rosenotes_command(interaction: discord.Interaction, member: discord.Me
         embed.add_field(name="📅 Records", value=f"{len(sample_notes)} entries", inline=True)
         embed.add_field(name="📜 Latest Note", value=random.choice(sample_notes), inline=False)
         embed.set_footer(text="Use /rosenotes @member <note> to add entries")
+    
+    # Check tutorial progress
+    await check_tutorial_progress(interaction.user.id, "rosenotes")
     
     await interaction.response.send_message(embed=embed)
 
@@ -277,6 +284,10 @@ async def trivia_command(interaction: discord.Interaction):
     embed.add_field(name="📝 Options", value="\n".join([f"{i+1}. {opt}" for i, opt in enumerate(options)]), inline=False)
     embed.add_field(name="💡 Answer", value=f"||{answer}||", inline=False)
     embed.set_footer(text="Click the spoiler to reveal the answer • Victorian wisdom awaits")
+    
+    # Check tutorial progress
+    await check_tutorial_progress(interaction.user.id, "trivia")
+    
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="riddle", description="🔮 Solve Gothic riddles and puzzles")
@@ -877,6 +888,9 @@ async def tickets_command(interaction: discord.Interaction):
     # Send as standalone message to channel, not as reply
     await interaction.response.send_message("✅ Ticket system activated!", ephemeral=True)
     await interaction.channel.send(embed=embed, view=view)
+    
+    # Check tutorial progress
+    await check_tutorial_progress(interaction.user.id, "tickets")
 
 # INDIVIDUAL TRACKING SYSTEM
 async def create_tracking_message(title, fields, color, ticket_id=None):
@@ -982,6 +996,283 @@ async def deletechannel_command(interaction: discord.Interaction, confirmation: 
         
     except Exception as e:
         await interaction.response.send_message(f"❌ Error deleting {channel_type}: {str(e)}", ephemeral=True)
+
+# PLAYFUL ONBOARDING TUTORIAL SYSTEM
+class TutorialStep:
+    def __init__(self, title, description, action_type, action_data=None, completion_message="Well done!"):
+        self.title = title
+        self.description = description
+        self.action_type = action_type  # 'command', 'reaction', 'button', 'completion'
+        self.action_data = action_data or {}
+        self.completion_message = completion_message
+
+# Tutorial steps with Victorian Gothic character guidance
+TUTORIAL_STEPS = [
+    TutorialStep(
+        "🌹 Welcome to Rosewood Manor",
+        "Greetings, dear guest! I am **Lady Rosalind**, the manor's ethereal guide. Welcome to our Victorian estate where shadows dance with moonlight and every corner holds secrets waiting to be discovered.",
+        "button",
+        {"button_text": "Enter the Manor", "next_step": 1}
+    ),
+    TutorialStep(
+        "💰 Your Manor Treasury",
+        "Every resident of our manor possesses a treasury of mystical **Rosebuds** - our ethereal currency. These crimson petals hold power within our realm. Try the `/balance` command to glimpse your spiritual wealth.",
+        "command",
+        {"command": "balance", "next_step": 2},
+        "Splendid! Your treasury shimmers with potential. These rosebuds shall serve you well in our manor's mysterious endeavors."
+    ),
+    TutorialStep(
+        "📜 Manor Wisdom & Lore",
+        "Knowledge is power in our shadowed halls. Use `/rosenotes` to discover the ancient wisdom and personal chronicles that bind our community together through time and mystery.",
+        "command",
+        {"command": "rosenotes", "next_step": 3},
+        "Excellent! The ancient texts reveal their secrets to those who seek knowledge. These chronicles hold the memories of all who dwell within our walls."
+    ),
+    TutorialStep(
+        "🎭 Manor Entertainment",
+        "Even in the shadows, we find joy and merriment. Try `/trivia` to test your wit against the manor's riddles, or `/8ball` to commune with the mystical spirits that guide our fate.",
+        "command",
+        {"command": "trivia", "next_step": 4, "alternatives": ["8ball"]},
+        "Marvelous! Your spirit brightens these ancient halls. Entertainment is the soul's respite from the weight of eternity."
+    ),
+    TutorialStep(
+        "🎫 Manor Assistance",
+        "Should you ever require aid or wish to report disturbances in our peaceful realm, use `/tickets` to summon assistance from our devoted staff. We are always here to help.",
+        "command",
+        {"command": "tickets", "next_step": 5},
+        "Wise choice! Our staff are ever-vigilant guardians of peace and order within the manor. Never hesitate to seek their counsel."
+    ),
+    TutorialStep(
+        "🌹 Your Manor Journey Begins",
+        "Congratulations, dear resident! You have completed your initiation into the mysteries of Rosewood Manor. Lady Rosalind's guidance has prepared you for the adventures that await within our shadowed halls.",
+        "completion",
+        {"rewards": {"rosebuds": 100, "title": "Manor Initiate"}},
+        "Welcome to your new eternal home, Manor Initiate! May your journey be filled with wonder, mystery, and the dark beauty that defines our Victorian realm."
+    )
+]
+
+class TutorialView(discord.ui.View):
+    def __init__(self, user_id, step_number=0):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+        self.step_number = step_number
+        self.setup_buttons()
+    
+    def setup_buttons(self):
+        self.clear_items()
+        current_step = TUTORIAL_STEPS[self.step_number]
+        
+        if current_step.action_type == "button":
+            button = discord.ui.Button(
+                label=current_step.action_data.get("button_text", "Continue"),
+                style=discord.ButtonStyle.primary,
+                emoji="🌹"
+            )
+            button.callback = self.next_step_callback
+            self.add_item(button)
+        
+        # Always add skip button except on completion
+        if current_step.action_type != "completion":
+            skip_button = discord.ui.Button(
+                label="Skip Tutorial",
+                style=discord.ButtonStyle.secondary,
+                emoji="⏭️"
+            )
+            skip_button.callback = self.skip_tutorial
+            self.add_item(skip_button)
+    
+    async def next_step_callback(self, interaction: discord.Interaction):
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("❌ This tutorial is not for you", ephemeral=True)
+            return
+        
+        current_step = TUTORIAL_STEPS[self.step_number]
+        next_step_num = current_step.action_data.get("next_step", self.step_number + 1)
+        
+        if next_step_num < len(TUTORIAL_STEPS):
+            await self.show_step(interaction, next_step_num)
+        else:
+            await self.complete_tutorial(interaction)
+    
+    async def skip_tutorial(self, interaction: discord.Interaction):
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("❌ This tutorial is not for you", ephemeral=True)
+            return
+        
+        embed = discord.Embed(
+            title="🌹 Tutorial Skipped",
+            description="Lady Rosalind fades into the shadows with a knowing smile.\n\n*\"The manor's mysteries await your discovery at your own pace, dear guest. Should you wish to learn, simply use `/tutorial` again.\"*",
+            color=EMBED_COLOR
+        )
+        embed.set_footer(text="You can restart the tutorial anytime with /tutorial")
+        await interaction.response.edit_message(embed=embed, view=None)
+    
+    async def show_step(self, interaction, step_number):
+        self.step_number = step_number
+        self.setup_buttons()
+        
+        step = TUTORIAL_STEPS[step_number]
+        
+        embed = discord.Embed(
+            title=step.title,
+            description=step.description,
+            color=EMBED_COLOR
+        )
+        
+        # Add step progress
+        embed.add_field(
+            name="📍 Progress", 
+            value=f"Step {step_number + 1} of {len(TUTORIAL_STEPS)}", 
+            inline=True
+        )
+        
+        if step.action_type == "command":
+            embed.add_field(
+                name="🎯 Your Task",
+                value=f"Try the `/{step.action_data['command']}` command",
+                inline=True
+            )
+            if "alternatives" in step.action_data:
+                embed.add_field(
+                    name="✨ Alternatives",
+                    value=" or ".join([f"`/{alt}`" for alt in step.action_data["alternatives"]]),
+                    inline=True
+                )
+        
+        embed.set_thumbnail(url="https://i.imgur.com/placeholder_rosalind.png")  # Placeholder for character image
+        embed.set_footer(text="Lady Rosalind guides you through the manor • Tutorial System")
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+    
+    async def complete_tutorial(self, interaction):
+        step = TUTORIAL_STEPS[-1]
+        
+        embed = discord.Embed(
+            title=step.title,
+            description=step.description,
+            color=0x00FF00
+        )
+        
+        # Show rewards
+        rewards = step.action_data.get("rewards", {})
+        if rewards:
+            reward_text = []
+            if "rosebuds" in rewards:
+                reward_text.append(f"🌹 {rewards['rosebuds']} Rosebuds")
+            if "title" in rewards:
+                reward_text.append(f"🏷️ Title: **{rewards['title']}**")
+            
+            embed.add_field(name="🎁 Rewards Earned", value="\n".join(reward_text), inline=False)
+        
+        embed.add_field(
+            name="🗝️ What's Next?",
+            value="• Explore commands with `/help`\n• Join conversations in manor channels\n• Apply for positions with `/apply`\n• Create tickets with `/tickets` if you need help",
+            inline=False
+        )
+        
+        embed.set_footer(text="Welcome to Rosewood Manor! Your adventure begins now...")
+        
+        # Log tutorial completion
+        await create_tracking_message("🎓 Tutorial Completed", {
+            "👤 User": interaction.user.mention,
+            "📚 Status": "✅ Completed",
+            "🎁 Rewards": "100 Rosebuds + Manor Initiate Title"
+        }, 0x00FF00, f"TUTORIAL-{interaction.user.id}")
+        
+        await interaction.response.edit_message(embed=embed, view=None)
+
+# Tutorial tracking for command completion
+tutorial_tracking = {}
+
+@bot.tree.command(name="tutorial", description="🎭 Begin your guided tour of Rosewood Manor")
+@discord.app_commands.default_permissions(send_messages=True)
+async def tutorial_command(interaction: discord.Interaction):
+    # Create initial tutorial embed
+    step = TUTORIAL_STEPS[0]
+    
+    embed = discord.Embed(
+        title=step.title,
+        description=step.description,
+        color=EMBED_COLOR
+    )
+    
+    embed.add_field(
+        name="📍 Progress", 
+        value=f"Step 1 of {len(TUTORIAL_STEPS)}", 
+        inline=True
+    )
+    
+    embed.add_field(
+        name="⏱️ Duration",
+        value="~3-5 minutes",
+        inline=True
+    )
+    
+    embed.set_thumbnail(url="https://i.imgur.com/placeholder_rosalind.png")  # Placeholder for character image
+    embed.set_footer(text="Lady Rosalind awaits your presence • Interactive Tutorial")
+    
+    view = TutorialView(interaction.user.id, 0)
+    tutorial_tracking[interaction.user.id] = {"current_step": 0, "started_at": datetime.now()}
+    
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+# Enhanced command tracking for tutorial progression
+async def check_tutorial_progress(user_id, command_used):
+    """Check if user completed a tutorial step"""
+    if user_id not in tutorial_tracking:
+        return
+    
+    current_step_num = tutorial_tracking[user_id]["current_step"]
+    if current_step_num >= len(TUTORIAL_STEPS):
+        return
+    
+    current_step = TUTORIAL_STEPS[current_step_num]
+    
+    if (current_step.action_type == "command" and 
+        (command_used == current_step.action_data.get("command") or 
+         command_used in current_step.action_data.get("alternatives", []))):
+        
+        # User completed the step!
+        tutorial_tracking[user_id]["current_step"] += 1
+        
+        # Send completion message
+        try:
+            user = bot.get_user(user_id)
+            if user:
+                embed = discord.Embed(
+                    title="✨ Step Completed!",
+                    description=f"**Lady Rosalind nods approvingly**\n\n*\"{current_step.completion_message}\"*",
+                    color=0x00FF00
+                )
+                
+                next_step_num = tutorial_tracking[user_id]["current_step"]
+                if next_step_num < len(TUTORIAL_STEPS):
+                    next_step = TUTORIAL_STEPS[next_step_num]
+                    embed.add_field(
+                        name="🔮 Next Step",
+                        value=f"**{next_step.title}**\n{next_step.description[:100]}...",
+                        inline=False
+                    )
+                    
+                    if next_step.action_type == "command":
+                        embed.add_field(
+                            name="🎯 Try This",
+                            value=f"`/{next_step.action_data['command']}`",
+                            inline=True
+                        )
+                else:
+                    # Tutorial complete
+                    embed.add_field(
+                        name="🎉 Tutorial Complete!",
+                        value="You have mastered the basics of Rosewood Manor!",
+                        inline=False
+                    )
+                    del tutorial_tracking[user_id]
+                
+                embed.set_footer(text="Tutorial progress automatically tracked")
+                await user.send(embed=embed)
+        except:
+            pass  # Silently fail if can't DM user
 
 async def run_discord_bot():
     """Run the Discord bot."""
