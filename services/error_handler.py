@@ -372,6 +372,9 @@ error_handler = VictorianErrorHandler()
 # Decorator for automatic error handling
 def handle_errors(func):
     """Decorator to automatically handle command errors"""
+    import functools
+    
+    @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
@@ -391,6 +394,4 @@ def handle_errors(func):
                 logger.error(f"Error in {func.__name__}: {e}")
                 logger.error(traceback.format_exc())
     
-    wrapper.__name__ = func.__name__
-    wrapper.__annotations__ = func.__annotations__.copy()
     return wrapper
