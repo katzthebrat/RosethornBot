@@ -40,6 +40,8 @@ class Member(db.Model):
     xp = db.Column(db.Integer, default=0)
     level = db.Column(db.Integer, default=1)
     warnings = db.Column(db.Integer, default=0)
+    reputation = db.Column(db.Integer, default=0)
+    voice_minutes = db.Column(db.Integer, default=0)
     last_active = db.Column(db.DateTime, default=datetime.utcnow)
     check_in_streak = db.Column(db.Integer, default=0)
     last_check_in = db.Column(db.Date, nullable=True)
@@ -209,3 +211,95 @@ class StickyMessage(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     __table_args__ = (db.UniqueConstraint('channel_id'),)  # One sticky per channel
+
+class Reputation(db.Model):
+    """Reputation/Manor Standing system."""
+    id = db.Column(db.Integer, primary_key=True)
+    guild_id = db.Column(db.String(20), nullable=False)
+    user_id = db.Column(db.String(20), nullable=False)
+    given_by = db.Column(db.String(20), nullable=False)
+    points = db.Column(db.Integer, nullable=False)
+    reason = db.Column(db.String(500))
+    virtue_type = db.Column(db.String(50), default='general')  # kindness, wisdom, leadership, etc.
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class ManorEvent(db.Model):
+    """Manor event system."""
+    id = db.Column(db.Integer, primary_key=True)
+    guild_id = db.Column(db.String(20), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    event_date = db.Column(db.DateTime, nullable=False)
+    created_by = db.Column(db.String(20), nullable=False)
+    channel_id = db.Column(db.String(20))
+    max_attendees = db.Column(db.Integer, default=-1)  # -1 for unlimited
+    reminder_sent = db.Column(db.Boolean, default=False)
+    event_type = db.Column(db.String(50), default='social')  # social, educational, gaming
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class EventRSVP(db.Model):
+    """Event RSVP tracking."""
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('manor_event.id'), nullable=False)
+    user_id = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), default='attending')  # attending, maybe, declined
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('event_id', 'user_id'),)
+
+class VictorianQuote(db.Model):
+    """Victorian wisdom and quotes."""
+    id = db.Column(db.Integer, primary_key=True)
+    quote_text = db.Column(db.Text, nullable=False)
+    author = db.Column(db.String(100))
+    category = db.Column(db.String(50), default='wisdom')  # wisdom, love, mystery, etc.
+    rarity = db.Column(db.String(20), default='common')  # common, rare, legendary
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class UserQuoteCollection(db.Model):
+    """User's collected quotes."""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(20), nullable=False)
+    quote_id = db.Column(db.Integer, db.ForeignKey('victorian_quote.id'), nullable=False)
+    collected_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('user_id', 'quote_id'),)
+
+class MemberSpotlight(db.Model):
+    """Weekly member spotlight system."""
+    id = db.Column(db.Integer, primary_key=True)
+    guild_id = db.Column(db.String(20), nullable=False)
+    user_id = db.Column(db.String(20), nullable=False)
+    week_of = db.Column(db.Date, nullable=False)
+    reason = db.Column(db.Text)
+    nominated_by = db.Column(db.String(20), nullable=False)
+    spotlight_message_id = db.Column(db.String(20), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('guild_id', 'week_of'),)
+
+class AutoModeration(db.Model):
+    """Auto-moderation configuration."""
+    id = db.Column(db.Integer, primary_key=True)
+    guild_id = db.Column(db.String(20), nullable=False)
+    rule_type = db.Column(db.String(50), nullable=False)  # spam, profanity, caps, etc.
+    enabled = db.Column(db.Boolean, default=True)
+    action = db.Column(db.String(50), default='warn')  # warn, mute, kick, ban
+    threshold = db.Column(db.Integer, default=3)
+    duration_minutes = db.Column(db.Integer, nullable=True)
+    whitelist_roles = db.Column(db.Text, nullable=True)  # JSON array of role IDs
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class ScheduledAnnouncement(db.Model):
+    """Scheduled announcement system."""
+    id = db.Column(db.Integer, primary_key=True)
+    guild_id = db.Column(db.String(20), nullable=False)
+    channel_id = db.Column(db.String(20), nullable=False)
+    title = db.Column(db.String(200))
+    content = db.Column(db.Text, nullable=False)
+    schedule_type = db.Column(db.String(20), default='once')  # once, daily, weekly, monthly
+    next_send = db.Column(db.DateTime, nullable=False)
+    last_sent = db.Column(db.DateTime, nullable=True)
+    active = db.Column(db.Boolean, default=True)
+    created_by = db.Column(db.String(20), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

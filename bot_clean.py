@@ -1131,6 +1131,849 @@ async def sticky_command(interaction: discord.Interaction, action: str = "create
         embed.set_footer(text="Victorian manor message management • Admin only")
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
+@bot.tree.command(name="reputation", description="🌟 Manage Victorian manor standing and virtues")
+@discord.app_commands.default_permissions(manage_messages=True)
+async def reputation_command(interaction: discord.Interaction, action: str = "view", member: discord.Member = None, points: int = 1, reason: str = "", virtue: str = "general"):
+    # Check if user has admin role for giving reputation
+    if action in ["give", "add", "remove"] and not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can award reputation", ephemeral=True)
+        return
+    
+    if action == "view" or action == "check":
+        target = member or interaction.user
+        
+        # Get member from database
+        from models import Member, Reputation
+        db_member = Member.query.filter_by(user_id=str(target.id), guild_id=str(interaction.guild.id)).first()
+        
+        if not db_member:
+            # Create new member
+            db_member = Member(
+                user_id=str(target.id),
+                guild_id=str(interaction.guild.id),
+                username=target.display_name
+            )
+            db.session.add(db_member)
+            db.session.commit()
+        
+        # Get recent reputation entries
+        recent_rep = Reputation.query.filter_by(
+            user_id=str(target.id),
+            guild_id=str(interaction.guild.id)
+        ).order_by(Reputation.created_at.desc()).limit(5).all()
+        
+        embed = discord.Embed(
+            title="🌟 Manor Standing & Virtues",
+            description=f"**{target.display_name}'s** reputation within our Victorian community",
+            color=EMBED_COLOR
+        )
+        
+        # Calculate virtue breakdown
+        virtue_counts = {}
+        for rep in recent_rep:
+            virtue_counts[rep.virtue_type] = virtue_counts.get(rep.virtue_type, 0) + rep.points
+        
+        embed.add_field(
+            name="🏛️ Overall Standing",
+            value=f"**{db_member.reputation}** Reputation Points",
+            inline=True
+        )
+        
+        if virtue_counts:
+            virtues_text = "\n".join([f"• **{virtue.title()}:** {points}" for virtue, points in virtue_counts.items()])
+            embed.add_field(
+                name="✨ Victorian Virtues",
+                value=virtues_text,
+                inline=True
+            )
+        
+        embed.add_field(
+            name="📊 Community Rank",
+            value=get_reputation_rank(db_member.reputation),
+            inline=True
+        )
+        
+        if recent_rep:
+            recent_text = "\n".join([
+                f"**+{rep.points}** {rep.virtue_type} - {rep.reason[:30]}..." 
+                for rep in recent_rep[:3]
+            ])
+            embed.add_field(
+                name="📜 Recent Recognition",
+                value=recent_text,
+                inline=False
+            )
+        
+        embed.set_thumbnail(url=target.display_avatar.url)
+        embed.set_footer(text="Victorian virtue system • Manor community standing")
+        await interaction.response.send_message(embed=embed)
+    
+    elif action == "give" or action == "add":
+        if not member:
+            await interaction.response.send_message("❌ Please specify a member to award reputation", ephemeral=True)
+            return
+        
+        if not reason:
+            reason = f"Recognized for {virtue} by manor administration"
+        
+        # Get or create member
+        from models import Member, Reputation
+        db_member = Member.query.filter_by(user_id=str(member.id), guild_id=str(interaction.guild.id)).first()
+        
+        if not db_member:
+            db_member = Member(
+                user_id=str(member.id),
+                guild_id=str(interaction.guild.id),
+                username=member.display_name
+            )
+            db.session.add(db_member)
+        
+        # Add reputation
+        db_member.reputation += points
+        
+        # Create reputation entry
+        rep_entry = Reputation(
+            guild_id=str(interaction.guild.id),
+            user_id=str(member.id),
+            given_by=str(interaction.user.id),
+            points=points,
+            reason=reason,
+            virtue_type=virtue
+        )
+        db.session.add(rep_entry)
+        db.session.commit()
+        
+        # Send confirmation
+        embed = discord.Embed(
+            title="🌟 Reputation Awarded",
+            description=f"**{member.display_name}** has been recognized for their virtue",
+            color=0x00FF00
+        )
+        embed.add_field(name="✨ Virtue", value=virtue.title(), inline=True)
+        embed.add_field(name="📈 Points", value=f"+{points}", inline=True)
+        embed.add_field(name="🏛️ New Standing", value=f"{db_member.reputation} points", inline=True)
+        embed.add_field(name="📝 Reason", value=reason, inline=False)
+        embed.set_footer(text=f"Awarded by {interaction.user.display_name}")
+        
+        await interaction.response.send_message(embed=embed)
+        
+        # Log the award
+        await create_tracking_message("🌟 Reputation Awarded", {
+            "👤 Member": member.mention,
+            "✨ Virtue": virtue.title(),
+            "📈 Points": f"+{points}",
+            "📝 Reason": reason,
+            "👨‍⚖️ Awarded By": interaction.user.mention
+        }, 0x00FF00, f"REP-{rep_entry.id}")
+    
+    elif action == "leaderboard" or action == "top":
+        from models import Member
+        top_members = Member.query.filter_by(guild_id=str(interaction.guild.id)).order_by(Member.reputation.desc()).limit(10).all()
+        
+        embed = discord.Embed(
+            title="🏆 Manor Reputation Leaderboard",
+            description="Most virtuous members of our Victorian community",
+            color=EMBED_COLOR
+        )
+        
+        for i, member_data in enumerate(top_members, 1):
+            try:
+                user = bot.get_user(int(member_data.user_id))
+                name = user.display_name if user else member_data.username
+                rank_emoji = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"{i}."
+                
+                embed.add_field(
+                    name=f"{rank_emoji} {name}",
+                    value=f"**{member_data.reputation}** reputation\n{get_reputation_rank(member_data.reputation)}",
+                    inline=True
+                )
+            except:
+                continue
+        
+        embed.set_footer(text="Recognition for virtue and community contribution")
+        await interaction.response.send_message(embed=embed)
+
+def get_reputation_rank(points):
+    """Get reputation rank title based on points."""
+    if points >= 1000:
+        return "🏰 **Manor Lord/Lady**"
+    elif points >= 500:
+        return "👑 **Distinguished Noble**"
+    elif points >= 250:
+        return "🎭 **Esteemed Resident**"
+    elif points >= 100:
+        return "🌹 **Respected Member**"
+    elif points >= 50:
+        return "📚 **Manor Scholar**"
+    elif points >= 25:
+        return "🕯️ **Promising Guest**"
+    else:
+        return "🚪 **New Arrival**"
+
+@bot.tree.command(name="event", description="🎭 Create and manage manor events")
+@discord.app_commands.default_permissions(manage_events=True)
+async def event_command(interaction: discord.Interaction, action: str = "list", title: str = "", date: str = "", description: str = ""):
+    # Check if user has admin role
+    if action in ["create", "cancel", "edit"] and not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can manage events", ephemeral=True)
+        return
+    
+    if action == "create":
+        if not title or not date:
+            await interaction.response.send_message("❌ Please provide event title and date (YYYY-MM-DD HH:MM)", ephemeral=True)
+            return
+        
+        try:
+            from datetime import datetime
+            event_datetime = datetime.strptime(date, "%Y-%m-%d %H:%M")
+            
+            from models import ManorEvent
+            event = ManorEvent(
+                guild_id=str(interaction.guild.id),
+                title=title,
+                description=description or "Join us for this Victorian manor gathering",
+                event_date=event_datetime,
+                created_by=str(interaction.user.id),
+                channel_id=str(interaction.channel.id)
+            )
+            db.session.add(event)
+            db.session.commit()
+            
+            embed = discord.Embed(
+                title="🎭 Manor Event Created",
+                description=f"**{title}** has been scheduled",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="📅 Date & Time", value=discord.utils.format_dt(event_datetime, style='F'), inline=False)
+            embed.add_field(name="📝 Description", value=description or "Join us for this Victorian manor gathering", inline=False)
+            embed.add_field(name="🏛️ RSVP", value="React with ✅ to attend, ❓ for maybe, ❌ to decline", inline=False)
+            embed.set_footer(text=f"Event ID: {event.id} • Created by {interaction.user.display_name}")
+            
+            message = await interaction.response.send_message(embed=embed)
+            
+            # Add RSVP reactions
+            await message.add_reaction("✅")
+            await message.add_reaction("❓") 
+            await message.add_reaction("❌")
+            
+        except ValueError:
+            await interaction.response.send_message("❌ Invalid date format. Use YYYY-MM-DD HH:MM", ephemeral=True)
+    
+    elif action == "list":
+        from models import ManorEvent
+        upcoming_events = ManorEvent.query.filter(
+            ManorEvent.guild_id == str(interaction.guild.id),
+            ManorEvent.event_date > datetime.now()
+        ).order_by(ManorEvent.event_date).limit(10).all()
+        
+        if not upcoming_events:
+            embed = discord.Embed(
+                title="🎭 Manor Events",
+                description="No upcoming events scheduled. Create one with `/event create`",
+                color=EMBED_COLOR
+            )
+        else:
+            embed = discord.Embed(
+                title="🎭 Upcoming Manor Events",
+                description="Victorian gatherings and activities",
+                color=EMBED_COLOR
+            )
+            
+            for event in upcoming_events:
+                embed.add_field(
+                    name=f"🎭 {event.title}",
+                    value=f"📅 {discord.utils.format_dt(event.event_date, style='F')}\n📝 {event.description[:100]}...",
+                    inline=False
+                )
+        
+        embed.set_footer(text="Use /event create to schedule new events")
+        await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="quote", description="📜 Victorian wisdom and daily quotes")
+async def quote_command(interaction: discord.Interaction, action: str = "daily"):
+    from models import VictorianQuote, UserQuoteCollection
+    import random
+    
+    if action == "daily" or action == "random":
+        # Get a random quote based on rarity
+        quotes = VictorianQuote.query.all()
+        if not quotes:
+            # Seed some quotes if none exist
+            await seed_quotes()
+            quotes = VictorianQuote.query.all()
+        
+        # Weighted random selection based on rarity
+        rarity_weights = {"common": 70, "rare": 25, "legendary": 5}
+        available_quotes = []
+        
+        for quote in quotes:
+            weight = rarity_weights.get(quote.rarity, 1)
+            available_quotes.extend([quote] * weight)
+        
+        selected_quote = random.choice(available_quotes)
+        
+        # Check if user has this quote
+        existing = UserQuoteCollection.query.filter_by(
+            user_id=str(interaction.user.id),
+            quote_id=selected_quote.id
+        ).first()
+        
+        if not existing:
+            # Add to user's collection
+            collection_entry = UserQuoteCollection(
+                user_id=str(interaction.user.id),
+                quote_id=selected_quote.id
+            )
+            db.session.add(collection_entry)
+            db.session.commit()
+            collection_text = "✨ **New quote added to your collection!**"
+        else:
+            collection_text = "📚 Already in your collection"
+        
+        # Get rarity color
+        rarity_colors = {"common": 0x708090, "rare": 0x9932CC, "legendary": 0xFFD700}
+        color = rarity_colors.get(selected_quote.rarity, EMBED_COLOR)
+        
+        embed = discord.Embed(
+            title="📜 Victorian Wisdom",
+            description=f"*\"{selected_quote.quote_text}\"*",
+            color=color
+        )
+        
+        if selected_quote.author:
+            embed.add_field(name="✍️ Author", value=selected_quote.author, inline=True)
+        
+        embed.add_field(name="🎭 Rarity", value=selected_quote.rarity.title(), inline=True)
+        embed.add_field(name="📚 Collection", value=collection_text, inline=True)
+        embed.set_footer(text="Daily wisdom from the Victorian era • Use /quote collection to view all")
+        
+        await interaction.response.send_message(embed=embed)
+    
+    elif action == "collection" or action == "my":
+        # Show user's quote collection
+        user_quotes = db.session.query(VictorianQuote).join(
+            UserQuoteCollection, VictorianQuote.id == UserQuoteCollection.quote_id
+        ).filter(UserQuoteCollection.user_id == str(interaction.user.id)).all()
+        
+        if not user_quotes:
+            embed = discord.Embed(
+                title="📚 Your Quote Collection",
+                description="You haven't collected any quotes yet. Use `/quote daily` to start collecting Victorian wisdom!",
+                color=EMBED_COLOR
+            )
+        else:
+            embed = discord.Embed(
+                title="📚 Your Victorian Quote Collection",
+                description=f"You have collected **{len(user_quotes)}** pieces of wisdom",
+                color=EMBED_COLOR
+            )
+            
+            # Group by rarity
+            common = [q for q in user_quotes if q.rarity == "common"]
+            rare = [q for q in user_quotes if q.rarity == "rare"]
+            legendary = [q for q in user_quotes if q.rarity == "legendary"]
+            
+            if common:
+                embed.add_field(name="📜 Common", value=str(len(common)), inline=True)
+            if rare:
+                embed.add_field(name="🎭 Rare", value=str(len(rare)), inline=True)
+            if legendary:
+                embed.add_field(name="👑 Legendary", value=str(len(legendary)), inline=True)
+            
+            # Show recent quotes
+            recent = user_quotes[-3:] if len(user_quotes) >= 3 else user_quotes
+            for quote in recent:
+                embed.add_field(
+                    name=f"{quote.rarity.title()} Quote",
+                    value=f"*\"{quote.quote_text[:100]}...\"*",
+                    inline=False
+                )
+        
+        embed.set_footer(text="Collect more quotes with /quote daily")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+async def seed_quotes():
+    """Seed the database with Victorian quotes."""
+    from models import VictorianQuote
+    
+    quotes_data = [
+        {"text": "The way to get started is to quit talking and begin doing.", "author": "Victorian Proverb", "rarity": "common"},
+        {"text": "In the depth of winter, I finally learned that within me there lay an invincible summer.", "author": "Victorian Sage", "rarity": "rare"},
+        {"text": "A lady's imagination is very rapid; it jumps from admiration to love, from love to matrimony in a moment.", "author": "Jane Austen", "rarity": "legendary"},
+        {"text": "The ornament of a house is the friends who frequent it.", "author": "Victorian Wisdom", "rarity": "common"},
+        {"text": "There is nothing like staying at home for real comfort.", "author": "Jane Austen", "rarity": "rare"},
+        {"text": "We are all in the gutter, but some of us are looking at the stars.", "author": "Oscar Wilde", "rarity": "legendary"},
+    ]
+    
+    for quote_data in quotes_data:
+        existing = VictorianQuote.query.filter_by(quote_text=quote_data["text"]).first()
+        if not existing:
+            quote = VictorianQuote(
+                quote_text=quote_data["text"],
+                author=quote_data["author"],
+                rarity=quote_data["rarity"]
+            )
+            db.session.add(quote)
+    
+    db.session.commit()
+
+@bot.tree.command(name="voice", description="🎵 Voice channel activity and statistics")
+async def voice_command(interaction: discord.Interaction, action: str = "stats", member: discord.Member = None):
+    target = member or interaction.user
+    
+    if action == "stats":
+        from models import Member, VoiceSession
+        
+        # Get member data
+        db_member = Member.query.filter_by(user_id=str(target.id), guild_id=str(interaction.guild.id)).first()
+        
+        if not db_member:
+            db_member = Member(
+                user_id=str(target.id),
+                guild_id=str(interaction.guild.id),
+                username=target.display_name
+            )
+            db.session.add(db_member)
+            db.session.commit()
+        
+        # Get voice session data
+        total_sessions = VoiceSession.query.filter_by(
+            user_id=str(target.id),
+            guild_id=str(interaction.guild.id)
+        ).count()
+        
+        # Calculate total time
+        completed_sessions = VoiceSession.query.filter(
+            VoiceSession.user_id == str(target.id),
+            VoiceSession.guild_id == str(interaction.guild.id),
+            VoiceSession.duration_seconds.isnot(None)
+        ).all()
+        
+        total_minutes = sum([session.duration_seconds // 60 for session in completed_sessions])
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        
+        embed = discord.Embed(
+            title="🎵 Voice Activity Statistics",
+            description=f"**{target.display_name}'s** participation in manor conversations",
+            color=EMBED_COLOR
+        )
+        
+        embed.add_field(name="⏱️ Total Time", value=f"{hours}h {minutes}m", inline=True)
+        embed.add_field(name="📊 Sessions", value=str(total_sessions), inline=True)
+        embed.add_field(name="🏅 Voice Rank", value=get_voice_rank(total_minutes), inline=True)
+        
+        # Calculate average session length
+        if completed_sessions:
+            avg_minutes = total_minutes // len(completed_sessions)
+            embed.add_field(name="⏳ Avg Session", value=f"{avg_minutes} minutes", inline=True)
+        
+        embed.set_thumbnail(url=target.display_avatar.url)
+        embed.set_footer(text="Victorian manor voice participation tracking")
+        await interaction.response.send_message(embed=embed)
+    
+    elif action == "leaderboard":
+        from models import Member
+        
+        top_members = Member.query.filter_by(guild_id=str(interaction.guild.id)).order_by(Member.voice_minutes.desc()).limit(10).all()
+        
+        embed = discord.Embed(
+            title="🎵 Voice Activity Leaderboard",
+            description="Most active voices in our Victorian manor",
+            color=EMBED_COLOR
+        )
+        
+        for i, member_data in enumerate(top_members, 1):
+            if member_data.voice_minutes > 0:
+                try:
+                    user = bot.get_user(int(member_data.user_id))
+                    name = user.display_name if user else member_data.username
+                    hours = member_data.voice_minutes // 60
+                    minutes = member_data.voice_minutes % 60
+                    
+                    rank_emoji = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"{i}."
+                    
+                    embed.add_field(
+                        name=f"{rank_emoji} {name}",
+                        value=f"**{hours}h {minutes}m**\n{get_voice_rank(member_data.voice_minutes)}",
+                        inline=True
+                    )
+                except:
+                    continue
+        
+        embed.set_footer(text="Active participation in manor voice channels")
+        await interaction.response.send_message(embed=embed)
+
+def get_voice_rank(minutes):
+    """Get voice activity rank based on minutes."""
+    if minutes >= 3000:  # 50+ hours
+        return "🎭 **Conversational Virtuoso**"
+    elif minutes >= 1800:  # 30+ hours
+        return "🎵 **Manor Orator**"
+    elif minutes >= 900:   # 15+ hours
+        return "📢 **Active Speaker**"
+    elif minutes >= 300:   # 5+ hours
+        return "🗣️ **Regular Participant**"
+    elif minutes >= 60:    # 1+ hour
+        return "👥 **Social Guest**"
+    else:
+        return "🤫 **Quiet Observer**"
+
+# Voice state tracking for activity
+@bot.event
+async def on_voice_state_update(member, before, after):
+    """Track voice channel activity."""
+    from models import VoiceSession, Member
+    
+    guild_id = str(member.guild.id)
+    user_id = str(member.id)
+    
+    # Member joined a voice channel
+    if before.channel is None and after.channel is not None:
+        session = VoiceSession(
+            guild_id=guild_id,
+            user_id=user_id,
+            channel_id=str(after.channel.id),
+            joined_at=datetime.now()
+        )
+        db.session.add(session)
+        db.session.commit()
+    
+    # Member left a voice channel
+    elif before.channel is not None and after.channel is None:
+        # Find the active session
+        session = VoiceSession.query.filter_by(
+            guild_id=guild_id,
+            user_id=user_id,
+            left_at=None
+        ).first()
+        
+        if session:
+            session.left_at = datetime.now()
+            duration = (session.left_at - session.joined_at).total_seconds()
+            session.duration_seconds = int(duration)
+            
+            # Update member's total voice time
+            db_member = Member.query.filter_by(user_id=user_id, guild_id=guild_id).first()
+            if not db_member:
+                db_member = Member(
+                    user_id=user_id,
+                    guild_id=guild_id,
+                    username=member.display_name
+                )
+                db.session.add(db_member)
+            
+            db_member.voice_minutes += int(duration // 60)
+            db.session.commit()
+
+@bot.tree.command(name="spotlight", description="⭐ Member spotlight and recognition system")
+@discord.app_commands.default_permissions(manage_messages=True)
+async def spotlight_command(interaction: discord.Interaction, action: str = "current", member: discord.Member = None, reason: str = ""):
+    # Check if user has admin role
+    if action in ["nominate", "set"] and not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can manage member spotlight", ephemeral=True)
+        return
+    
+    from models import MemberSpotlight
+    from datetime import date, timedelta
+    
+    if action == "current" or action == "this_week":
+        # Get current week's spotlight
+        today = date.today()
+        week_start = today - timedelta(days=today.weekday())
+        
+        current_spotlight = MemberSpotlight.query.filter_by(
+            guild_id=str(interaction.guild.id),
+            week_of=week_start
+        ).first()
+        
+        if not current_spotlight:
+            embed = discord.Embed(
+                title="⭐ Member Spotlight",
+                description="No member spotlight set for this week. Admins can nominate someone with `/spotlight nominate`",
+                color=EMBED_COLOR
+            )
+        else:
+            try:
+                user = bot.get_user(int(current_spotlight.user_id))
+                if user:
+                    embed = discord.Embed(
+                        title="⭐ This Week's Member Spotlight",
+                        description=f"Celebrating **{user.display_name}** for their contributions to our Victorian community",
+                        color=0xFFD700
+                    )
+                    embed.add_field(name="📝 Recognition", value=current_spotlight.reason or "Outstanding community member", inline=False)
+                    embed.add_field(name="👨‍⚖️ Nominated By", value=f"<@{current_spotlight.nominated_by}>", inline=True)
+                    embed.add_field(name="📅 Week Of", value=week_start.strftime("%B %d, %Y"), inline=True)
+                    embed.set_thumbnail(url=user.display_avatar.url)
+                else:
+                    embed = discord.Embed(
+                        title="⭐ Member Spotlight",
+                        description="Member spotlight set but user not found",
+                        color=EMBED_COLOR
+                    )
+            except:
+                embed = discord.Embed(
+                    title="⭐ Member Spotlight",
+                    description="Error loading spotlight information",
+                    color=EMBED_COLOR
+                )
+        
+        embed.set_footer(text="Weekly recognition of exceptional community members")
+        await interaction.response.send_message(embed=embed)
+    
+    elif action == "nominate" or action == "set":
+        if not member:
+            await interaction.response.send_message("❌ Please specify a member for the spotlight", ephemeral=True)
+            return
+        
+        if not reason:
+            reason = "Outstanding contribution to our Victorian manor community"
+        
+        # Get current week
+        today = date.today()
+        week_start = today - timedelta(days=today.weekday())
+        
+        # Check if spotlight already exists for this week
+        existing = MemberSpotlight.query.filter_by(
+            guild_id=str(interaction.guild.id),
+            week_of=week_start
+        ).first()
+        
+        if existing:
+            existing.user_id = str(member.id)
+            existing.reason = reason
+            existing.nominated_by = str(interaction.user.id)
+        else:
+            spotlight = MemberSpotlight(
+                guild_id=str(interaction.guild.id),
+                user_id=str(member.id),
+                week_of=week_start,
+                reason=reason,
+                nominated_by=str(interaction.user.id)
+            )
+            db.session.add(spotlight)
+        
+        db.session.commit()
+        
+        # Create spotlight embed
+        embed = discord.Embed(
+            title="⭐ Member Spotlight - This Week",
+            description=f"**{member.display_name}** has been selected as our featured community member!",
+            color=0xFFD700
+        )
+        embed.add_field(name="📝 Recognition", value=reason, inline=False)
+        embed.add_field(name="👨‍⚖️ Nominated By", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Week Of", value=week_start.strftime("%B %d, %Y"), inline=True)
+        embed.set_thumbnail(url=member.display_avatar.url)
+        embed.set_footer(text="Celebrating excellence in our Victorian community")
+        
+        await interaction.response.send_message(embed=embed)
+        
+        # Log the spotlight
+        await create_tracking_message("⭐ Member Spotlight Set", {
+            "👤 Member": member.mention,
+            "📝 Reason": reason,
+            "👨‍⚖️ Nominated By": interaction.user.mention,
+            "📅 Week": week_start.strftime("%B %d, %Y")
+        }, 0xFFD700, f"SPOTLIGHT-{week_start.strftime('%Y%m%d')}")
+
+@bot.tree.command(name="announce", description="📢 Create and schedule manor announcements")
+@discord.app_commands.default_permissions(manage_messages=True)
+async def announce_command(interaction: discord.Interaction, action: str = "now", content: str = "", schedule: str = "", title: str = ""):
+    # Check if user has admin role
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can create announcements", ephemeral=True)
+        return
+    
+    if action == "now" or action == "immediate":
+        if not content:
+            await interaction.response.send_message("❌ Please provide announcement content", ephemeral=True)
+            return
+        
+        embed = discord.Embed(
+            title=title or "📢 Manor Announcement",
+            description=content,
+            color=EMBED_COLOR
+        )
+        embed.add_field(name="👨‍⚖️ Announced By", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Date", value=discord.utils.format_dt(datetime.now(), style='F'), inline=True)
+        embed.set_footer(text="Official announcement from Rosewood Manor administration")
+        
+        await interaction.response.send_message(embed=embed)
+        
+        # Log the announcement
+        await create_tracking_message("📢 Manor Announcement", {
+            "📰 Title": title or "General Announcement",
+            "💬 Content": content[:200] + ("..." if len(content) > 200 else ""),
+            "👨‍⚖️ By": interaction.user.mention,
+            "📍 Channel": interaction.channel.mention
+        }, EMBED_COLOR, f"ANNOUNCE-{interaction.id}")
+    
+    elif action == "schedule":
+        if not content or not schedule:
+            await interaction.response.send_message("❌ Please provide content and schedule (YYYY-MM-DD HH:MM)", ephemeral=True)
+            return
+        
+        try:
+            from datetime import datetime
+            schedule_time = datetime.strptime(schedule, "%Y-%m-%d %H:%M")
+            
+            from models import ScheduledAnnouncement
+            scheduled = ScheduledAnnouncement(
+                guild_id=str(interaction.guild.id),
+                channel_id=str(interaction.channel.id),
+                title=title or "Scheduled Manor Announcement",
+                content=content,
+                next_send=schedule_time,
+                created_by=str(interaction.user.id)
+            )
+            db.session.add(scheduled)
+            db.session.commit()
+            
+            embed = discord.Embed(
+                title="⏰ Announcement Scheduled",
+                description="Your manor announcement has been scheduled successfully",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="📰 Title", value=title or "Scheduled Manor Announcement", inline=False)
+            embed.add_field(name="💬 Content", value=content[:200] + ("..." if len(content) > 200 else ""), inline=False)
+            embed.add_field(name="📅 Scheduled For", value=discord.utils.format_dt(schedule_time, style='F'), inline=True)
+            embed.add_field(name="📍 Channel", value=interaction.channel.mention, inline=True)
+            embed.set_footer(text=f"Announcement ID: {scheduled.id}")
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            
+        except ValueError:
+            await interaction.response.send_message("❌ Invalid schedule format. Use YYYY-MM-DD HH:MM", ephemeral=True)
+    
+    elif action == "list":
+        from models import ScheduledAnnouncement
+        pending = ScheduledAnnouncement.query.filter(
+            ScheduledAnnouncement.guild_id == str(interaction.guild.id),
+            ScheduledAnnouncement.active == True,
+            ScheduledAnnouncement.next_send > datetime.now()
+        ).order_by(ScheduledAnnouncement.next_send).all()
+        
+        if not pending:
+            embed = discord.Embed(
+                title="📢 Scheduled Announcements",
+                description="No pending announcements. Use `/announce schedule` to create one.",
+                color=EMBED_COLOR
+            )
+        else:
+            embed = discord.Embed(
+                title="📢 Scheduled Manor Announcements",
+                description=f"**{len(pending)}** pending announcements",
+                color=EMBED_COLOR
+            )
+            
+            for announcement in pending[:10]:  # Limit to 10
+                channel = bot.get_channel(int(announcement.channel_id))
+                channel_name = channel.name if channel else "Unknown"
+                
+                embed.add_field(
+                    name=f"📰 {announcement.title}",
+                    value=f"📅 {discord.utils.format_dt(announcement.next_send, style='R')}\n📍 #{channel_name}\n💬 {announcement.content[:50]}...",
+                    inline=False
+                )
+        
+        embed.set_footer(text="Manor announcement scheduling system")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@bot.tree.command(name="rolemanage", description="🎭 Custom role assignment and management")
+async def rolemanage_command(interaction: discord.Interaction, action: str = "list", role: discord.Role = None, member: discord.Member = None):
+    # Define self-assignable roles (customize these)
+    SELF_ASSIGNABLE_ROLES = [
+        "🎨 Artist", "📚 Scholar", "🎵 Musician", "🌙 Night Owl", "☀️ Early Bird", 
+        "🎮 Gamer", "📖 Bookworm", "🍵 Tea Lover", "☕ Coffee Enthusiast"
+    ]
+    
+    if action == "list" or action == "available":
+        embed = discord.Embed(
+            title="🎭 Available Custom Roles",
+            description="Victorian manor roles you can assign to yourself",
+            color=EMBED_COLOR
+        )
+        
+        # Find existing self-assignable roles
+        guild_roles = interaction.guild.roles
+        available_roles = []
+        
+        for role_name in SELF_ASSIGNABLE_ROLES:
+            role_obj = discord.utils.get(guild_roles, name=role_name)
+            if role_obj:
+                available_roles.append(role_obj)
+        
+        if available_roles:
+            role_list = "\n".join([f"• {role.mention}" for role in available_roles])
+            embed.add_field(name="🏷️ Self-Assignable Roles", value=role_list, inline=False)
+        else:
+            embed.add_field(name="🏷️ Self-Assignable Roles", value="No custom roles available yet", inline=False)
+        
+        embed.add_field(
+            name="📋 Commands",
+            value="`/rolemanage assign @role` - Assign role to yourself\n`/rolemanage remove @role` - Remove role from yourself",
+            inline=False
+        )
+        embed.set_footer(text="Only certain roles can be self-assigned")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    elif action == "assign" or action == "add":
+        if not role:
+            await interaction.response.send_message("❌ Please specify a role to assign", ephemeral=True)
+            return
+        
+        target = member or interaction.user
+        
+        # Check if role is self-assignable
+        if role.name not in SELF_ASSIGNABLE_ROLES and not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+            await interaction.response.send_message("❌ This role cannot be self-assigned", ephemeral=True)
+            return
+        
+        if role in target.roles:
+            await interaction.response.send_message(f"❌ {target.display_name} already has the {role.name} role", ephemeral=True)
+            return
+        
+        try:
+            await target.add_roles(role, reason=f"Role assigned by {interaction.user}")
+            
+            embed = discord.Embed(
+                title="🎭 Role Assigned",
+                description=f"**{role.name}** has been added to {target.mention}",
+                color=0x00FF00
+            )
+            embed.set_footer(text="Victorian manor role management")
+            await interaction.response.send_message(embed=embed)
+            
+        except discord.Forbidden:
+            await interaction.response.send_message("❌ Cannot assign this role due to permission hierarchy", ephemeral=True)
+    
+    elif action == "remove" or action == "unassign":
+        if not role:
+            await interaction.response.send_message("❌ Please specify a role to remove", ephemeral=True)
+            return
+        
+        target = member or interaction.user
+        
+        if role not in target.roles:
+            await interaction.response.send_message(f"❌ {target.display_name} doesn't have the {role.name} role", ephemeral=True)
+            return
+        
+        try:
+            await target.remove_roles(role, reason=f"Role removed by {interaction.user}")
+            
+            embed = discord.Embed(
+                title="🎭 Role Removed",
+                description=f"**{role.name}** has been removed from {target.mention}",
+                color=0xFF6B6B
+            )
+            embed.set_footer(text="Victorian manor role management")
+            await interaction.response.send_message(embed=embed)
+            
+        except discord.Forbidden:
+            await interaction.response.send_message("❌ Cannot remove this role due to permission hierarchy", ephemeral=True)
+
 # PLAYFUL ONBOARDING TUTORIAL SYSTEM
 class TutorialStep:
     def __init__(self, title, description, action_type, action_data=None, completion_message="Well done!"):
