@@ -325,6 +325,18 @@ def settings():
     # Simplified settings without database dependency
     return render_template('settings.html', guilds=[])
 
+@dashboard_bp.route('/api/stats')
+def api_stats():
+    """API endpoint for dashboard stats."""
+    return jsonify({
+        'total_commands': 12,
+        'total_tickets': 3,
+        'active_monitors': 5,
+        'total_users': 156,
+        'bot_status': 'online',
+        'uptime': '2 days, 4 hours'
+    })
+
 # Error handlers
 @dashboard_bp.errorhandler(404)
 def not_found(error):

@@ -145,7 +145,7 @@
                             </div>
                             <div class="mt-3">
                                 <a href="{{ url_for('dashboard.commands') }}" class="btn btn-primary me-2">Create Commands</a>
-                                <button class="btn btn-outline-primary" data-modal-toggle="setupModal">Setup Wizard</button>
+                                <button class="btn btn-outline-primary" onclick="showSetupWizard()">Setup Wizard</button>
                             </div>
                         </div>
                     {% endif %}
@@ -606,6 +606,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     {% endif %}
+});
+
+// Handle setup wizard button
+function showSetupWizard() {
+    alert('🏰 Gothic Setup Wizard\n\nThe Victorian setup chamber is being prepared.\nAdvanced configuration features will be available soon.\n\nFor now, you can explore the manor using the navigation menu.');
+}
+
+// Handle settings modal buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const settingsButtons = document.querySelectorAll('[data-modal-toggle="settingsModal"]');
+    settingsButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            alert('⚙️ Settings Panel\n\nThe Victorian configuration chamber is being prepared.\nSettings will be available soon.');
+        });
+    });
 });
 </script>
 {% endblock %}
