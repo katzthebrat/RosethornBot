@@ -88,12 +88,29 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <div class="command-card">
+                                    <div class="command-header">
+                                        <span class="command-name">/sync</span>
+                                        <span class="command-badge admin-badge">Admin</span>
+                                    </div>
+                                    <div class="command-description">🔄 Sync bot commands (Admin only)</div>
+                                    <div class="command-preview">
+                                        <em>Forces Discord to refresh all bot commands immediately</em>
+                                    </div>
+                                    <div class="command-actions mt-2">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="showCommandDemo('sync')">Preview</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="text-center mt-4">
                             <div class="alert alert-info">
-                                <strong>🎭 How to Use:</strong> These commands are automatically available in your Discord server. 
-                                Type <code>/</code> in any channel to see them!
+                                <strong>🎭 How to Use:</strong> These commands sync automatically when the bot restarts. 
+                                Type <code>/</code> in any Discord channel to see them! 
+                                <br><small>Note: It may take a few minutes for new commands to appear in Discord.</small>
                             </div>
                             <button class="btn btn-primary me-2" onclick="showComingSoon('Custom Command Creator')">
                                 Create Custom Command
@@ -134,84 +151,30 @@ function showCommandDemo(commandName) {
     const demos = {
         'rose': {
             title: '🌹 /rose Command Demo',
-            content: `
-                <div class="discord-embed">
-                    <div class="embed-title">🌹 Victorian Rose Garden</div>
-                    <div class="embed-description">🌹 A crimson rose blooms in the moonlight for thee</div>
-                    <div class="embed-footer">From thy Gothic Manor with love</div>
-                </div>
-            `
+            content: '🌹 Victorian Rose Garden\n\n🌹 A crimson rose blooms in the moonlight for thee\n\nFrom thy Gothic Manor with love'
         },
         'manor': {
             title: '🏰 /manor Command Demo',
-            content: `
-                <div class="discord-embed">
-                    <div class="embed-title">🏰 Welcome to Rosethorn Manor</div>
-                    <div class="embed-description">A Victorian Gothic estate shrouded in mystery and elegance</div>
-                    <div class="embed-fields">
-                        <div class="embed-field">
-                            <div class="field-name">🕯️ The Library</div>
-                            <div class="field-value">Ancient tomes whisper forgotten secrets</div>
-                        </div>
-                        <div class="embed-field">
-                            <div class="field-name">🌹 Rose Garden</div>
-                            <div class="field-value">Crimson blooms under pale moonlight</div>
-                        </div>
-                        <div class="embed-field">
-                            <div class="field-name">⚱️ The Crypt</div>
-                            <div class="field-value">Where Victorian spirits find eternal rest</div>
-                        </div>
-                    </div>
-                    <div class="embed-footer">Rosethorn Manor • Victorian Gothic Discord Bot</div>
-                </div>
-            `
+            content: '🏰 Welcome to Rosethorn Manor\n\nA Victorian Gothic estate shrouded in mystery and elegance\n\n🕯️ The Library - Ancient tomes whisper forgotten secrets\n🌹 Rose Garden - Crimson blooms under pale moonlight\n⚱️ The Crypt - Where Victorian spirits find eternal rest'
         },
         'fortune': {
             title: '🔮 /fortune Command Demo',
-            content: `
-                <div class="discord-embed">
-                    <div class="embed-title">🔮 Victorian Fortune Reading</div>
-                    <div class="embed-description">
-                        <em>The crystal ball swirls with gothic mist...</em><br><br>
-                        The roses whisper of fortune approaching on raven's wings
-                    </div>
-                    <div class="embed-footer">Fortunes told by the Manor's mystic spirits</div>
-                </div>
-            `
+            content: '🔮 Victorian Fortune Reading\n\nThe crystal ball swirls with gothic mist...\n\nThe roses whisper of fortune approaching on raven\'s wings\n\nFortunes told by the Manor\'s mystic spirits'
         },
         'gothic': {
             title: '🦇 /gothic Command Demo',
-            content: `
-                <div class="discord-embed">
-                    <div class="embed-title">🦇 Victorian Gothic Atmosphere</div>
-                    <div class="embed-description">Thunder rolls across the moor as candlelight flickers...</div>
-                    <div class="embed-fields">
-                        <div class="embed-field full-width">
-                            <div class="field-name">🕯️ Tonight's Mood</div>
-                            <div class="field-value">The manor breathes with ancient elegance</div>
-                        </div>
-                        <div class="embed-field">
-                            <div class="field-name">🌙 Weather</div>
-                            <div class="field-value">Misty moonlight casts long shadows</div>
-                        </div>
-                        <div class="embed-field">
-                            <div class="field-name">🎭 Atmosphere</div>
-                            <div class="field-value">Mysteriously romantic</div>
-                        </div>
-                    </div>
-                </div>
-            `
+            content: '🦇 Victorian Gothic Atmosphere\n\nThunder rolls across the moor as candlelight flickers...\n\n🕯️ Tonight\'s Mood - The manor breathes with ancient elegance\n🌙 Weather - Misty moonlight casts long shadows\n🎭 Atmosphere - Mysteriously romantic'
+        },
+        'sync': {
+            title: '🔄 /sync Command Demo',
+            content: '🔄 Commands Synced\n\nSuccessfully synced 5 slash commands!\n\n🌹 Available Commands - Commands should now appear when you type / in Discord\n\n(Note: This command requires Administrator permissions)'
         }
     };
     
     const demo = demos[commandName];
     if (demo) {
-        document.getElementById('commandDemoContent').innerHTML = demo.content;
-        document.querySelector('#commandDemoModal .modal-title').textContent = demo.title;
-        
-        // Show modal (Bootstrap 5)
-        const modal = new bootstrap.Modal(document.getElementById('commandDemoModal'));
-        modal.show();
+        // Use simple alert for now to ensure it works
+        alert(`${demo.title}\n\n${demo.content}`);
     }
 }
 
@@ -254,6 +217,10 @@ function showComingSoon(feature) {
     padding: 0.2rem 0.5rem;
     border-radius: 12px;
     font-size: 0.8rem;
+}
+
+.admin-badge {
+    background: #8b4513;
 }
 
 .command-description {

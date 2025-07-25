@@ -48,6 +48,13 @@ async def on_ready():
         name="over the Victorian Gothic manor 🌹"
     )
     await bot.change_presence(activity=activity)
+    
+    # Sync slash commands
+    try:
+        synced = await bot.tree.sync()
+        logger.info(f"🌹 Synced {len(synced)} slash command(s)")
+    except Exception as e:
+        logger.error(f"🥀 Failed to sync commands: {e}")
 
 @bot.event
 async def on_guild_join(guild):
@@ -159,6 +166,39 @@ async def gothic_command(interaction: discord.Interaction):
         inline=True
     )
     await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="sync", description="🔄 Sync bot commands (Admin only)")
+async def sync_command(interaction: discord.Interaction):
+    # Check if user is administrator
+    if not interaction.user.guild_permissions.administrator:
+        embed = discord.Embed(
+            title="🚫 Access Denied",
+            description="Only administrators can sync bot commands",
+            color=0xFF0000
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    try:
+        synced = await bot.tree.sync()
+        embed = discord.Embed(
+            title="🔄 Commands Synced",
+            description=f"Successfully synced {len(synced)} slash commands!",
+            color=EMBED_COLOR
+        )
+        embed.add_field(
+            name="🌹 Available Commands",
+            value="Commands should now appear when you type `/` in Discord",
+            inline=False
+        )
+        await interaction.response.send_message(embed=embed)
+    except Exception as e:
+        embed = discord.Embed(
+            title="🥀 Sync Failed", 
+            description=f"Failed to sync commands: {str(e)}",
+            color=0xFF0000
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @bot.command(name='help')
 async def help_command(ctx):
