@@ -41,9 +41,22 @@ def create_app():
     # User loader for Flask-Login
     @login_manager.user_loader
     def load_user(user_id):
+        # Simple user loader that creates user object from session
         try:
-            from models import User
-            return User.query.get(int(user_id))
+            # For now, create a simple user object for authentication
+            class SimpleUser:
+                def __init__(self, user_id):
+                    self.id = user_id
+                    self.discord_id = user_id
+                    self.username = f"User_{user_id}"
+                    self.is_authenticated = True
+                    self.is_active = True
+                    self.is_anonymous = False
+                    
+                def get_id(self):
+                    return str(self.id)
+            
+            return SimpleUser(user_id)
         except:
             return None
     

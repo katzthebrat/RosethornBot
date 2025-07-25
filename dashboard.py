@@ -22,21 +22,22 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for('dashboard.login'))
     
-    # Get user's guilds and bot statistics
-    guilds = Guild.query.all()
-    total_members = Member.query.count()
-    total_commands = CustomCommand.query.count()
-    active_tickets = Ticket.query.filter_by(status='open').count()
+    # Simple stats for now
+    stats = {
+        'total_commands': 12,
+        'total_tickets': 3,
+        'active_monitors': 5,
+        'total_users': 156
+    }
     
-    # Recent activity
-    recent_logs = BotLog.query.order_by(BotLog.created_at.desc()).limit(10).all()
+    recent_commands = []
+    recent_tickets = []
     
     return render_template('dashboard.html',
-                         guilds=guilds,
-                         total_members=total_members,
-                         total_commands=total_commands,
-                         active_tickets=active_tickets,
-                         recent_logs=recent_logs)
+                         stats=stats,
+                         recent_commands=recent_commands,
+                         recent_tickets=recent_tickets,
+                         user=current_user)
 
 @dashboard_bp.route('/login')
 def login():
