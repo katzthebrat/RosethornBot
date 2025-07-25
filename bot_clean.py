@@ -1144,6 +1144,55 @@ class TutorialView(discord.ui.View):
         
         await interaction.response.edit_message(embed=embed, view=self)
     
+    async def show_step_follow_up(self, interaction, step_number):
+        """Show next step as a follow-up message after button interaction"""
+        self.step_number = step_number
+        self.setup_buttons()
+        
+        step = TUTORIAL_STEPS[step_number]
+        
+        embed = discord.Embed(
+            title=step.title,
+            description=step.description,
+            color=EMBED_COLOR
+        )
+        
+        # Add step progress
+        embed.add_field(
+            name="📍 Progress", 
+            value=f"Step {step_number + 1} of {len(TUTORIAL_STEPS)}", 
+            inline=True
+        )
+        
+        if step.action_type == "command":
+            embed.add_field(
+                name="🎯 Your Task",
+                value=f"Try the `/{step.action_data['command']}` command",
+                inline=True
+            )
+            if "alternatives" in step.action_data:
+                embed.add_field(
+                    name="✨ Alternatives",
+                    value=" or ".join([f"`/{alt}`" for alt in step.action_data["alternatives"]]),
+                    inline=True
+                )
+        
+        embed.set_thumbnail(url="https://i.imgur.com/placeholder_rosalind.png")
+        embed.set_footer(text="Lady Rosalind guides you through the manor • Tutorial System")
+        
+        try:
+            await interaction.followup.send(embed=embed, view=self, ephemeral=True)
+        except:
+            # If followup fails, try editing original message
+            await interaction.edit_original_response(embed=embed, view=self)
+        
+        # Auto-advance to next step after button press
+        next_step_num = current_step.action_data.get("next_step", self.step_number + 1)
+        if next_step_num < len(TUTORIAL_STEPS):
+            # Wait a moment then show next step
+            await asyncio.sleep(2)
+            await self.show_step_follow_up(interaction, next_step_num)
+    
     async def complete_tutorial(self, interaction):
         step = TUTORIAL_STEPS[-1]
         
@@ -1507,7 +1556,9 @@ Once a ticket is opened, you have **12 hours** to respond. Do **NOT** DM admins 
     embed.set_footer(text="By clicking 'I Agree', you accept these rules • Updated regularly")
     
     view = RulesAgreementView()
-    await interaction.response.send_message(embed=embed, view=view)
+    # Send as standalone message to channel, not as reply
+    await interaction.response.send_message("✅ Rules posted!", ephemeral=True)
+    await interaction.channel.send(embed=embed, view=view)
 
 @bot.tree.command(name="tutorial", description="🎭 Begin your guided tour of Rosewood Manor")
 @discord.app_commands.default_permissions(send_messages=True)
