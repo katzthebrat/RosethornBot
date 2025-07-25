@@ -1071,6 +1071,16 @@ class TutorialView(discord.ui.View):
             button.callback = self.next_step_callback
             self.add_item(button)
         
+        # Add next step button for command steps
+        if current_step.action_type == "command":
+            next_button = discord.ui.Button(
+                label="Next Step",
+                style=discord.ButtonStyle.success,
+                emoji="➡️"
+            )
+            next_button.callback = self.next_step_callback
+            self.add_item(next_button)
+        
         # Always add skip button except on completion
         if current_step.action_type != "completion":
             skip_button = discord.ui.Button(
@@ -1088,6 +1098,10 @@ class TutorialView(discord.ui.View):
         
         current_step = TUTORIAL_STEPS[self.step_number]
         next_step_num = current_step.action_data.get("next_step", self.step_number + 1)
+        
+        # Update tutorial tracking
+        if self.user_id in tutorial_tracking:
+            tutorial_tracking[self.user_id]["current_step"] = next_step_num
         
         if next_step_num < len(TUTORIAL_STEPS):
             await self.show_step(interaction, next_step_num)
@@ -1141,6 +1155,14 @@ class TutorialView(discord.ui.View):
         
         embed.set_thumbnail(url="https://i.imgur.com/placeholder_rosalind.png")  # Placeholder for character image
         embed.set_footer(text="Lady Rosalind guides you through the manor • Tutorial System")
+        
+        # Add instruction for command steps
+        if step.action_type == "command":
+            embed.add_field(
+                name="💡 Hint",
+                value="Try the command above, then click 'Next Step' to continue!",
+                inline=False
+            )
         
         await interaction.response.edit_message(embed=embed, view=self)
     
