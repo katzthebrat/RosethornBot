@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
+from flask import current_app
 from main import db, login_manager
 from models import *
 from utils import create_embed_dict, parse_duration
@@ -22,11 +23,22 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for('dashboard.login'))
     
-    # Get real stats from database with error handling
+    # Get real stats from database using direct SQL to avoid context issues
     try:
-        total_tickets = Ticket.query.count()
-        total_users = Member.query.count()
-        recent_tickets = Ticket.query.order_by(Ticket.created_at.desc()).limit(5).all()
+        result = db.session.execute(db.text("SELECT COUNT(*) FROM ticket")).scalar()
+        total_tickets = result if result else 0
+        
+        result = db.session.execute(db.text("SELECT COUNT(*) FROM member")).scalar()
+        total_users = result if result else 0
+        
+        # Get recent tickets using raw SQL
+        result = db.session.execute(db.text("""
+            SELECT subject, status, created_at 
+            FROM ticket 
+            ORDER BY created_at DESC 
+            LIMIT 5
+        """)).fetchall()
+        recent_tickets = [{'subject': r[0], 'status': r[1], 'created_at': r[2]} for r in result]
     except Exception as e:
         print(f"🥀 Database error: {e}")
         total_tickets = 0
@@ -251,24 +263,25 @@ def delete_command(command_id):
 @login_required
 def tickets():
     """Ticket management page."""
-    # Get tickets from database with error handling
+    # Get tickets from database with proper Flask context
     try:
-        all_tickets = Ticket.query.order_by(Ticket.created_at.desc()).limit(50).all()
-        
-        # Get guild information for display
-        guild_ids = list(set([ticket.guild_id for ticket in all_tickets]))
-        guilds = []
-        for guild_id in guild_ids:
-            guild = Guild.query.filter_by(guild_id=guild_id).first()
-            if guild:
-                guilds.append(guild)
-        
-        # Filter by status if specified
-        status_filter = request.args.get('status', 'all')
-        if status_filter != 'all':
-            tickets = [t for t in all_tickets if t.status == status_filter]
-        else:
-            tickets = all_tickets
+        with current_app.app_context():
+            all_tickets = Ticket.query.order_by(Ticket.created_at.desc()).limit(50).all()
+            
+            # Get guild information for display
+            guild_ids = list(set([ticket.guild_id for ticket in all_tickets]))
+            guilds = []
+            for guild_id in guild_ids:
+                guild = Guild.query.filter_by(guild_id=guild_id).first()
+                if guild:
+                    guilds.append(guild)
+            
+            # Filter by status if specified
+            status_filter = request.args.get('status', 'all')
+            if status_filter != 'all':
+                tickets = [t for t in all_tickets if t.status == status_filter]
+            else:
+                tickets = all_tickets
     except Exception as e:
         print(f"🥀 Database error in tickets: {e}")
         tickets = []
@@ -285,29 +298,46 @@ def tickets():
 @login_required
 def economy():
     """Economy management page."""
-    # Get guild selection with error handling
+    # Get guild selection using direct SQL
     try:
         selected_guild_id = request.args.get('guild_id')
         
-        # Get all guilds for selection
-        guilds = Guild.query.all()
+        # Get all guilds for selection using raw SQL
+        result = db.session.execute(db.text("SELECT guild_id, name FROM guild")).fetchall()
+        guilds = [{'guild_id': r[0], 'name': r[1]} for r in result]
         selected_guild = None
         
         if selected_guild_id:
-            selected_guild = Guild.query.filter_by(guild_id=selected_guild_id).first()
+            result = db.session.execute(db.text("SELECT guild_id, name, currency_name, currency_symbol FROM guild WHERE guild_id = :guild_id"), 
+                                      {'guild_id': selected_guild_id}).fetchone()
+            if result:
+                selected_guild = {'guild_id': result[0], 'name': result[1], 'currency_name': result[2], 'currency_symbol': result[3]}
         elif guilds:
             selected_guild = guilds[0]  # Default to first guild
-            selected_guild_id = selected_guild.guild_id
+            selected_guild_id = selected_guild['guild_id']
         
         shop_items = []
         top_earners = []
         
         if selected_guild_id:
             # Get shop items for this guild
-            shop_items = ShopItem.query.filter_by(guild_id=selected_guild_id).order_by(ShopItem.price.desc()).all()
+            result = db.session.execute(db.text("""
+                SELECT name, description, price, rarity, emoji, stock 
+                FROM shop_item 
+                WHERE guild_id = :guild_id 
+                ORDER BY price DESC
+            """), {'guild_id': selected_guild_id}).fetchall()
+            shop_items = [{'name': r[0], 'description': r[1], 'price': r[2], 'rarity': r[3], 'emoji': r[4], 'stock': r[5]} for r in result]
             
             # Get top earners (members with highest balance)
-            top_earners = Member.query.filter_by(guild_id=selected_guild_id).order_by(Member.balance.desc()).limit(10).all()
+            result = db.session.execute(db.text("""
+                SELECT username, display_name, balance, level 
+                FROM member 
+                WHERE guild_id = :guild_id 
+                ORDER BY balance DESC 
+                LIMIT 10
+            """), {'guild_id': selected_guild_id}).fetchall()
+            top_earners = [{'username': r[0], 'display_name': r[1], 'balance': r[2], 'level': r[3]} for r in result]
     except Exception as e:
         print(f"🥀 Database error in economy: {e}")
         guilds = []
@@ -385,16 +415,20 @@ def preview_command():
 @login_required
 def settings():
     """Bot settings and configuration page."""
-    # Get guild selection with error handling
+    # Get guild selection using direct SQL
     try:
         selected_guild_id = request.args.get('guild_id')
         
-        # Get all guilds for selection
-        guilds = Guild.query.all()
+        # Get all guilds for selection using raw SQL
+        result = db.session.execute(db.text("SELECT guild_id, name, prefix, embed_color, currency_name, currency_symbol, welcome_channel, log_channel FROM guild")).fetchall()
+        guilds = [{'guild_id': r[0], 'name': r[1], 'prefix': r[2], 'embed_color': r[3], 'currency_name': r[4], 'currency_symbol': r[5], 'welcome_channel': r[6], 'log_channel': r[7]} for r in result]
         selected_guild = None
         
         if selected_guild_id:
-            selected_guild = Guild.query.filter_by(guild_id=selected_guild_id).first()
+            result = db.session.execute(db.text("SELECT guild_id, name, prefix, embed_color, currency_name, currency_symbol, welcome_channel, log_channel FROM guild WHERE guild_id = :guild_id"), 
+                                      {'guild_id': selected_guild_id}).fetchone()
+            if result:
+                selected_guild = {'guild_id': result[0], 'name': result[1], 'prefix': result[2], 'embed_color': result[3], 'currency_name': result[4], 'currency_symbol': result[5], 'welcome_channel': result[6], 'log_channel': result[7]}
         elif guilds:
             selected_guild = guilds[0]  # Default to first guild
     except Exception as e:
@@ -472,10 +506,11 @@ def delete_shop_item(item_id):
 def api_stats():
     """API endpoint for dashboard statistics."""
     try:
-        total_tickets = Ticket.query.count()
-        open_tickets = Ticket.query.filter_by(status='open').count()
-        total_members = Member.query.count()
-        total_guilds = Guild.query.count()
+        with current_app.app_context():
+            total_tickets = Ticket.query.count()
+            open_tickets = Ticket.query.filter_by(status='open').count()
+            total_members = Member.query.count()
+            total_guilds = Guild.query.count()
     except Exception as e:
         print(f"🥀 Database error in API stats: {e}")
         total_tickets = 0
