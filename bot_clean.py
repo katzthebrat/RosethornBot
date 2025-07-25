@@ -2890,70 +2890,107 @@ async def on_message(message):
 # Welcome banner management commands
 @bot.tree.command(name="welcomebanner", description="🎨 Configure animated welcome banners")
 @discord.app_commands.default_permissions(manage_guild=True)
+@discord.app_commands.describe(
+    action="Choose an action to perform with welcome banners",
+    channel="Channel where welcome banners will be sent (for setup)",
+    template="Visual template for the welcome banner"
+)
+@discord.app_commands.choices(action=[
+    discord.app_commands.Choice(name="Check Status", value="status"),
+    discord.app_commands.Choice(name="Setup/Configure", value="setup"),
+    discord.app_commands.Choice(name="Test Banner", value="test"),
+    discord.app_commands.Choice(name="Toggle On/Off", value="toggle")
+])
+@discord.app_commands.choices(template=[
+    discord.app_commands.Choice(name="Victorian Rose", value="victorian_rose"),
+    discord.app_commands.Choice(name="Gothic Manor", value="gothic_manor"),
+    discord.app_commands.Choice(name="Elegant Throne", value="elegant_throne"),
+    discord.app_commands.Choice(name="Mystical Garden", value="mystical_garden")
+])
 async def welcomebanner_command(interaction: discord.Interaction, action: str = "status", channel: discord.TextChannel = None, template: str = "victorian_rose"):
     try:
+        from main import app
         from models import WelcomeBanner, WelcomeBannerHistory, db
         from services.welcome_banner import welcome_banner_service
         
-        if action == "status":
-            config = WelcomeBanner.query.filter_by(guild_id=str(interaction.guild.id)).first()
-            
-            embed = discord.Embed(
-                title="🎨 Welcome Banner Settings",
-                description="Current configuration for new member banners",
-                color=EMBED_COLOR
-            )
-            
-            if config:
-                channel_obj = interaction.guild.get_channel(int(config.channel_id))
-                embed.add_field(name="📍 Channel", value=channel_obj.mention if channel_obj else "❌ Channel not found", inline=True)
-                embed.add_field(name="🎭 Status", value="✅ Enabled" if config.is_enabled else "❌ Disabled", inline=True)
-                embed.add_field(name="🎨 Template", value=config.banner_template.replace("_", " ").title(), inline=True)
-            else:
-                embed.add_field(name="⚠️ Not Configured", value="Use `/welcomebanner setup` to configure", inline=False)
-            
-            await interaction.response.send_message(embed=embed)
-        
-        elif action == "setup":
-            if not channel:
-                await interaction.response.send_message("❌ Please specify a channel for welcome banners", ephemeral=True)
-                return
-            
-            config = WelcomeBanner.query.filter_by(guild_id=str(interaction.guild.id)).first()
-            if config:
-                config.channel_id = str(channel.id)
-                config.banner_template = template
-                config.is_enabled = True
-                config.updated_at = datetime.now()
-            else:
-                config = WelcomeBanner(
-                    guild_id=str(interaction.guild.id),
-                    channel_id=str(channel.id),
-                    banner_template=template,
-                    created_by=str(interaction.user.id)
+        # Use Flask app context for database operations
+        with app.app_context():
+            if action == "status":
+                config = WelcomeBanner.query.filter_by(guild_id=str(interaction.guild.id)).first()
+                
+                embed = discord.Embed(
+                    title="🎨 Welcome Banner Settings",
+                    description="Current configuration for new member banners",
+                    color=EMBED_COLOR
                 )
-                db.session.add(config)
+                
+                if config:
+                    channel_obj = interaction.guild.get_channel(int(config.channel_id))
+                    embed.add_field(name="📍 Channel", value=channel_obj.mention if channel_obj else "❌ Channel not found", inline=True)
+                    embed.add_field(name="🎭 Status", value="✅ Enabled" if config.is_enabled else "❌ Disabled", inline=True)
+                    embed.add_field(name="🎨 Template", value=config.banner_template.replace("_", " ").title(), inline=True)
+                else:
+                    embed.add_field(name="⚠️ Not Configured", value="Use `/welcomebanner setup` to configure", inline=False)
+                
+                await interaction.response.send_message(embed=embed)
             
-            db.session.commit()
+            elif action == "setup":
+                if not channel:
+                    await interaction.response.send_message("❌ Please specify a channel for welcome banners", ephemeral=True)
+                    return
+                
+                config = WelcomeBanner.query.filter_by(guild_id=str(interaction.guild.id)).first()
+                if config:
+                    config.channel_id = str(channel.id)
+                    config.banner_template = template
+                    config.is_enabled = True
+                    config.updated_at = datetime.now()
+                else:
+                    config = WelcomeBanner(
+                        guild_id=str(interaction.guild.id),
+                        channel_id=str(channel.id),
+                        banner_template=template,
+                        created_by=str(interaction.user.id)
+                    )
+                    db.session.add(config)
+                
+                db.session.commit()
+                
+                embed = discord.Embed(
+                    title="🎨 Welcome Banner Configured",
+                    description="Animated welcome banners are now active!",
+                    color=EMBED_COLOR
+                )
+                embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
+                embed.add_field(name="🎨 Template", value=template.replace("_", " ").title(), inline=True)
+                
+                await interaction.response.send_message(embed=embed)
             
-            embed = discord.Embed(
-                title="🎨 Welcome Banner Configured",
-                description="Animated welcome banners are now active!",
-                color=EMBED_COLOR
-            )
-            embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
-            embed.add_field(name="🎨 Template", value=template.replace("_", " ").title(), inline=True)
+            elif action == "test":
+                banner_bytes = await welcome_banner_service.create_welcome_banner(interaction.user, interaction.guild)
+                banner_file = discord.File(banner_bytes, filename=f"test_welcome_{interaction.user.id}.png")
+                embed = await welcome_banner_service.create_animated_embed(interaction.user, interaction.guild)
+                embed.title = "🧪 Test Welcome Banner"
+                
+                await interaction.response.send_message(file=banner_file, embed=embed, ephemeral=True)
             
-            await interaction.response.send_message(embed=embed)
-        
-        elif action == "test":
-            banner_bytes = await welcome_banner_service.create_welcome_banner(interaction.user, interaction.guild)
-            banner_file = discord.File(banner_bytes, filename=f"test_welcome_{interaction.user.id}.png")
-            embed = await welcome_banner_service.create_animated_embed(interaction.user, interaction.guild)
-            embed.title = "🧪 Test Welcome Banner"
-            
-            await interaction.response.send_message(file=banner_file, embed=embed, ephemeral=True)
-            
+            elif action == "toggle":
+                config = WelcomeBanner.query.filter_by(guild_id=str(interaction.guild.id)).first()
+                if not config:
+                    await interaction.response.send_message("❌ Welcome banners not configured. Use `/welcomebanner setup` first.", ephemeral=True)
+                    return
+                
+                config.is_enabled = not config.is_enabled
+                db.session.commit()
+                
+                status = "enabled" if config.is_enabled else "disabled"
+                embed = discord.Embed(
+                    title=f"🎨 Welcome Banners {status.title()}",
+                    description=f"Welcome banners are now **{status}** for this server",
+                    color=EMBED_COLOR if config.is_enabled else 0x808080
+                )
+                await interaction.response.send_message(embed=embed)
+                
     except Exception as e:
         embed = discord.Embed(title="🎨 Welcome Banner Error", description=f"Error: {str(e)}", color=0xFF0000)
         await interaction.response.send_message(embed=embed, ephemeral=True)
