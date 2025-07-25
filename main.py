@@ -77,7 +77,7 @@ def create_app():
 def run_bot():
     """Run the Discord bot in a separate thread."""
     try:
-        from bot_simple import run_discord_bot
+        from bot_clean import run_discord_bot
         asyncio.run(run_discord_bot())
     except Exception as e:
         logger.error(f"🥀 Discord bot error: {e}")
