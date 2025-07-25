@@ -41,8 +41,11 @@ def create_app():
     # User loader for Flask-Login
     @login_manager.user_loader
     def load_user(user_id):
-        from models import User
-        return User.query.get(int(user_id))
+        try:
+            from models import User
+            return User.query.get(int(user_id))
+        except:
+            return None
     
     # Import models to ensure they're registered
     with app.app_context():

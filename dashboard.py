@@ -14,11 +14,7 @@ dashboard_bp = Blueprint('dashboard', __name__)
 # Discord OAuth2 configuration  
 from config import DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI
 
-@login_manager.user_loader
-def load_user(user_id):
-    from flask import current_app
-    with current_app.app_context():
-        return User.query.get(int(user_id))
+# Remove duplicate user_loader (already defined in main.py)
 
 @dashboard_bp.route('/')
 def index():
@@ -114,24 +110,34 @@ def discord_callback():
     
     user_data = user_response.json()
     
-    # Create or update user within app context
-    with current_app.app_context():
+    # Create or update user 
+    try:
         user = User.query.filter_by(discord_id=user_data['id']).first()
         if not user:
             user = User()
             user.discord_id = user_data['id']
             user.username = user_data['username']
-            user.discriminator = user_data.get('discriminator')
+            user.discriminator = user_data.get('discriminator', None)
             user.avatar = user_data.get('avatar')
+            user.is_admin = False
+            user.created_at = datetime.utcnow()
+            user.last_login = datetime.utcnow()
             db.session.add(user)
         else:
             user.username = user_data['username']
-            user.discriminator = user_data.get('discriminator')
+            user.discriminator = user_data.get('discriminator', None)
             user.avatar = user_data.get('avatar')
             user.last_login = datetime.utcnow()
         
         db.session.commit()
         login_user(user)
+        print(f"🌹 User {user_data['username']} logged in successfully")
+        
+    except Exception as e:
+        print(f"🥀 Database error: {e}")
+        db.session.rollback()
+        flash('🥀 Database error occurred during login', 'error')
+        return redirect(url_for('dashboard.login'))
     
     flash('🌹 Welcome to the Victorian Gothic Dashboard!', 'success')
     return redirect(url_for('dashboard.index'))
