@@ -11,10 +11,8 @@ from utils import create_embed_dict, parse_duration
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
-# Discord OAuth2 configuration
-DISCORD_CLIENT_ID = os.getenv('DISCORD_CLIENT_ID', 'your_discord_client_id')
-DISCORD_CLIENT_SECRET = os.getenv('DISCORD_CLIENT_SECRET', 'your_discord_client_secret')
-DISCORD_REDIRECT_URI = os.getenv('DISCORD_REDIRECT_URI', 'http://localhost:5000/auth/callback')
+# Discord OAuth2 configuration  
+from config import DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -52,13 +50,23 @@ def login():
 @dashboard_bp.route('/auth/discord')
 def discord_auth():
     """Redirect to Discord OAuth2."""
+    from urllib.parse import quote
+    
+    # URL encode the redirect URI
+    encoded_redirect_uri = quote(DISCORD_REDIRECT_URI, safe='')
+    
     discord_auth_url = (
         f"https://discord.com/api/oauth2/authorize"
         f"?client_id={DISCORD_CLIENT_ID}"
-        f"&redirect_uri={DISCORD_REDIRECT_URI}"
+        f"&redirect_uri={encoded_redirect_uri}"
         f"&response_type=code"
         f"&scope=identify%20guilds"
     )
+    
+    print(f"🌹 Discord OAuth URL: {discord_auth_url}")
+    print(f"🌹 Client ID: {DISCORD_CLIENT_ID}")
+    print(f"🌹 Redirect URI: {DISCORD_REDIRECT_URI}")
+    
     return redirect(discord_auth_url)
 
 @dashboard_bp.route('/auth/callback')

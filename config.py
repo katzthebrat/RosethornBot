@@ -11,9 +11,14 @@ EMBED_COLOR = 0x711417  # Deep red Victorian color
 BOT_NAME = "RosethornBot"
 BOT_VERSION = "2.0.0"
 
-# Web Dashboard Configuration
-DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://localhost:5000")
+# Web Dashboard Configuration  
+REPLIT_DEV_DOMAIN = os.getenv("REPLIT_DEV_DOMAIN", "")
+if REPLIT_DEV_DOMAIN:
+    DASHBOARD_URL = f"https://{REPLIT_DEV_DOMAIN}"
+else:
+    DASHBOARD_URL = "http://localhost:5000"
 SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "rosethorn_gothic_secret")
+DISCORD_REDIRECT_URI = f"{DASHBOARD_URL}/auth/callback"
 
 # Social Media API Keys
 TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN", "")
