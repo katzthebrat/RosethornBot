@@ -329,38 +329,461 @@ async def voice_command(interaction: discord.Interaction, name: str = "Victorian
     embed.set_footer(text="Enjoy your Victorian conversations!")
     await interaction.response.send_message(embed=embed)
 
-# SIMPLIFIED APPLICATION SYSTEM
-@bot.tree.command(name="apply", description="📋 Apply for a position in the manor")
-async def apply_command(interaction: discord.Interaction, position: str = "realm_job"):
-    position_names = {"realm_job": "Realm Job", "admin": "Admin"}
-    role_ids = {"realm_job": "1394853894437343422", "admin": "1320538700656148541"}
+# ADVANCED APPLICATION SYSTEM - Buttons → Modals → Threads → Role Assignment
+class ApplicationView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
     
-    embed = discord.Embed(title="📋 Manor Application Submitted", description="Your application is under review", color=EMBED_COLOR)
-    embed.add_field(name="👤 Applicant", value=interaction.user.mention, inline=True)
-    embed.add_field(name="⚔️ Position", value=position_names.get(position, "Realm Job"), inline=True)
-    embed.add_field(name="🏷️ Target Role", value=f"<@&{role_ids.get(position, role_ids['realm_job'])}>", inline=True)
-    embed.add_field(name="📅 Submitted", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
-    embed.set_footer(text="Manor staff will review your application shortly")
-    await interaction.response.send_message(embed=embed)
+    @discord.ui.button(label="Realm Job Application", style=discord.ButtonStyle.primary, emoji="⚔️")
+    async def realm_job_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = RealmJobModal()
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="Admin Application", style=discord.ButtonStyle.secondary, emoji="👑")
+    async def admin_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = AdminModal()
+        await interaction.response.send_modal(modal)
 
-# SIMPLIFIED TICKET SYSTEM  
-@bot.tree.command(name="tickets", description="🎫 Create a support ticket")
-async def tickets_command(interaction: discord.Interaction, ticket_type: str = "general", description: str = "Need assistance"):
-    ticket_types = {
-        "permissions": "🔑 Permissions (Realm Codes)",
-        "general": "❓ General Question", 
-        "report": "⚠️ Player Report",
-        "review": "📋 Warning Review"
-    }
+class RealmJobModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Realm Job Application")
+        
+        self.experience = discord.ui.TextInput(
+            label="Previous Experience",
+            placeholder="Describe your relevant experience...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        self.motivation = discord.ui.TextInput(
+            label="Why do you want this position?",
+            placeholder="What motivates you to serve the realm...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        self.availability = discord.ui.TextInput(
+            label="Availability",
+            placeholder="How many hours per week can you dedicate?",
+            style=discord.TextStyle.short,
+            max_length=100
+        )
+        
+        self.add_item(self.experience)
+        self.add_item(self.motivation)
+        self.add_item(self.availability)
     
-    embed = discord.Embed(title="🎫 Support Ticket Created", description="Manor staff will assist you shortly", color=EMBED_COLOR)
-    embed.add_field(name="👤 User", value=interaction.user.mention, inline=True)
-    embed.add_field(name="🏷️ Type", value=ticket_types.get(ticket_type, "❓ General Question"), inline=True)
-    embed.add_field(name="📝 Description", value=description, inline=False)
-    embed.add_field(name="📅 Created", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
-    embed.add_field(name="👥 Staff Notified", value="<@&1320538700656148541>", inline=True)
-    embed.set_footer(text="Ticket submitted • Staff will respond soon")
-    await interaction.response.send_message(embed=embed)
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            # Create private thread for application review
+            thread = await interaction.channel.create_thread(
+                name=f"Realm Job - {interaction.user.display_name}",
+                auto_archive_duration=1440
+            )
+            
+            # Send detailed application to thread
+            embed = discord.Embed(title="⚔️ Realm Job Application", color=EMBED_COLOR)
+            embed.add_field(name="👤 Applicant", value=interaction.user.mention, inline=True)
+            embed.add_field(name="📅 Submitted", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+            embed.add_field(name="💼 Previous Experience", value=self.experience.value, inline=False)
+            embed.add_field(name="🎯 Motivation", value=self.motivation.value, inline=False)
+            embed.add_field(name="⏰ Availability", value=self.availability.value, inline=False)
+            
+            # Add review buttons for admin staff
+            review_view = ApplicationReviewView(application_type="realm_job", applicant=interaction.user)
+            
+            await thread.send(f"<@&1320538700656148541>", embed=embed, view=review_view)
+            
+            # Log to tracking channel
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                log_embed = discord.Embed(title="📋 Application Submitted", color=EMBED_COLOR)
+                log_embed.add_field(name="Type", value="Realm Job", inline=True)
+                log_embed.add_field(name="Applicant", value=interaction.user.mention, inline=True)
+                log_embed.add_field(name="Status", value="Pending Review", inline=True)
+                await log_channel.send(embed=log_embed)
+            
+            await interaction.response.send_message("✅ Your Realm Job application has been submitted!", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error creating application: {str(e)}", ephemeral=True)
+
+class AdminModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Admin Application")
+        
+        self.experience = discord.ui.TextInput(
+            label="Administrative Experience",
+            placeholder="Describe your leadership/admin experience...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        self.skills = discord.ui.TextInput(
+            label="Relevant Skills",
+            placeholder="What skills make you suitable for admin role...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        self.scenarios = discord.ui.TextInput(
+            label="Conflict Resolution",
+            placeholder="How would you handle member disputes...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        
+        self.add_item(self.experience)
+        self.add_item(self.skills)
+        self.add_item(self.scenarios)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            # Create private thread for application review
+            thread = await interaction.channel.create_thread(
+                name=f"Admin - {interaction.user.display_name}",
+                auto_archive_duration=1440
+            )
+            
+            # Send detailed application to thread
+            embed = discord.Embed(title="👑 Admin Application", color=EMBED_COLOR)
+            embed.add_field(name="👤 Applicant", value=interaction.user.mention, inline=True)
+            embed.add_field(name="📅 Submitted", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+            embed.add_field(name="💼 Administrative Experience", value=self.experience.value, inline=False)
+            embed.add_field(name="🛠️ Relevant Skills", value=self.skills.value, inline=False)
+            embed.add_field(name="⚖️ Conflict Resolution", value=self.scenarios.value, inline=False)
+            
+            # Add review buttons for admin staff
+            review_view = ApplicationReviewView(application_type="admin", applicant=interaction.user)
+            
+            await thread.send(f"<@&1320538700656148541>", embed=embed, view=review_view)
+            
+            # Log to tracking channel
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                log_embed = discord.Embed(title="📋 Application Submitted", color=EMBED_COLOR)
+                log_embed.add_field(name="Type", value="Admin", inline=True)
+                log_embed.add_field(name="Applicant", value=interaction.user.mention, inline=True)
+                log_embed.add_field(name="Status", value="Pending Review", inline=True)
+                await log_channel.send(embed=log_embed)
+            
+            await interaction.response.send_message("✅ Your Admin application has been submitted!", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error creating application: {str(e)}", ephemeral=True)
+
+class ApplicationReviewView(discord.ui.View):
+    def __init__(self, application_type: str, applicant):
+        super().__init__(timeout=None)
+        self.application_type = application_type
+        self.applicant = applicant
+    
+    @discord.ui.button(label="Approve", style=discord.ButtonStyle.success, emoji="✅")
+    async def approve_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user has admin permissions
+        if not hasattr(interaction.user, 'roles') or not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+            await interaction.response.send_message("❌ Only admin staff can review applications", ephemeral=True)
+            return
+        
+        try:
+            # Assign role based on application type
+            if self.application_type == "realm_job":
+                role_id = 1394853894437343422
+                role_name = "Realm Job"
+            else:  # admin
+                role_id = 1320538700656148541
+                role_name = "Admin"
+            
+            role = interaction.guild.get_role(role_id)
+            if role and hasattr(self.applicant, 'add_roles'):
+                await self.applicant.add_roles(role)
+            
+            # Update log
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                log_embed = discord.Embed(title="✅ Application Approved", color=0x00FF00)
+                log_embed.add_field(name="Type", value=role_name, inline=True)
+                log_embed.add_field(name="Applicant", value=self.applicant.mention, inline=True)
+                log_embed.add_field(name="Reviewer", value=interaction.user.mention, inline=True)
+                await log_channel.send(embed=log_embed)
+            
+            await interaction.response.send_message(f"✅ {self.applicant.mention} has been approved for {role_name}!")
+            
+            # Wait 10 seconds then delete thread
+            await asyncio.sleep(10)
+            await interaction.channel.delete()
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error approving application: {str(e)}", ephemeral=True)
+    
+    @discord.ui.button(label="Deny", style=discord.ButtonStyle.danger, emoji="❌")
+    async def deny_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user has admin permissions
+        if not hasattr(interaction.user, 'roles') or not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+            await interaction.response.send_message("❌ Only admin staff can review applications", ephemeral=True)
+            return
+        
+        try:
+            # Update log
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                log_embed = discord.Embed(title="❌ Application Denied", color=0xFF0000)
+                log_embed.add_field(name="Type", value=self.application_type.title(), inline=True)
+                log_embed.add_field(name="Applicant", value=self.applicant.mention, inline=True)
+                log_embed.add_field(name="Reviewer", value=interaction.user.mention, inline=True)
+                await log_channel.send(embed=log_embed)
+            
+            await interaction.response.send_message(f"❌ {self.applicant.mention}'s application has been denied.")
+            
+            # Wait 10 seconds then delete thread
+            await asyncio.sleep(10)
+            await interaction.channel.delete()
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error denying application: {str(e)}", ephemeral=True)
+
+@bot.tree.command(name="apply", description="📋 Apply for a position in the manor")
+async def apply_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="📋 Manor Applications", description="Choose your desired position", color=EMBED_COLOR)
+    embed.add_field(name="⚔️ Realm Job", value="Join the manor's workforce\nRole: <@&1394853894437343422>", inline=True)
+    embed.add_field(name="👑 Admin", value="Lead and moderate the manor\nRole: <@&1320538700656148541>", inline=True)
+    embed.set_footer(text="Select a button below to begin your application")
+    
+    view = ApplicationView()
+    await interaction.response.send_message(embed=embed, view=view)
+
+# ADVANCED TICKET SYSTEM - 4 Types with Claim/Close Workflow
+class TicketView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    
+    @discord.ui.button(label="Permissions", style=discord.ButtonStyle.primary, emoji="🔑")
+    async def permissions_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = PermissionsTicketModal()
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="General", style=discord.ButtonStyle.secondary, emoji="❓")
+    async def general_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = GeneralTicketModal()
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="Report", style=discord.ButtonStyle.danger, emoji="⚠️")
+    async def report_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = ReportTicketModal()
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="Review", style=discord.ButtonStyle.success, emoji="📋")
+    async def review_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = ReviewTicketModal()
+        await interaction.response.send_modal(modal)
+
+class PermissionsTicketModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Permissions Ticket")
+        
+        self.realm_code = discord.ui.TextInput(
+            label="What realm code do you need?",
+            placeholder="Specify the realm code you're requesting...",
+            style=discord.TextStyle.short,
+            max_length=100
+        )
+        self.reason = discord.ui.TextInput(
+            label="Reason for request",
+            placeholder="Why do you need this realm code?",
+            style=discord.TextStyle.paragraph,
+            max_length=500
+        )
+        
+        self.add_item(self.realm_code)
+        self.add_item(self.reason)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        await self.create_ticket(interaction, "Permissions", f"Realm Code: {self.realm_code.value}\nReason: {self.reason.value}")
+
+    async def create_ticket(self, interaction: discord.Interaction, ticket_type: str, details: str):
+        try:
+            # Create private thread
+            thread = await interaction.channel.create_thread(
+                name=f"{ticket_type} - {interaction.user.display_name}",
+                auto_archive_duration=1440
+            )
+            
+            # Send ticket details to thread
+            embed = discord.Embed(title=f"🎫 {ticket_type} Ticket", color=EMBED_COLOR)
+            embed.add_field(name="👤 User", value=interaction.user.mention, inline=True)
+            embed.add_field(name="📅 Created", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+            embed.add_field(name="📝 Details", value=details, inline=False)
+            
+            # Add claim and close buttons
+            ticket_manage_view = TicketManageView(ticket_type=ticket_type, user=interaction.user)
+            
+            await thread.send(f"<@&1320538700656148541>", embed=embed, view=ticket_manage_view)
+            
+            # Log to tracking channel
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                log_embed = discord.Embed(title="🎫 Ticket Created", color=EMBED_COLOR)
+                log_embed.add_field(name="Type", value=ticket_type, inline=True)
+                log_embed.add_field(name="User", value=interaction.user.mention, inline=True)
+                log_embed.add_field(name="Status", value="Open", inline=True)
+                await log_channel.send(embed=log_embed)
+            
+            await interaction.response.send_message(f"✅ Your {ticket_type} ticket has been created!", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error creating ticket: {str(e)}", ephemeral=True)
+
+class GeneralTicketModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="General Question Ticket")
+        
+        self.question = discord.ui.TextInput(
+            label="Your Question",
+            placeholder="What would you like to ask?",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        
+        self.add_item(self.question)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        await PermissionsTicketModal.create_ticket(self, interaction, "General", f"Question: {self.question.value}")
+
+class ReportTicketModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Player Report Ticket")
+        
+        self.player = discord.ui.TextInput(
+            label="Player to Report",
+            placeholder="Username or mention the player...",
+            style=discord.TextStyle.short,
+            max_length=100
+        )
+        self.violation = discord.ui.TextInput(
+            label="Rule Violation",
+            placeholder="What rule did they break?",
+            style=discord.TextStyle.paragraph,
+            max_length=500
+        )
+        self.evidence = discord.ui.TextInput(
+            label="Evidence (optional)",
+            placeholder="Screenshots, messages, etc...",
+            style=discord.TextStyle.paragraph,
+            max_length=500,
+            required=False
+        )
+        
+        self.add_item(self.player)
+        self.add_item(self.violation)
+        self.add_item(self.evidence)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        details = f"Reported Player: {self.player.value}\nViolation: {self.violation.value}"
+        if self.evidence.value:
+            details += f"\nEvidence: {self.evidence.value}"
+        await PermissionsTicketModal.create_ticket(self, interaction, "Report", details)
+
+class ReviewTicketModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Warning Review Ticket")
+        
+        self.warning_details = discord.ui.TextInput(
+            label="Warning Details",
+            placeholder="Describe the warning you want reviewed...",
+            style=discord.TextStyle.paragraph,
+            max_length=500
+        )
+        self.appeal_reason = discord.ui.TextInput(
+            label="Why should it be reviewed?",
+            placeholder="Explain why you believe the warning should be reviewed...",
+            style=discord.TextStyle.paragraph,
+            max_length=500
+        )
+        
+        self.add_item(self.warning_details)
+        self.add_item(self.appeal_reason)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        details = f"Warning: {self.warning_details.value}\nAppeal Reason: {self.appeal_reason.value}"
+        await PermissionsTicketModal.create_ticket(self, interaction, "Review", details)
+
+class TicketManageView(discord.ui.View):
+    def __init__(self, ticket_type: str, user):
+        super().__init__(timeout=None)
+        self.ticket_type = ticket_type
+        self.user = user
+        self.claimed_by = None
+    
+    @discord.ui.button(label="Claim", style=discord.ButtonStyle.primary, emoji="✋")
+    async def claim_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user is staff
+        if not hasattr(interaction.user, 'roles') or not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+            await interaction.response.send_message("❌ Only staff can claim tickets", ephemeral=True)
+            return
+        
+        self.claimed_by = interaction.user
+        embed = discord.Embed(title="✋ Ticket Claimed", color=EMBED_COLOR)
+        embed.add_field(name="Staff Member", value=interaction.user.mention, inline=True)
+        embed.add_field(name="Status", value="In Progress", inline=True)
+        
+        # Update log
+        log_channel = bot.get_channel(1320540890141556746)
+        if log_channel:
+            log_embed = discord.Embed(title="✋ Ticket Claimed", color=0xFFA500)
+            log_embed.add_field(name="Type", value=self.ticket_type, inline=True)
+            log_embed.add_field(name="User", value=self.user.mention, inline=True)
+            log_embed.add_field(name="Staff", value=interaction.user.mention, inline=True)
+            await log_channel.send(embed=log_embed)
+        
+        await interaction.response.send_message(embed=embed)
+    
+    @discord.ui.button(label="Close", style=discord.ButtonStyle.danger, emoji="🔒")
+    async def close_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user is staff
+        if not hasattr(interaction.user, 'roles') or not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+            await interaction.response.send_message("❌ Only staff can close tickets", ephemeral=True)
+            return
+        
+        modal = TicketCloseModal(self.ticket_type, self.user)
+        await interaction.response.send_modal(modal)
+
+class TicketCloseModal(discord.ui.Modal):
+    def __init__(self, ticket_type: str, user):
+        super().__init__(title="Close Ticket")
+        self.ticket_type = ticket_type
+        self.user = user
+        
+        self.resolution = discord.ui.TextInput(
+            label="How was this ticket resolved?",
+            placeholder="Describe the solution or outcome...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        
+        self.add_item(self.resolution)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            # Log closure
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                log_embed = discord.Embed(title="🔒 Ticket Closed", color=0x00FF00)
+                log_embed.add_field(name="Type", value=self.ticket_type, inline=True)
+                log_embed.add_field(name="User", value=self.user.mention, inline=True)
+                log_embed.add_field(name="Closed By", value=interaction.user.mention, inline=True)
+                log_embed.add_field(name="Resolution", value=self.resolution.value, inline=False)
+                await log_channel.send(embed=log_embed)
+            
+            await interaction.response.send_message(f"🔒 Ticket closed successfully!")
+            
+            # Wait 10 seconds then delete thread
+            await asyncio.sleep(10)
+            await interaction.channel.delete()
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error closing ticket: {str(e)}", ephemeral=True)
+
+@bot.tree.command(name="tickets", description="🎫 Create a support ticket")
+async def tickets_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="🎫 Manor Support Tickets", description="Choose the type of assistance you need", color=EMBED_COLOR)
+    embed.add_field(name="🔑 Permissions", value="Request realm codes and access", inline=True)
+    embed.add_field(name="❓ General", value="Ask general questions", inline=True)
+    embed.add_field(name="⚠️ Report", value="Report rule violations", inline=True)
+    embed.add_field(name="📋 Review", value="Appeal warnings or infractions", inline=True)
+    embed.set_footer(text="Staff will respond promptly • Select a button below")
+    
+    view = TicketView()
+    await interaction.response.send_message(embed=embed, view=view)
 
 async def run_discord_bot():
     """Run the Discord bot."""
