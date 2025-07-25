@@ -12,6 +12,11 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 import random
 
+# Import error handling system
+from services.error_handler import error_handler, handle_errors, ErrorType, ErrorSeverity
+from services.error_templates import templates as error_templates
+from services.error_demonstration import error_demo
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -86,6 +91,7 @@ async def on_member_join(member):
 # ECONOMY COMMANDS
 @bot.tree.command(name="balance", description="💰 Check your rosebud currency balance")
 @discord.app_commands.default_permissions(send_messages=True)
+@handle_errors
 async def balance_command(interaction: discord.Interaction):
     balance = random.randint(100, 5000)
     embed = discord.Embed(title="💰 Manor Treasury", description="Your Victorian wealth status", color=EMBED_COLOR)
@@ -100,6 +106,7 @@ async def balance_command(interaction: discord.Interaction):
 
 @bot.tree.command(name="daily", description="🌅 Claim your daily rosebud reward")
 @discord.app_commands.default_permissions(send_messages=True)
+@handle_errors
 async def daily_command(interaction: discord.Interaction):
     reward = random.randint(50, 200)
     embed = discord.Embed(title="🌅 Daily Manor Allowance", description="Your Victorian stipend has arrived", color=EMBED_COLOR)
@@ -110,6 +117,7 @@ async def daily_command(interaction: discord.Interaction):
 
 @bot.tree.command(name="shop", description="🛍️ Browse the Victorian manor boutique")
 @discord.app_commands.default_permissions(send_messages=True)
+@handle_errors
 async def shop_command(interaction: discord.Interaction):
     embed = discord.Embed(title="🛍️ Manor Boutique", description="Exquisite Victorian treasures await", color=EMBED_COLOR)
     embed.add_field(name="👑 Custom Role", value="500 Rosebuds", inline=True)
@@ -2865,6 +2873,7 @@ async def on_message(message):
     discord.app_commands.Choice(name="Elegant Throne", value="elegant_throne"),
     discord.app_commands.Choice(name="Mystical Garden", value="mystical_garden")
 ])
+@handle_errors
 async def welcomebanner_command(interaction: discord.Interaction, action: str = "status", channel: discord.TextChannel = None, template: str = "victorian_rose"):
     try:
         from services.welcome_banner import welcome_banner_service
@@ -2915,6 +2924,47 @@ async def welcomebanner_command(interaction: discord.Interaction, action: str = 
     except Exception as e:
         embed = discord.Embed(title="🎨 Welcome Banner Error", description=f"Error: {str(e)}", color=0xFF0000)
         await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Global error handler for the bot
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
+    """Global error handler for slash commands"""
+    await error_handler.handle_command_error(interaction, error, interaction.command.name if interaction.command else None)
+
+# Add error demonstration commands
+@bot.tree.command(name="errortest", description="🧪 Test the elegant error message system")
+@discord.app_commands.default_permissions(administrator=True)
+@discord.app_commands.describe(error_type="Type of error to demonstrate")
+@discord.app_commands.choices(error_type=[
+    discord.app_commands.Choice(name="Permission Denied", value="permission"),
+    discord.app_commands.Choice(name="User Not Found", value="user_not_found"),
+    discord.app_commands.Choice(name="Invalid Input", value="invalid_input"),
+    discord.app_commands.Choice(name="Database Error", value="database"),
+    discord.app_commands.Choice(name="Rate Limited", value="rate_limit"),
+    discord.app_commands.Choice(name="Insufficient Funds", value="funds"),
+    discord.app_commands.Choice(name="Maintenance Mode", value="maintenance"),
+    discord.app_commands.Choice(name="Random Error", value="random")
+])
+@handle_errors
+async def errortest_command(interaction: discord.Interaction, error_type: str = "random"):
+    """Test the elegant error message system"""
+    
+    if error_type == "permission":
+        await error_demo.demo_permission_error(interaction)
+    elif error_type == "user_not_found":
+        await error_demo.demo_user_not_found(interaction, "VanishedGuest#1234")
+    elif error_type == "invalid_input":
+        await error_demo.demo_invalid_input(interaction, "balance")
+    elif error_type == "database":
+        await error_demo.demo_database_error(interaction)
+    elif error_type == "rate_limit":
+        await error_demo.demo_rate_limited(interaction)
+    elif error_type == "funds":
+        await error_demo.demo_insufficient_funds(interaction)
+    elif error_type == "maintenance":
+        await error_demo.demo_maintenance_mode(interaction)
+    else:  # random
+        await error_demo.demo_random_error(interaction)
 
 async def run_discord_bot():
     """Run the Discord bot."""
