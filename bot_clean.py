@@ -376,9 +376,9 @@ async def afk_command(interaction: discord.Interaction, reason: str = "Away from
     embed.set_footer(text="We await your return to the manor")
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="voice", description="🎵 Create a temporary voice channel")
+@bot.tree.command(name="createvoice", description="🎵 Create a temporary voice channel")
 @discord.app_commands.default_permissions(manage_channels=True)
-async def voice_command(interaction: discord.Interaction, name: str = "Victorian Parlor"):
+async def createvoice_command(interaction: discord.Interaction, name: str = "Victorian Parlor"):
     embed = discord.Embed(title="🎵 Voice Chamber Created", description="A new gathering place has been established", color=EMBED_COLOR)
     embed.add_field(name="🏛️ Chamber Name", value=name, inline=True)
     embed.add_field(name="👑 Creator", value=interaction.user.mention, inline=True)
