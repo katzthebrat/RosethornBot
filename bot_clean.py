@@ -1186,12 +1186,7 @@ class TutorialView(discord.ui.View):
             # If followup fails, try editing original message
             await interaction.edit_original_response(embed=embed, view=self)
         
-        # Auto-advance to next step after button press
-        next_step_num = current_step.action_data.get("next_step", self.step_number + 1)
-        if next_step_num < len(TUTORIAL_STEPS):
-            # Wait a moment then show next step
-            await asyncio.sleep(2)
-            await self.show_step_follow_up(interaction, next_step_num)
+
     
     async def complete_tutorial(self, interaction):
         step = TUTORIAL_STEPS[-1]
@@ -1611,44 +1606,107 @@ async def check_tutorial_progress(user_id, command_used):
         # User completed the step!
         tutorial_tracking[user_id]["current_step"] += 1
         
-        # Send completion message
+        # Send completion message and next step
         try:
             user = bot.get_user(user_id)
             if user:
-                embed = discord.Embed(
+                # Step completion message
+                completion_embed = discord.Embed(
                     title="✨ Step Completed!",
                     description=f"**Lady Rosalind nods approvingly**\n\n*\"{current_step.completion_message}\"*",
                     color=0x00FF00
                 )
+                completion_embed.set_footer(text="Well done! Moving to the next step...")
+                await user.send(embed=completion_embed)
+                
+                # Wait a moment
+                await asyncio.sleep(2)
                 
                 next_step_num = tutorial_tracking[user_id]["current_step"]
                 if next_step_num < len(TUTORIAL_STEPS):
                     next_step = TUTORIAL_STEPS[next_step_num]
-                    embed.add_field(
-                        name="🔮 Next Step",
-                        value=f"**{next_step.title}**\n{next_step.description[:100]}...",
-                        inline=False
+                    
+                    # Send next step
+                    next_embed = discord.Embed(
+                        title=next_step.title,
+                        description=next_step.description,
+                        color=EMBED_COLOR
+                    )
+                    
+                    next_embed.add_field(
+                        name="📍 Progress", 
+                        value=f"Step {next_step_num + 1} of {len(TUTORIAL_STEPS)}", 
+                        inline=True
                     )
                     
                     if next_step.action_type == "command":
-                        embed.add_field(
-                            name="🎯 Try This",
-                            value=f"`/{next_step.action_data['command']}`",
+                        next_embed.add_field(
+                            name="🎯 Your Task",
+                            value=f"Try the `/{next_step.action_data['command']}` command",
                             inline=True
                         )
+                        if "alternatives" in next_step.action_data:
+                            next_embed.add_field(
+                                name="✨ Alternatives",
+                                value=" or ".join([f"`/{alt}`" for alt in next_step.action_data["alternatives"]]),
+                                inline=True
+                            )
+                    
+                    next_embed.set_footer(text="Lady Rosalind guides you through the manor • Tutorial System")
+                    
+                    # Create a simple view for skip option
+                    view = TutorialSkipView(user_id, next_step_num)
+                    await user.send(embed=next_embed, view=view)
+                    
                 else:
                     # Tutorial complete
-                    embed.add_field(
-                        name="🎉 Tutorial Complete!",
-                        value="You have mastered the basics of Rosewood Manor!",
+                    final_embed = discord.Embed(
+                        title="🎉 Tutorial Complete!",
+                        description="Congratulations! You have mastered the basics of Rosewood Manor.",
+                        color=0x00FF00
+                    )
+                    final_embed.add_field(
+                        name="🎁 Rewards Earned",
+                        value="🌹 100 Rosebuds\n🏷️ Title: **Manor Initiate**",
                         inline=False
                     )
+                    final_embed.set_footer(text="Welcome to our Victorian community!")
+                    await user.send(embed=final_embed)
+                    
+                    # Log completion
+                    await create_tracking_message("🎓 Tutorial Completed", {
+                        "👤 User": user.mention,
+                        "📚 Status": "✅ Completed via Command Tracking",
+                        "🎁 Rewards": "100 Rosebuds + Manor Initiate Title"
+                    }, 0x00FF00, f"TUTORIAL-AUTO-{user_id}")
+                    
                     del tutorial_tracking[user_id]
-                
-                embed.set_footer(text="Tutorial progress automatically tracked")
-                await user.send(embed=embed)
-        except:
-            pass  # Silently fail if can't DM user
+                    
+        except Exception as e:
+            print(f"Error in tutorial progression: {e}")
+
+class TutorialSkipView(discord.ui.View):
+    def __init__(self, user_id, step_number):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+        self.step_number = step_number
+    
+    @discord.ui.button(label="Skip Tutorial", style=discord.ButtonStyle.secondary, emoji="⏭️")
+    async def skip_tutorial(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("❌ This tutorial is not for you", ephemeral=True)
+            return
+        
+        if self.user_id in tutorial_tracking:
+            del tutorial_tracking[self.user_id]
+        
+        embed = discord.Embed(
+            title="🌹 Tutorial Skipped",
+            description="Lady Rosalind fades into the shadows with a knowing smile.\n\n*\"The manor's mysteries await your discovery at your own pace, dear guest.\"*",
+            color=EMBED_COLOR
+        )
+        embed.set_footer(text="You can restart the tutorial anytime with /tutorial")
+        await interaction.response.edit_message(embed=embed, view=None)
 
 # SIMPLIFIED DM ONBOARDING SYSTEM
 @bot.event
