@@ -73,6 +73,93 @@ async def on_guild_join(guild):
         except discord.Forbidden:
             pass
 
+# Victorian Gothic Commands
+@bot.tree.command(name="rose", description="🌹 Receive a beautiful Victorian rose")
+async def rose_command(interaction: discord.Interaction):
+    import random
+    roses = [
+        "🌹 A crimson rose blooms in the moonlight for thee",
+        "🥀 A thorned beauty graces thy presence", 
+        "🌹 In Victorian gardens, roses whisper secrets",
+        "🌹 A rose as deep red as the manor's velvet curtains"
+    ]
+    
+    embed = discord.Embed(
+        title="🌹 Victorian Rose Garden",
+        description=random.choice(roses),
+        color=EMBED_COLOR
+    )
+    embed.set_footer(text="From thy Gothic Manor with love")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="manor", description="🏰 Explore the Gothic Manor")
+async def manor_command(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="🏰 Welcome to Rosethorn Manor",
+        description="A Victorian Gothic estate shrouded in mystery and elegance",
+        color=EMBED_COLOR
+    )
+    embed.add_field(
+        name="🕯️ The Library", 
+        value="Ancient tomes whisper forgotten secrets",
+        inline=True
+    )
+    embed.add_field(
+        name="🌹 Rose Garden", 
+        value="Crimson blooms under pale moonlight",
+        inline=True
+    )
+    embed.add_field(
+        name="⚱️ The Crypt", 
+        value="Where Victorian spirits find eternal rest",
+        inline=True
+    )
+    embed.set_footer(text="Rosethorn Manor • Victorian Gothic Discord Bot")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="fortune", description="🔮 Receive a Victorian fortune reading")
+async def fortune_command(interaction: discord.Interaction):
+    import random
+    fortunes = [
+        "The roses whisper of fortune approaching on raven's wings",
+        "In Victorian shadows, thy destiny unfolds like crimson petals",
+        "The manor's spirits foresee prosperity in thy near future",
+        "Moonlight reveals a path paved with thorns leading to glory",
+        "Ancient whispers speak of love blooming in unexpected gardens"
+    ]
+    
+    embed = discord.Embed(
+        title="🔮 Victorian Fortune Reading",
+        description=f"*The crystal ball swirls with gothic mist...*\n\n{random.choice(fortunes)}",
+        color=EMBED_COLOR
+    )
+    embed.set_footer(text="Fortunes told by the Manor's mystic spirits")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="gothic", description="🦇 Gothic atmosphere command")
+async def gothic_command(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="🦇 Victorian Gothic Atmosphere",
+        description="*Thunder rolls across the moor as candlelight flickers...*",
+        color=EMBED_COLOR
+    )
+    embed.add_field(
+        name="🕯️ Tonight's Mood",
+        value="The manor breathes with ancient elegance",
+        inline=False
+    )
+    embed.add_field(
+        name="🌙 Weather",
+        value="Misty moonlight casts long shadows",
+        inline=True
+    )
+    embed.add_field(
+        name="🎭 Atmosphere",
+        value="Mysteriously romantic",
+        inline=True
+    )
+    await interaction.response.send_message(embed=embed)
+
 @bot.command(name='help')
 async def help_command(ctx):
     """Display help information."""

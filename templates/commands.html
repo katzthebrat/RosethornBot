@@ -2,10 +2,6 @@
 
 {% block title %}Commands - RosethornBot{% endblock %}
 
-{% block head %}
-<link href="{{ url_for('static', filename='js/command-editor.js') }}" rel="preload" as="script">
-{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
     <!-- Page Header -->
@@ -18,281 +14,111 @@
         </div>
     </div>
 
-    <!-- Guild Selection Alert -->
-    {% if not guild %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="alert alert-warning gothic-border">
-                <h5>🏰 Select Your Gothic Manor</h5>
-                <p>Please select a guild from the navigation menu to manage commands for that specific manor.</p>
-            </div>
-        </div>
-    </div>
-    {% else %}
-    
-    <!-- Command Management Interface -->
+    <!-- Available Commands Showcase -->
     <div class="row">
-        <!-- Commands List -->
-        <div class="col-lg-4 mb-4">
+        <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>📋 Manor Commands</h4>
-                    <button class="btn btn-primary btn-sm btn-new-command">
-                        <i class="fas fa-plus"></i> New
-                    </button>
-                </div>
-                <div class="card-body">
-                    <!-- Search Commands -->
-                    <div class="form-group mb-3">
-                        <input type="text" class="form-control search-input" 
-                               data-search-type="commands" 
-                               placeholder="🔍 Search Gothic commands...">
-                    </div>
-                    
-                    <!-- Commands List -->
-                    <div class="commands-list" id="commands-list">
-                        {% if commands %}
-                            {% for command in commands %}
-                            <div class="command-item" data-command-id="{{ command.id }}">
-                                <div class="command-info">
-                                    <div class="command-name">{{ command.name }}</div>
-                                    <div class="command-meta">
-                                        <span class="usage-count">{{ command.uses }} uses</span>
-                                        <span class="separator">•</span>
-                                        <span class="last-updated">{{ command.updated_at.strftime('%m/%d') }}</span>
-                                        {% if not command.enabled %}
-                                            <span class="badge badge-secondary ms-1">Disabled</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="command-actions">
-                                    <button class="btn btn-sm btn-outline-primary btn-duplicate-command" 
-                                            data-command-id="{{ command.id }}" 
-                                            title="Duplicate Command">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger btn-delete-command" 
-                                            data-command-id="{{ command.id }}"
-                                            title="Delete Command">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="empty-state">
-                                <div class="empty-icon">📜</div>
-                                <div class="empty-title">No Commands Found</div>
-                                <div class="empty-description">Create your first Gothic command to begin</div>
-                                <button class="btn btn-primary mt-3 btn-new-command">Create Command</button>
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Search Results -->
-                    <div class="search-results" data-search-results="commands" style="display: none;"></div>
-                </div>
-            </div>
-            
-            <!-- Command Management Tools -->
-            <div class="card mt-3">
                 <div class="card-header">
-                    <h5>🔧 Management Tools</h5>
+                    <h4>🌹 Available Discord Commands</h4>
+                    <p class="mb-0">Elegant Victorian commands ready to use in your Discord server</p>
                 </div>
                 <div class="card-body">
-                    <div class="tool-buttons">
-                        <button class="btn btn-outline-primary btn-block mb-2 btn-export-commands">
-                            <i class="fas fa-download"></i> Export Commands
-                        </button>
-                        <button class="btn btn-outline-primary btn-block mb-2 btn-import-commands">
-                            <i class="fas fa-upload"></i> Import Commands
-                        </button>
-                        <button class="btn btn-outline-secondary btn-block" onclick="location.reload()">
-                            <i class="fas fa-sync-alt"></i> Refresh List
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Command Editor -->
-        <div class="col-lg-8 mb-4">
-            <div class="command-editor-container">
-                <!-- Command Info Form -->
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h4>✏️ Command Editor</h4>
-                    </div>
-                    <div class="card-body">
-                        <form id="commandForm" class="ajax-form" action="/api/commands" method="POST" data-reset-on-success="false">
-                            <input type="hidden" name="guild_id" value="{{ guild.guild_id }}">
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Command Name</label>
-                                        <input type="text" class="form-control" name="command_name" 
-                                               placeholder="Enter command name..." required>
-                                        <div class="form-text">Use letters, numbers, and underscores only</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Template</label>
-                                        <select class="form-control template-selector">
-                                            <option value="">Select a template...</option>
-                                            <!-- Templates will be populated by JavaScript -->
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Command Content</label>
-                                <div class="editor-wrapper">
-                                    <textarea class="form-control command-editor" name="command_content" 
-                                              rows="8" placeholder="Enter your Gothic command content..."
-                                              maxlength="2000"></textarea>
-                                    <div class="character-count">0/2000</div>
-                                </div>
-                                <div class="form-text">Use {user}, {guild}, {channel} for dynamic values</div>
-                            </div>
-                            
-                            <div class="editor-toolbar">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.execCommand('bold')">
-                                    <i class="fas fa-bold"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.execCommand('italic')">
-                                    <i class="fas fa-italic"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.execCommand('underline')">
-                                    <i class="fas fa-underline"></i>
-                                </button>
-                                <div class="separator"></div>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="insertAtCursor('{user}')">
-                                    👤 User
-                                </button>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="insertAtCursor('{guild}')">
-                                    🏰 Guild
-                                </button>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="insertAtCursor('🌹')">
-                                    🌹 Rose
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Embed Editor -->
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h4>🎨 Gothic Embed Designer</h4>
-                    </div>
-                    <div class="card-body">
+                    <div class="gothic-commands-showcase">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="embed-editor">
-                                    <!-- Embed form will be populated by JavaScript -->
+                            <div class="col-md-6 mb-4">
+                                <div class="command-card">
+                                    <div class="command-header">
+                                        <span class="command-name">/rose</span>
+                                        <span class="command-badge">Active</span>
+                                    </div>
+                                    <div class="command-description">🌹 Receive a beautiful Victorian rose</div>
+                                    <div class="command-preview">
+                                        <em>Displays a randomly selected elegant rose message with Gothic styling</em>
+                                    </div>
+                                    <div class="command-actions mt-2">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="showCommandDemo('rose')">Preview</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="embed-preview-container">
-                                    <h5>📱 Discord Preview</h5>
-                                    <div class="embed-preview">
-                                        <div class="preview-placeholder">
-                                            <div class="placeholder-icon">🌹</div>
-                                            <div class="placeholder-text">Embed preview will appear here</div>
-                                        </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <div class="command-card">
+                                    <div class="command-header">
+                                        <span class="command-name">/manor</span>
+                                        <span class="command-badge">Active</span>
+                                    </div>
+                                    <div class="command-description">🏰 Explore the Gothic Manor</div>
+                                    <div class="command-preview">
+                                        <em>Shows an embed tour of Rosethorn Manor's mysterious rooms</em>
+                                    </div>
+                                    <div class="command-actions mt-2">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="showCommandDemo('manor')">Preview</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <div class="command-card">
+                                    <div class="command-header">
+                                        <span class="command-name">/fortune</span>
+                                        <span class="command-badge">Active</span>
+                                    </div>
+                                    <div class="command-description">🔮 Receive a Victorian fortune reading</div>
+                                    <div class="command-preview">
+                                        <em>Provides mystical fortune readings with Gothic atmosphere</em>
+                                    </div>
+                                    <div class="command-actions mt-2">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="showCommandDemo('fortune')">Preview</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <div class="command-card">
+                                    <div class="command-header">
+                                        <span class="command-name">/gothic</span>
+                                        <span class="command-badge">Active</span>
+                                    </div>
+                                    <div class="command-description">🦇 Gothic atmosphere command</div>
+                                    <div class="command-preview">
+                                        <em>Creates an immersive Victorian Gothic mood setting</em>
+                                    </div>
+                                    <div class="command-actions mt-2">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="showCommandDemo('gothic')">Preview</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Save Actions -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="save-status">
-                                <span class="autosave-indicator" style="opacity: 0;">Auto-saved</span>
+                        
+                        <div class="text-center mt-4">
+                            <div class="alert alert-info">
+                                <strong>🎭 How to Use:</strong> These commands are automatically available in your Discord server. 
+                                Type <code>/</code> in any channel to see them!
                             </div>
-                            <div class="save-actions">
-                                <button type="button" class="btn btn-outline-secondary me-2" onclick="window.gothicCommandEditor.createNewCommand()">
-                                    <i class="fas fa-file"></i> New Command
-                                </button>
-                                <button type="button" class="btn btn-success btn-save-command">
-                                    <i class="fas fa-save"></i> Save Gothic Command
-                                </button>
-                            </div>
+                            <button class="btn btn-primary me-2" onclick="showComingSoon('Custom Command Creator')">
+                                Create Custom Command
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="showComingSoon('Import Commands')">
+                                Import Commands
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {% endif %}
 </div>
 
-<!-- Command Variables Reference Modal -->
-<div class="modal fade" id="variablesModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content gothic-border">
+<!-- Command Demo Modal -->
+<div class="modal fade" id="commandDemoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">📜 Gothic Variables Reference</h5>
+                <h5 class="modal-title">🎭 Command Preview</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div class="variables-reference">
-                    <h6>User Variables</h6>
-                    <div class="variable-list">
-                        <div class="variable-item">
-                            <code>{user}</code> - User mention (@username)
-                        </div>
-                        <div class="variable-item">
-                            <code>{user.name}</code> - Username only
-                        </div>
-                        <div class="variable-item">
-                            <code>{user.id}</code> - User ID
-                        </div>
-                    </div>
-                    
-                    <h6>Guild Variables</h6>
-                    <div class="variable-list">
-                        <div class="variable-item">
-                            <code>{guild}</code> - Guild name
-                        </div>
-                        <div class="variable-item">
-                            <code>{guild.members}</code> - Member count
-                        </div>
-                        <div class="variable-item">
-                            <code>{guild.owner}</code> - Guild owner
-                        </div>
-                    </div>
-                    
-                    <h6>Channel Variables</h6>
-                    <div class="variable-list">
-                        <div class="variable-item">
-                            <code>{channel}</code> - Channel mention
-                        </div>
-                        <div class="variable-item">
-                            <code>{channel.name}</code> - Channel name
-                        </div>
-                    </div>
-                    
-                    <h6>Date/Time Variables</h6>
-                    <div class="variable-list">
-                        <div class="variable-item">
-                            <code>{date}</code> - Current date
-                        </div>
-                        <div class="variable-item">
-                            <code>{time}</code> - Current time
-                        </div>
-                        <div class="variable-item">
-                            <code>{datetime}</code> - Date and time
-                        </div>
-                    </div>
-                </div>
+            <div class="modal-body" id="commandDemoContent">
+                <!-- Command demo will be inserted here -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -302,39 +128,196 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/command-editor.js') }}"></script>
+{% block extra_js %}
 <script>
-function insertAtCursor(text) {
-    const editor = document.querySelector('.command-editor');
-    if (editor) {
-        const start = editor.selectionStart;
-        const end = editor.selectionEnd;
-        const value = editor.value;
+function showCommandDemo(commandName) {
+    const demos = {
+        'rose': {
+            title: '🌹 /rose Command Demo',
+            content: `
+                <div class="discord-embed">
+                    <div class="embed-title">🌹 Victorian Rose Garden</div>
+                    <div class="embed-description">🌹 A crimson rose blooms in the moonlight for thee</div>
+                    <div class="embed-footer">From thy Gothic Manor with love</div>
+                </div>
+            `
+        },
+        'manor': {
+            title: '🏰 /manor Command Demo',
+            content: `
+                <div class="discord-embed">
+                    <div class="embed-title">🏰 Welcome to Rosethorn Manor</div>
+                    <div class="embed-description">A Victorian Gothic estate shrouded in mystery and elegance</div>
+                    <div class="embed-fields">
+                        <div class="embed-field">
+                            <div class="field-name">🕯️ The Library</div>
+                            <div class="field-value">Ancient tomes whisper forgotten secrets</div>
+                        </div>
+                        <div class="embed-field">
+                            <div class="field-name">🌹 Rose Garden</div>
+                            <div class="field-value">Crimson blooms under pale moonlight</div>
+                        </div>
+                        <div class="embed-field">
+                            <div class="field-name">⚱️ The Crypt</div>
+                            <div class="field-value">Where Victorian spirits find eternal rest</div>
+                        </div>
+                    </div>
+                    <div class="embed-footer">Rosethorn Manor • Victorian Gothic Discord Bot</div>
+                </div>
+            `
+        },
+        'fortune': {
+            title: '🔮 /fortune Command Demo',
+            content: `
+                <div class="discord-embed">
+                    <div class="embed-title">🔮 Victorian Fortune Reading</div>
+                    <div class="embed-description">
+                        <em>The crystal ball swirls with gothic mist...</em><br><br>
+                        The roses whisper of fortune approaching on raven's wings
+                    </div>
+                    <div class="embed-footer">Fortunes told by the Manor's mystic spirits</div>
+                </div>
+            `
+        },
+        'gothic': {
+            title: '🦇 /gothic Command Demo',
+            content: `
+                <div class="discord-embed">
+                    <div class="embed-title">🦇 Victorian Gothic Atmosphere</div>
+                    <div class="embed-description">Thunder rolls across the moor as candlelight flickers...</div>
+                    <div class="embed-fields">
+                        <div class="embed-field full-width">
+                            <div class="field-name">🕯️ Tonight's Mood</div>
+                            <div class="field-value">The manor breathes with ancient elegance</div>
+                        </div>
+                        <div class="embed-field">
+                            <div class="field-name">🌙 Weather</div>
+                            <div class="field-value">Misty moonlight casts long shadows</div>
+                        </div>
+                        <div class="embed-field">
+                            <div class="field-name">🎭 Atmosphere</div>
+                            <div class="field-value">Mysteriously romantic</div>
+                        </div>
+                    </div>
+                </div>
+            `
+        }
+    };
+    
+    const demo = demos[commandName];
+    if (demo) {
+        document.getElementById('commandDemoContent').innerHTML = demo.content;
+        document.querySelector('#commandDemoModal .modal-title').textContent = demo.title;
         
-        editor.value = value.substring(0, start) + text + value.substring(end);
-        editor.selectionStart = editor.selectionEnd = start + text.length;
-        editor.focus();
-        
-        // Trigger change event
-        const event = new Event('input', { bubbles: true });
-        editor.dispatchEvent(event);
+        // Show modal (Bootstrap 5)
+        const modal = new bootstrap.Modal(document.getElementById('commandDemoModal'));
+        modal.show();
     }
 }
 
-// Help button
-document.addEventListener('DOMContentLoaded', function() {
-    // Add help button to toolbar
-    const toolbar = document.querySelector('.editor-toolbar');
-    if (toolbar) {
-        const helpButton = document.createElement('button');
-        helpButton.type = 'button';
-        helpButton.className = 'btn btn-outline-info btn-sm ms-auto';
-        helpButton.innerHTML = '<i class="fas fa-question-circle"></i> Variables';
-        helpButton.setAttribute('data-bs-toggle', 'modal');
-        helpButton.setAttribute('data-bs-target', '#variablesModal');
-        toolbar.appendChild(helpButton);
-    }
-});
+function showComingSoon(feature) {
+    alert(`🏰 ${feature}\n\nThis Victorian feature is being crafted with the utmost elegance.\nIt will be available in future updates to the manor.`);
+}
 </script>
+
+<style>
+.command-card {
+    border: 1px solid #711417;
+    border-radius: 8px;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(113, 20, 23, 0.1), rgba(139, 69, 19, 0.1));
+    transition: transform 0.3s ease;
+}
+
+.command-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(113, 20, 23, 0.3);
+}
+
+.command-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.command-name {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #711417;
+    font-size: 1.1rem;
+}
+
+.command-badge {
+    background: #711417;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.command-description {
+    color: #8b4513;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.command-preview {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.discord-embed {
+    background: #2f3136;
+    border-left: 4px solid #711417;
+    border-radius: 4px;
+    padding: 1rem;
+    color: #dcddde;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.embed-title {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.embed-description {
+    color: #dcddde;
+    margin-bottom: 1rem;
+    line-height: 1.375;
+}
+
+.embed-fields {
+    margin-bottom: 1rem;
+}
+
+.embed-field {
+    margin-bottom: 0.5rem;
+}
+
+.embed-field.full-width {
+    width: 100%;
+}
+
+.field-name {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.125rem;
+}
+
+.field-value {
+    color: #dcddde;
+    font-size: 0.875rem;
+}
+
+.embed-footer {
+    color: #72767d;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+}
+</style>
 {% endblock %}
