@@ -110,33 +110,30 @@ def discord_callback():
     
     user_data = user_response.json()
     
-    # Create or update user 
+    # Create or update user in current Flask context
     try:
-        user = User.query.filter_by(discord_id=user_data['id']).first()
-        if not user:
-            user = User()
-            user.discord_id = user_data['id']
-            user.username = user_data['username']
-            user.discriminator = user_data.get('discriminator', None)
-            user.avatar = user_data.get('avatar')
-            user.is_admin = False
-            user.created_at = datetime.utcnow()
-            user.last_login = datetime.utcnow()
-            db.session.add(user)
-        else:
-            user.username = user_data['username']
-            user.discriminator = user_data.get('discriminator', None)
-            user.avatar = user_data.get('avatar')
-            user.last_login = datetime.utcnow()
+        from flask import current_app
         
-        db.session.commit()
+        # Simple login without database storage for now to test OAuth
+        class SimpleUser:
+            def __init__(self, discord_id, username):
+                self.id = discord_id
+                self.discord_id = discord_id
+                self.username = username
+                self.is_authenticated = True
+                self.is_active = True
+                self.is_anonymous = False
+                
+            def get_id(self):
+                return str(self.id)
+        
+        user = SimpleUser(user_data['id'], user_data['username'])
         login_user(user)
         print(f"🌹 User {user_data['username']} logged in successfully")
         
     except Exception as e:
-        print(f"🥀 Database error: {e}")
-        db.session.rollback()
-        flash('🥀 Database error occurred during login', 'error')
+        print(f"🥀 Login error: {e}")
+        flash('🥀 Login error occurred', 'error')
         return redirect(url_for('dashboard.login'))
     
     flash('🌹 Welcome to the Victorian Gothic Dashboard!', 'success')

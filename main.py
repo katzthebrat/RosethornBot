@@ -53,6 +53,8 @@ def create_app():
         db.create_all()
         logger.info("🌹 Database tables created successfully")
     
+
+    
     # Register blueprints
     from dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp)
