@@ -49,39 +49,20 @@ async def on_member_join(member):
     """Handle new member joining with animated welcome banner"""
     try:
         from services.welcome_banner import welcome_banner_service
-        from models import WelcomeBanner, WelcomeBannerHistory, db
         
-        # Check if welcome banners are enabled for this guild
-        welcome_config = WelcomeBanner.query.filter_by(
-            guild_id=str(member.guild.id)
-        ).first()
+        # Look for a welcome or general channel
+        welcome_channel = None
+        for channel in member.guild.text_channels:
+            if any(name in channel.name.lower() for name in ['welcome', 'general', 'entrance', 'arrivals']):
+                welcome_channel = channel
+                break
         
-        if not welcome_config or not welcome_config.is_enabled:
-            # Create default welcome settings if not exists
-            if not welcome_config:
-                # Look for a general or welcome channel
-                welcome_channel = None
-                for channel in member.guild.text_channels:
-                    if any(name in channel.name.lower() for name in ['welcome', 'general', 'entrance', 'arrivals']):
-                        welcome_channel = channel
-                        break
-                
-                if welcome_channel:
-                    welcome_config = WelcomeBanner(
-                        guild_id=str(member.guild.id),
-                        channel_id=str(welcome_channel.id),
-                        created_by=str(bot.user.id)
-                    )
-                    db.session.add(welcome_config)
-                    db.session.commit()
-            
-            if not welcome_config or not welcome_config.is_enabled:
-                return
+        # If no specific welcome channel found, use the first available text channel
+        if not welcome_channel and member.guild.text_channels:
+            welcome_channel = member.guild.text_channels[0]
         
-        # Get welcome channel
-        welcome_channel = member.guild.get_channel(int(welcome_config.channel_id))
         if not welcome_channel:
-            logger.warning(f"Welcome channel not found for guild {member.guild.name}")
+            logger.warning(f"No suitable welcome channel found for guild {member.guild.name}")
             return
         
         # Create welcome banner image
@@ -97,30 +78,7 @@ async def on_member_join(member):
             embed=embed
         )
         
-        # Log to database
-        history = WelcomeBannerHistory(
-            guild_id=str(member.guild.id),
-            user_id=str(member.id),
-            channel_id=str(welcome_channel.id),
-            message_id=str(welcome_message.id),
-            banner_template=welcome_config.banner_template,
-            member_count_at_join=member.guild.member_count
-        )
-        db.session.add(history)
-        db.session.commit()
-        
         logger.info(f"🌹 Sent welcome banner for {member.display_name} in {member.guild.name}")
-        
-        # Schedule message deletion if configured
-        if welcome_config.delete_after_hours and welcome_config.delete_after_hours > 0:
-            await asyncio.sleep(welcome_config.delete_after_hours * 3600)  # Convert hours to seconds
-            try:
-                await welcome_message.delete()
-                logger.info(f"🗑️ Auto-deleted welcome message for {member.display_name}")
-            except discord.NotFound:
-                pass  # Message already deleted
-            except Exception as e:
-                logger.error(f"Failed to auto-delete welcome message: {e}")
                 
     except Exception as e:
         logger.error(f"🥀 Error sending welcome banner: {e}")
