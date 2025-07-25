@@ -34,9 +34,15 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'dashboard.login'
     login_manager.login_message = 'Please login to access the Victorian Gothic Dashboard'
     login_manager.login_message_category = 'gothic-warning'
+    
+    # User loader for Flask-Login
+    @login_manager.user_loader
+    def load_user(user_id):
+        from models import User
+        return User.query.get(int(user_id))
     
     # Import models to ensure they're registered
     with app.app_context():
@@ -53,7 +59,7 @@ def create_app():
 def run_bot():
     """Run the Discord bot in a separate thread."""
     try:
-        from bot import run_discord_bot
+        from bot_simple import run_discord_bot
         asyncio.run(run_discord_bot())
     except Exception as e:
         logger.error(f"🥀 Discord bot error: {e}")

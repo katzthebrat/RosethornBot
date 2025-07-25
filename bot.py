@@ -45,7 +45,7 @@ class RosethornBot(commands.Bot):
         self.app = create_app()
         self.app_context = self.app.app_context()
         
-    async def get_prefix(self, message):
+    async def get_prefix(self, bot, message):
         """Get command prefix for guild."""
         if not message.guild:
             return DEFAULT_PREFIX
@@ -178,148 +178,148 @@ class RosethornBot(commands.Bot):
     async def process_temporary_punishments(self):
         """Process temporary mutes and bans."""
         await self.moderation.process_temporary_punishments()
-
-# Commands
-@bot.command(name='help')
-async def help_command(ctx):
-    """Display help information."""
-    embed = discord.Embed(
-        title="🌹 RosethornBot Commands",
-        description="Your Victorian Gothic servant at your command",
-        color=EMBED_COLOR
-    )
     
-    embed.add_field(
-        name="🛡️ Moderation",
-        value="`kick`, `ban`, `mute`, `warn`, `warnings`",
-        inline=False
-    )
-    
-    embed.add_field(
-        name="🌹 Economy",
-        value="`balance`, `checkin`, `shop`, `buy`, `daily`",
-        inline=False
-    )
-    
-    embed.add_field(
-        name="🎫 Tickets",
-        value="`ticket`, `close`, `claim`",
-        inline=False
-    )
-    
-    embed.add_field(
-        name="⚙️ Utility",
-        value="`afk`, `todo`, `poll`, `embed`",
-        inline=False
-    )
-    
-    embed.set_footer(text="Use the web dashboard for advanced configuration 🌹")
-    
-    await ctx.send(embed=embed)
-
-@bot.command(name='kick')
-@commands.has_permissions(kick_members=True)
-async def kick_member(ctx, member: discord.Member, *, reason="No reason provided"):
-    """Kick a member from the server."""
-    await ctx.bot.moderation.kick_member(ctx, member, reason)
-
-@bot.command(name='ban')
-@commands.has_permissions(ban_members=True)
-async def ban_member(ctx, member: discord.Member, *, reason="No reason provided"):
-    """Ban a member from the server."""
-    await ctx.bot.moderation.ban_member(ctx, member, reason)
-
-@bot.command(name='mute')
-@commands.has_permissions(manage_messages=True)
-async def mute_member(ctx, member: discord.Member, duration: str = None, *, reason="No reason provided"):
-    """Mute a member."""
-    await ctx.bot.moderation.mute_member(ctx, member, duration, reason)
-
-@bot.command(name='warn')
-@commands.has_permissions(manage_messages=True)
-async def warn_member(ctx, member: discord.Member, *, reason="No reason provided"):
-    """Warn a member."""
-    await ctx.bot.moderation.warn_member(ctx, member, reason)
-
-@bot.command(name='balance', aliases=['bal'])
-async def check_balance(ctx, member: discord.Member = None):
-    """Check currency balance."""
-    target = member or ctx.author
-    await ctx.bot.economy.check_balance(ctx, target)
-
-@bot.command(name='checkin')
-async def daily_checkin(ctx):
-    """Daily check-in for currency rewards."""
-    await ctx.bot.economy.daily_checkin(ctx)
-
-@bot.command(name='shop')
-async def view_shop(ctx):
-    """View the server shop."""
-    await ctx.bot.economy.view_shop(ctx)
-
-@bot.command(name='buy')
-async def buy_item(ctx, *, item_name):
-    """Buy an item from the shop."""
-    await ctx.bot.economy.buy_item(ctx, item_name)
-
-@bot.command(name='ticket')
-async def create_ticket(ctx, *, subject):
-    """Create a support ticket."""
-    await ctx.bot.tickets.create_ticket(ctx, subject)
-
-@bot.command(name='close')
-async def close_ticket(ctx, *, reason="No reason provided"):
-    """Close a support ticket."""
-    await ctx.bot.tickets.close_ticket(ctx, reason)
-
-@bot.command(name='afk')
-async def set_afk(ctx, *, reason="AFK"):
-    """Set AFK status."""
-    await ctx.bot.discord_service.set_afk(ctx, reason)
-
-@bot.command(name='embed')
-@commands.has_permissions(manage_messages=True)
-async def create_embed(ctx, *, content):
-    """Create a custom embed message."""
-    embed = discord.Embed(
-        description=content,
-        color=EMBED_COLOR
-    )
-    embed.set_footer(text="Created with RosethornBot 🌹")
-    await ctx.send(embed=embed)
-
-@bot.command(name='poll')
-async def create_poll(ctx, question, *options):
-    """Create a poll with reactions."""
-    if len(options) < 2:
-        await ctx.send("❌ Please provide at least 2 options for the poll.")
-        return
-    
-    if len(options) > 10:
-        await ctx.send("❌ Maximum 10 options allowed.")
-        return
-    
-    embed = discord.Embed(
-        title="📊 Poll",
-        description=question,
-        color=EMBED_COLOR
-    )
-    
-    reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
-    
-    for i, option in enumerate(options):
+    # Commands
+    @commands.command(name='help')
+    async def help_command(self, ctx):
+        """Display help information."""
+        embed = discord.Embed(
+            title="🌹 RosethornBot Commands",
+            description="Your Victorian Gothic servant at your command",
+            color=EMBED_COLOR
+        )
+        
         embed.add_field(
-            name=f"{reactions[i]} Option {i+1}",
-            value=option,
+            name="🛡️ Moderation",
+            value="`kick`, `ban`, `mute`, `warn`, `warnings`",
             inline=False
         )
-    
-    embed.set_footer(text=f"Poll created by {ctx.author.display_name} 🌹")
-    
-    poll_message = await ctx.send(embed=embed)
-    
-    for i in range(len(options)):
-        await poll_message.add_reaction(reactions[i])
+        
+        embed.add_field(
+            name="🌹 Economy",
+            value="`balance`, `checkin`, `shop`, `buy`, `daily`",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🎫 Tickets",
+            value="`ticket`, `close`, `claim`",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="⚙️ Utility",
+            value="`afk`, `todo`, `poll`, `embed`",
+            inline=False
+        )
+        
+        embed.set_footer(text="Use the web dashboard for advanced configuration 🌹")
+        
+        await ctx.send(embed=embed)
+
+    @commands.command(name='kick')
+    @commands.has_permissions(kick_members=True)
+    async def kick_member(self, ctx, member: discord.Member, *, reason="No reason provided"):
+        """Kick a member from the server."""
+        await self.moderation.kick_member(ctx, member, reason)
+
+    @commands.command(name='ban')
+    @commands.has_permissions(ban_members=True)
+    async def ban_member(self, ctx, member: discord.Member, *, reason="No reason provided"):
+        """Ban a member from the server."""
+        await self.moderation.ban_member(ctx, member, reason)
+
+    @commands.command(name='mute')
+    @commands.has_permissions(manage_messages=True)
+    async def mute_member(self, ctx, member: discord.Member, duration: str = None, *, reason="No reason provided"):
+        """Mute a member."""
+        await self.moderation.mute_member(ctx, member, duration, reason)
+
+    @commands.command(name='warn')
+    @commands.has_permissions(manage_messages=True)
+    async def warn_member(self, ctx, member: discord.Member, *, reason="No reason provided"):
+        """Warn a member."""
+        await self.moderation.warn_member(ctx, member, reason)
+
+    @commands.command(name='balance', aliases=['bal'])
+    async def check_balance(self, ctx, member: discord.Member = None):
+        """Check currency balance."""
+        target = member or ctx.author
+        await self.economy.check_balance(ctx, target)
+
+    @commands.command(name='checkin')
+    async def daily_checkin(self, ctx):
+        """Daily check-in for currency rewards."""
+        await self.economy.daily_checkin(ctx)
+
+    @commands.command(name='shop')
+    async def view_shop(self, ctx):
+        """View the server shop."""
+        await self.economy.view_shop(ctx)
+
+    @commands.command(name='buy')
+    async def buy_item(self, ctx, *, item_name):
+        """Buy an item from the shop."""
+        await self.economy.buy_item(ctx, item_name)
+
+    @commands.command(name='ticket')
+    async def create_ticket(self, ctx, *, subject):
+        """Create a support ticket."""
+        await self.tickets.create_ticket(ctx, subject)
+
+    @commands.command(name='close')
+    async def close_ticket(self, ctx, *, reason="No reason provided"):
+        """Close a support ticket."""
+        await self.tickets.close_ticket(ctx, reason)
+
+    @commands.command(name='afk')
+    async def set_afk(self, ctx, *, reason="AFK"):
+        """Set AFK status."""
+        await self.discord_service.set_afk(ctx, reason)
+
+    @commands.command(name='embed')
+    @commands.has_permissions(manage_messages=True)
+    async def create_embed(self, ctx, *, content):
+        """Create a custom embed message."""
+        embed = discord.Embed(
+            description=content,
+            color=EMBED_COLOR
+        )
+        embed.set_footer(text="Created with RosethornBot 🌹")
+        await ctx.send(embed=embed)
+
+    @commands.command(name='poll')
+    async def create_poll(self, ctx, question, *options):
+        """Create a poll with reactions."""
+        if len(options) < 2:
+            await ctx.send("❌ Please provide at least 2 options for the poll.")
+            return
+        
+        if len(options) > 10:
+            await ctx.send("❌ Maximum 10 options allowed.")
+            return
+        
+        embed = discord.Embed(
+            title="📊 Poll",
+            description=question,
+            color=EMBED_COLOR
+        )
+        
+        reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+        
+        for i, option in enumerate(options):
+            embed.add_field(
+                name=f"{reactions[i]} Option {i+1}",
+                value=option,
+                inline=False
+            )
+        
+        embed.set_footer(text=f"Poll created by {ctx.author.display_name} 🌹")
+        
+        poll_message = await ctx.send(embed=embed)
+        
+        for i in range(len(options)):
+            await poll_message.add_reaction(reactions[i])
 
 # Create bot instance
 bot = RosethornBot()

@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import requests
 from main import db, login_manager
 from models import *
-from utils.helpers import create_embed_dict, parse_duration
+from utils import create_embed_dict, parse_duration
 
 dashboard_bp = Blueprint('dashboard', __name__)
 

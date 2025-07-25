@@ -75,6 +75,74 @@ def format_datetime(dt):
         return "Never"
     return dt.strftime("%Y-%m-%d %H:%M UTC")
 
+def create_embed_dict(title="", description="", color=0x711417, fields=None, footer=None, thumbnail=None):
+    """Create a dictionary representation of a Discord embed"""
+    embed_dict = {
+        "title": title,
+        "description": description,
+        "color": color
+    }
+    
+    if fields:
+        embed_dict["fields"] = fields
+    
+    if footer:
+        embed_dict["footer"] = {"text": footer}
+    
+    if thumbnail:
+        embed_dict["thumbnail"] = {"url": thumbnail}
+    
+    return embed_dict
+
+def parse_duration(duration_str):
+    """Parse duration string (e.g., '1h', '30m', '1d') into timedelta."""
+    import re
+    from datetime import timedelta
+    
+    if not duration_str:
+        return None
+    
+    pattern = r'(\d+)([smhd])'
+    match = re.match(pattern, duration_str.lower())
+    
+    if not match:
+        return None
+    
+    amount, unit = match.groups()
+    amount = int(amount)
+    
+    if unit == 's':
+        return timedelta(seconds=amount)
+    elif unit == 'm':
+        return timedelta(minutes=amount)
+    elif unit == 'h':
+        return timedelta(hours=amount)
+    elif unit == 'd':
+        return timedelta(days=amount)
+    
+    return None
+
+def validate_embed_data(embed_data):
+    """Validate embed data structure"""
+    if not isinstance(embed_data, dict):
+        return False
+    
+    # Check for required fields
+    if 'title' not in embed_data and 'description' not in embed_data:
+        return False
+    
+    # Validate fields if present
+    if 'fields' in embed_data:
+        if not isinstance(embed_data['fields'], list):
+            return False
+        
+        for field in embed_data['fields']:
+            if not isinstance(field, dict) or 'name' not in field or 'value' not in field:
+                return False
+    
+    return True
+    return dt.strftime("%Y-%m-%d %H:%M UTC")
+
 def get_user_level(xp):
     """Calculate user level from XP"""
     # Simple level calculation: level = sqrt(xp / 100)

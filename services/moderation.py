@@ -428,9 +428,50 @@ class ModerationService:
     
     async def process_temporary_punishments(self):
         """Process temporary mutes and bans that need to be lifted."""
-        # This would be implemented to check for expired punishments
-        # and automatically remove them
-        pass
+        current_time = datetime.utcnow()
+        
+        with self.bot.app_context:
+            # Find expired temporary punishments from logs
+            expired_punishments = BotLog.query.filter(
+                BotLog.module == "moderation",
+                BotLog.extra_data.contains({"action": "mute"}),
+                BotLog.timestamp < current_time
+            ).all()
+            
+            for log in expired_punishments:
+                if log.extra_data and "unmute_time" in log.extra_data:
+                    try:
+                        unmute_time_str = log.extra_data["unmute_time"]
+                        if unmute_time_str:
+                            unmute_time = datetime.fromisoformat(unmute_time_str)
+                            
+                            if current_time >= unmute_time:
+                                # Find the guild and member
+                                guild = self.bot.get_guild(int(log.guild_id))
+                                if guild:
+                                    member = guild.get_member(int(log.user_id))
+                                    if member:
+                                        # Remove muted role
+                                        muted_role = discord.utils.get(guild.roles, name="Muted")
+                                        if muted_role and muted_role in member.roles:
+                                            await member.remove_roles(
+                                                muted_role, 
+                                                reason="Temporary mute expired"
+                                            )
+                                            
+                                            # Log the unmute
+                                            await self.log_moderation_action(
+                                                guild_id=str(guild.id),
+                                                action="unmute",
+                                                target_id=str(member.id),
+                                                moderator_id=str(self.bot.user.id),
+                                                reason="Temporary mute expired"
+                                            )
+                                            
+                                            logger.info(f"🔇 Automatically unmuted {member} in {guild.name}")
+                    except (ValueError, KeyError, AttributeError):
+                        # Invalid date format or missing data
+                        continue
     
     def parse_duration(self, duration_str):
         """Parse duration string (e.g., '1h', '30m', '1d') into timedelta."""
