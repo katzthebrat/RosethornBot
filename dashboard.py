@@ -160,23 +160,11 @@ def logout():
 @login_required
 def commands():
     """Command management page."""
-    guild_id = request.args.get('guild_id')
-    if not guild_id:
-        guilds = Guild.query.all()
-        return render_template('commands.html', guilds=guilds, commands=None, selected_guild=None)
-    
-    guild = Guild.query.filter_by(guild_id=guild_id).first()
-    if not guild:
-        flash('🥀 Guild not found', 'error')
-        return redirect(url_for('dashboard.commands'))
-    
-    commands = CustomCommand.query.filter_by(guild_id=guild_id).order_by(CustomCommand.name).all()
-    guilds = Guild.query.all()
-    
+    # Simplified commands without database dependency
     return render_template('commands.html', 
-                         guilds=guilds, 
-                         commands=commands, 
-                         selected_guild=guild)
+                         guilds=[], 
+                         commands=[], 
+                         selected_guild=None)
 
 @dashboard_bp.route('/commands/create', methods=['POST'])
 @login_required
