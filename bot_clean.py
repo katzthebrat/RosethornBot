@@ -438,12 +438,16 @@ class RealmJobModal(discord.ui.Modal):
             
             await thread.send(f"<@&1320538700656148541>", embed=embed, view=review_view)
             
-            # Log to tracking channel using unified system
-            await update_log_message("📋 Application Submitted", {
-                "Type": "Realm Job",
-                "Applicant": interaction.user.mention,
-                "Status": "Pending Review"
-            }, EMBED_COLOR)
+            # Create individual tracking message for this application
+            tracking_msg = await create_tracking_message("📋 Realm Job Application", {
+                "👤 Applicant": interaction.user.mention,
+                "🏷️ Type": "Realm Job",
+                "📊 Status": "🟡 Pending Review"
+            }, EMBED_COLOR, f"APP-{interaction.user.id}")
+            
+            # Store tracking message reference in the thread
+            if tracking_msg:
+                await thread.send(f"📊 **Tracking:** {tracking_msg.jump_url}", delete_after=1)
             
             await interaction.response.send_message("✅ Your Realm Job application has been submitted!", ephemeral=True)
         except Exception as e:
@@ -497,12 +501,16 @@ class AdminModal(discord.ui.Modal):
             
             await thread.send(f"<@&1320538700656148541>", embed=embed, view=review_view)
             
-            # Log to tracking channel using unified system
-            await update_log_message("📋 Application Submitted", {
-                "Type": "Admin",
-                "Applicant": interaction.user.mention,
-                "Status": "Pending Review"
-            }, EMBED_COLOR)
+            # Create individual tracking message for this application
+            tracking_msg = await create_tracking_message("📋 Admin Application", {
+                "👤 Applicant": interaction.user.mention,
+                "🏷️ Type": "Admin",
+                "📊 Status": "🟡 Pending Review"
+            }, EMBED_COLOR, f"APP-{interaction.user.id}")
+            
+            # Store tracking message reference in the thread
+            if tracking_msg:
+                await thread.send(f"📊 **Tracking:** {tracking_msg.jump_url}", delete_after=1)
             
             await interaction.response.send_message("✅ Your Admin application has been submitted!", ephemeral=True)
         except Exception as e:
@@ -536,12 +544,20 @@ class ApplicationReviewView(discord.ui.View):
             if role and hasattr(self.applicant, 'add_roles'):
                 await self.applicant.add_roles(role)
             
-            # Update log using unified system
-            await update_log_message("✅ Application Approved", {
-                "Type": role_name,
-                "Applicant": self.applicant.mention,
-                "Reviewer": interaction.user.mention
-            }, 0x00FF00)
+            # Find and update the tracking message
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                async for message in log_channel.history(limit=50):
+                    if (message.embeds and 
+                        self.applicant.mention in str(message.embeds[0].to_dict()) and 
+                        "Application" in message.embeds[0].title):
+                        await update_tracking_message(message, f"✅ {role_name} Application APPROVED", {
+                            "👤 Applicant": self.applicant.mention,
+                            "🏷️ Type": role_name,
+                            "📊 Status": "🟢 APPROVED",
+                            "👨‍⚖️ Reviewer": interaction.user.mention
+                        }, 0x00FF00)
+                        break
             
             await interaction.response.send_message(f"✅ {self.applicant.mention} has been approved for {role_name}!")
             
@@ -561,12 +577,20 @@ class ApplicationReviewView(discord.ui.View):
             return
         
         try:
-            # Update log using unified system
-            await update_log_message("❌ Application Denied", {
-                "Type": self.application_type.title(),
-                "Applicant": self.applicant.mention,
-                "Reviewer": interaction.user.mention
-            }, 0xFF0000)
+            # Find and update the tracking message
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                async for message in log_channel.history(limit=50):
+                    if (message.embeds and 
+                        self.applicant.mention in str(message.embeds[0].to_dict()) and 
+                        "Application" in message.embeds[0].title):
+                        await update_tracking_message(message, f"❌ {self.application_type.title()} Application DENIED", {
+                            "👤 Applicant": self.applicant.mention,
+                            "🏷️ Type": self.application_type.title(),
+                            "📊 Status": "🔴 DENIED",
+                            "👨‍⚖️ Reviewer": interaction.user.mention
+                        }, 0xFF0000)
+                        break
             
             await interaction.response.send_message(f"❌ {self.applicant.mention}'s application has been denied.")
             
@@ -656,12 +680,16 @@ class PermissionsTicketModal(discord.ui.Modal):
             
             await thread.send(f"<@&1320538700656148541>", embed=embed, view=ticket_manage_view)
             
-            # Log ticket creation using unified system
-            await update_log_message("🎫 Ticket Created", {
-                "Type": ticket_type,
-                "User": interaction.user.mention,
-                "Status": "Open"
-            }, EMBED_COLOR)
+            # Create individual tracking message for this ticket
+            tracking_msg = await create_tracking_message(f"🎫 {ticket_type} Ticket", {
+                "👤 User": interaction.user.mention,
+                "🏷️ Type": ticket_type,
+                "📊 Status": "🟡 Open"
+            }, EMBED_COLOR, f"TKT-{interaction.user.id}")
+            
+            # Store tracking message reference in the thread
+            if tracking_msg:
+                await thread.send(f"📊 **Tracking:** {tracking_msg.jump_url}", delete_after=1)
             
             await interaction.response.send_message(f"✅ Your {ticket_type} ticket has been created!", ephemeral=True)
         except Exception as e:
@@ -762,14 +790,20 @@ class TicketManageView(discord.ui.View):
         embed.add_field(name="Staff Member", value=interaction.user.mention, inline=True)
         embed.add_field(name="Status", value="In Progress", inline=True)
         
-        # Update log
+        # Find and update the tracking message
         log_channel = bot.get_channel(1320540890141556746)
         if log_channel:
-            log_embed = discord.Embed(title="✋ Ticket Claimed", color=0xFFA500)
-            log_embed.add_field(name="Type", value=self.ticket_type, inline=True)
-            log_embed.add_field(name="User", value=self.user.mention, inline=True)
-            log_embed.add_field(name="Staff", value=interaction.user.mention, inline=True)
-            await log_channel.send(embed=log_embed)
+            async for message in log_channel.history(limit=50):
+                if (message.embeds and 
+                    self.user.mention in str(message.embeds[0].to_dict()) and 
+                    "Ticket" in message.embeds[0].title):
+                    await update_tracking_message(message, f"✋ {self.ticket_type} Ticket CLAIMED", {
+                        "👤 User": self.user.mention,
+                        "🏷️ Type": self.ticket_type,
+                        "📊 Status": "🟠 CLAIMED",
+                        "👨‍⚖️ Claimed By": interaction.user.mention
+                    }, 0xFFA500)
+                    break
         
         await interaction.response.send_message(embed=embed)
     
@@ -804,13 +838,21 @@ class TicketCloseModal(discord.ui.Modal):
         try:
             await interaction.response.send_message(f"🔒 Ticket closed successfully!")
             
-            # Log closure
-            await update_log_message("🔒 Ticket Closed", {
-                "Type": self.ticket_type,
-                "User": self.user.mention,
-                "Closed By": interaction.user.mention,
-                "Resolution": self.resolution.value
-            }, 0x00FF00)
+            # Find and update the tracking message
+            log_channel = bot.get_channel(1320540890141556746)
+            if log_channel:
+                async for message in log_channel.history(limit=50):
+                    if (message.embeds and 
+                        self.user.mention in str(message.embeds[0].to_dict()) and 
+                        "Ticket" in message.embeds[0].title):
+                        await update_tracking_message(message, f"🔒 {self.ticket_type} Ticket CLOSED", {
+                            "👤 User": self.user.mention,
+                            "🏷️ Type": self.ticket_type,
+                            "📊 Status": "🟢 CLOSED",
+                            "👨‍⚖️ Closed By": interaction.user.mention,
+                            "📝 Resolution": self.resolution.value
+                        }, 0x00FF00)
+                        break
             
             # Wait 10 seconds then delete thread
             await asyncio.sleep(10)
@@ -836,38 +878,45 @@ async def tickets_command(interaction: discord.Interaction):
     await interaction.response.send_message("✅ Ticket system activated!", ephemeral=True)
     await interaction.channel.send(embed=embed, view=view)
 
-# UNIFIED LOGGING SYSTEM
-MAIN_LOG_MESSAGE = None
-
-async def update_log_message(title, fields, color):
-    """Update the unified log message instead of creating new ones"""
-    global MAIN_LOG_MESSAGE
+# INDIVIDUAL TRACKING SYSTEM
+async def create_tracking_message(title, fields, color, ticket_id=None):
+    """Create individual tracking message for each ticket/application"""
     log_channel = bot.get_channel(1320540890141556746)
     if not log_channel:
-        return
+        return None
     
     try:
-        # Create embed
-        embed = discord.Embed(title="🌹 Manor Activity Log", description="Recent activity in the manor", color=EMBED_COLOR)
-        embed.add_field(name=f"⏰ {title}", value=f"**{datetime.now().strftime('%H:%M:%S')}**", inline=False)
+        embed = discord.Embed(title=title, description="Status will update as this progresses", color=color)
         
         for field_name, field_value in fields.items():
             embed.add_field(name=field_name, value=field_value, inline=True)
         
-        embed.set_footer(text=f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        embed.add_field(name="📅 Created", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+        embed.set_footer(text=f"ID: {ticket_id or 'N/A'} • Created: {datetime.now().strftime('%H:%M:%S')}")
         
-        # If no main message exists, create one
-        if MAIN_LOG_MESSAGE is None:
-            MAIN_LOG_MESSAGE = await log_channel.send(embed=embed)
-        else:
-            # Try to edit the existing message
-            try:
-                await MAIN_LOG_MESSAGE.edit(embed=embed)
-            except discord.NotFound:
-                # Message was deleted, create a new one
-                MAIN_LOG_MESSAGE = await log_channel.send(embed=embed)
+        message = await log_channel.send(embed=embed)
+        return message
     except Exception as e:
-        print(f"Error updating log message: {e}")
+        print(f"Error creating tracking message: {e}")
+        return None
+
+async def update_tracking_message(message, title, fields, color):
+    """Update an existing tracking message"""
+    if not message:
+        return
+    
+    try:
+        embed = discord.Embed(title=title, description="Status updated", color=color)
+        
+        for field_name, field_value in fields.items():
+            embed.add_field(name=field_name, value=field_value, inline=True)
+        
+        embed.add_field(name="📅 Last Updated", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+        embed.set_footer(text=f"{message.embeds[0].footer.text.split('•')[0]}• Updated: {datetime.now().strftime('%H:%M:%S')}")
+        
+        await message.edit(embed=embed)
+    except Exception as e:
+        print(f"Error updating tracking message: {e}")
 
 # MISSING COMMANDS
 @bot.tree.command(name="purgechat", description="🧹 Delete multiple messages from this channel")
@@ -895,11 +944,11 @@ async def purgechat_command(interaction: discord.Interaction, count: int = 10):
         await interaction.followup.send(embed=embed, ephemeral=True)
         
         # Log the action
-        await update_log_message("🧹 Messages Purged", {
-            "Channel": interaction.channel.mention,
-            "Count": f"{len(deleted)} messages",
-            "Moderator": interaction.user.mention
-        }, EMBED_COLOR)
+        await create_tracking_message("🧹 Messages Purged", {
+            "📍 Channel": interaction.channel.mention,
+            "📊 Count": f"{len(deleted)} messages",
+            "👨‍⚖️ Moderator": interaction.user.mention
+        }, EMBED_COLOR, f"PURGE-{interaction.id}")
         
     except Exception as e:
         await interaction.followup.send(f"❌ Error purging messages: {str(e)}", ephemeral=True)
@@ -921,11 +970,11 @@ async def deletechannel_command(interaction: discord.Interaction, confirmation: 
         channel_type = "thread" if hasattr(interaction.channel, 'parent') else "channel"
         
         # Log before deletion
-        await update_log_message(f"🗑️ {channel_type.title()} Deleted", {
-            "Name": channel_name,
-            "Type": channel_type,
-            "Deleted By": interaction.user.mention
-        }, 0xFF0000)
+        await create_tracking_message(f"🗑️ {channel_type.title()} Deleted", {
+            "📍 Name": channel_name,
+            "🏷️ Type": channel_type.title(),
+            "👨‍⚖️ Deleted By": interaction.user.mention
+        }, 0xFF0000, f"DEL-{interaction.id}")
         
         await interaction.response.send_message(f"🗑️ Deleting {channel_type} in 5 seconds...", ephemeral=True)
         await asyncio.sleep(5)
