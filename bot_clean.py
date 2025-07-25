@@ -2771,5 +2771,31 @@ async def run_discord_bot():
         logger.error(f"🥀 Bot startup error: {e}")
         raise
 
+# AI TEST COMMANDS
+@bot.tree.command(name="aitest", description="🤖 Test free AI sentiment analysis and moderation")
+@discord.app_commands.default_permissions(send_messages=True)
+async def aitest_command(interaction: discord.Interaction, message: str):
+    from services.huggingface_ai import free_ai
+    
+    # Initialize AI if needed
+    await free_ai.initialize()
+    
+    # Analyze sentiment and moderate content
+    sentiment = await free_ai.analyze_sentiment(message)
+    moderation = await free_ai.moderate_content(message)
+    
+    embed = discord.Embed(title="🤖 Free AI Analysis", description="Victorian intelligence at thy service", color=EMBED_COLOR)
+    embed.add_field(name="📝 Message", value=f"```{message[:100]}{'...' if len(message) > 100 else ''}```", inline=False)
+    embed.add_field(name="💭 Sentiment", value=f"**{sentiment.title()}**", inline=True)
+    
+    safety_status = "✅ Safe" if moderation['safe'] else "⚠️ Flagged"
+    embed.add_field(name="🛡️ Safety", value=safety_status, inline=True)
+    
+    if moderation['categories']:
+        embed.add_field(name="🔍 Issues", value=", ".join(moderation['categories']), inline=True)
+    
+    embed.set_footer(text="Powered by free AI libraries • No API costs required")
+    await interaction.response.send_message(embed=embed)
+
 if __name__ == "__main__":
     asyncio.run(run_discord_bot())

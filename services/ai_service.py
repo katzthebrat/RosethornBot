@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import config
 import logging
+from .huggingface_ai import free_ai
 
 logger = logging.getLogger(__name__)
 
@@ -88,68 +89,91 @@ class AIService:
         Always respond as if you are the guardian spirit of a beautiful Gothic manor, welcoming guests with Victorian grace."""
     
     async def moderate_content(self, text):
-        """AI-powered content moderation"""
-        if not config.OPENAI_API_KEY:
-            return {'safe': True, 'categories': [], 'confidence': 0}
+        """AI-powered content moderation - now uses free AI if OpenAI not available"""
+        # Try OpenAI first if available
+        if config.OPENAI_API_KEY:
+            try:
+                session = await self.get_session()
+                
+                url = "https://api.openai.com/v1/moderations"
+                headers = {
+                    'Authorization': f'Bearer {config.OPENAI_API_KEY}',
+                    'Content-Type': 'application/json'
+                }
+                
+                data = {'input': text}
+                
+                async with session.post(url, headers=headers, json=data) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        moderation = result['results'][0]
+                        
+                        flagged_categories = []
+                        for category, flagged in moderation['categories'].items():
+                            if flagged:
+                                flagged_categories.append(category)
+                        
+                        return {
+                            'safe': not moderation['flagged'],
+                            'categories': flagged_categories,
+                            'confidence': max(moderation['category_scores'].values()) if moderation['category_scores'] else 0
+                        }
+                    else:
+                        logger.error(f"Moderation API error: {response.status}")
+                        
+            except Exception as e:
+                logger.error(f"Error in OpenAI content moderation: {e}")
         
+        # Fallback to free AI moderation
         try:
-            session = await self.get_session()
-            
-            url = "https://api.openai.com/v1/moderations"
-            headers = {
-                'Authorization': f'Bearer {config.OPENAI_API_KEY}',
-                'Content-Type': 'application/json'
-            }
-            
-            data = {'input': text}
-            
-            async with session.post(url, headers=headers, json=data) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    moderation = result['results'][0]
-                    
-                    flagged_categories = []
-                    for category, flagged in moderation['categories'].items():
-                        if flagged:
-                            flagged_categories.append(category)
-                    
-                    return {
-                        'safe': not moderation['flagged'],
-                        'categories': flagged_categories,
-                        'confidence': max(moderation['category_scores'].values()) if moderation['category_scores'] else 0
-                    }
-                else:
-                    logger.error(f"Moderation API error: {response.status}")
-                    return {'safe': True, 'categories': [], 'confidence': 0}
-                    
+            return await free_ai.moderate_content(text)
         except Exception as e:
-            logger.error(f"Error in content moderation: {e}")
+            logger.error(f"Error in free AI content moderation: {e}")
             return {'safe': True, 'categories': [], 'confidence': 0}
     
     async def analyze_sentiment(self, text):
-        """Analyze sentiment of text"""
-        prompt = f"Analyze the sentiment of this message and respond with just one word: positive, negative, or neutral.\n\nMessage: {text}"
+        """Analyze sentiment of text - now uses free AI if OpenAI not available"""
+        # Try OpenAI first if available
+        if config.OPENAI_API_KEY:
+            try:
+                prompt = f"Analyze the sentiment of this message and respond with just one word: positive, negative, or neutral.\n\nMessage: {text}"
+                
+                response = await self.generate_response(prompt, max_tokens=10)
+                
+                if response:
+                    sentiment = response.lower().strip()
+                    if sentiment in ['positive', 'negative', 'neutral']:
+                        return sentiment
+            except Exception as e:
+                logger.error(f"Error in OpenAI sentiment analysis: {e}")
         
-        response = await self.generate_response(prompt, max_tokens=10)
-        
-        if response:
-            sentiment = response.lower().strip()
-            if sentiment in ['positive', 'negative', 'neutral']:
-                return sentiment
-        
-        return 'neutral'
+        # Fallback to free AI sentiment analysis
+        try:
+            return await free_ai.analyze_sentiment(text)
+        except Exception as e:
+            logger.error(f"Error in free AI sentiment analysis: {e}")
+            return 'neutral'
     
     async def generate_welcome_message(self, username, guild_name):
-        """Generate personalized welcome message"""
-        prompt = f"Generate a Gothic Victorian welcome message for a new member named {username} joining the Discord server '{guild_name}'. Keep it elegant and welcoming."
+        """Generate personalized welcome message - now uses free AI if OpenAI not available"""
+        # Try OpenAI first if available
+        if config.OPENAI_API_KEY:
+            try:
+                prompt = f"Generate a Gothic Victorian welcome message for a new member named {username} joining the Discord server '{guild_name}'. Keep it elegant and welcoming."
+                
+                response = await self.generate_response(prompt, max_tokens=100)
+                
+                if response:
+                    return response
+            except Exception as e:
+                logger.error(f"Error in OpenAI welcome message: {e}")
         
-        response = await self.generate_response(prompt, max_tokens=100)
-        
-        if response:
-            return response
-        
-        # Fallback message
-        return f"Welcome to our Gothic manor, {username}! May thy journey here be filled with Victorian elegance and Gothic wonder. 🌹"
+        # Fallback to free AI welcome message
+        try:
+            return await free_ai.generate_welcome_message(username, guild_name)
+        except Exception as e:
+            logger.error(f"Error in free AI welcome message: {e}")
+            return f"Welcome to our Gothic manor, {username}! May thy journey here be filled with Victorian elegance and Gothic wonder. 🌹"
     
     async def generate_embed_content(self, topic, style='informative'):
         """Generate content for Discord embeds"""
