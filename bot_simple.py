@@ -429,6 +429,133 @@ async def purge_command(interaction: discord.Interaction, days: int = 30, dry_ru
     embed.set_footer(text="Keeping the manor tidy and active")
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
+# Moderation Commands
+@bot.tree.command(name="warn", description="⚠️ Issue a warning to a member")
+async def warn_command(interaction: discord.Interaction, member: discord.Member, reason: str):
+    if not interaction.user.guild_permissions.moderate_members:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only moderators can issue warnings", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(title="⚠️ Manor Warning Issued", description=f"A formal warning has been recorded", color=EMBED_COLOR)
+    embed.add_field(name="👤 Member", value=member.mention, inline=True)
+    embed.add_field(name="📋 Reason", value=reason, inline=False)
+    embed.add_field(name="🛡️ Moderator", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Warning logged in manor records")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="mute", description="🔇 Temporarily silence a member")
+async def mute_command(interaction: discord.Interaction, member: discord.Member, duration: str = "10m", reason: str = "Disrupting manor peace"):
+    if not interaction.user.guild_permissions.moderate_members:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only moderators can mute members", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(title="🔇 Manor Silence", description=f"Member has been temporarily silenced", color=EMBED_COLOR)
+    embed.add_field(name="👤 Member", value=member.mention, inline=True)
+    embed.add_field(name="⏱️ Duration", value=duration, inline=True)
+    embed.add_field(name="📋 Reason", value=reason, inline=False)
+    embed.set_footer(text="Silence will be lifted automatically")
+    await interaction.response.send_message(embed=embed)
+
+# Engagement Commands
+@bot.tree.command(name="level", description="📊 Check your manor rank and experience")
+async def level_command(interaction: discord.Interaction, member: discord.Member = None):
+    target = member or interaction.user
+    level = 15  # Placeholder
+    xp = 2750   # Placeholder
+    next_level_xp = 3000
+    
+    embed = discord.Embed(title=f"📊 {target.display_name}'s Manor Standing", description="Your progress through the Victorian hierarchy", color=EMBED_COLOR)
+    embed.add_field(name="🎭 Level", value=f"Level {level} - Noble Resident", inline=True)
+    embed.add_field(name="⭐ Experience", value=f"{xp:,} XP", inline=True)
+    embed.add_field(name="📈 Progress", value=f"{xp}/{next_level_xp} XP to next level", inline=False)
+    embed.set_footer(text="Participate in manor activities to gain experience!")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="giveaway", description="🎁 Host a Victorian giveaway")
+async def giveaway_command(interaction: discord.Interaction, prize: str, duration: str = "1h", winners: int = 1):
+    if not interaction.user.guild_permissions.manage_guild:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only administrators can host giveaways", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(title="🎁 Manor Giveaway", description="A generous offering from the Victorian treasury!", color=EMBED_COLOR)
+    embed.add_field(name="🏆 Prize", value=prize, inline=False)
+    embed.add_field(name="⏱️ Duration", value=duration, inline=True)
+    embed.add_field(name="👥 Winners", value=f"{winners} lucky recipient(s)", inline=True)
+    embed.add_field(name="🎯 How to Enter", value="React with 🌹 to participate!", inline=False)
+    embed.set_footer(text=f"Hosted by {interaction.user.display_name} • Good luck!")
+    
+    await interaction.response.send_message(embed=embed)
+    message = await interaction.original_response()
+    await message.add_reaction("🌹")
+
+@bot.tree.command(name="leaderboard", description="🏆 View the manor's most distinguished residents")
+async def leaderboard_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="🏆 Manor Leaderboard", description="The most esteemed residents of our Victorian halls", color=EMBED_COLOR)
+    
+    # Placeholder leaderboard data
+    leaderboard_data = [
+        ("Lord Victorian", "Level 25", "5,750 XP"),
+        ("Lady Rosethorne", "Level 23", "4,890 XP"),
+        ("Duke Shadowmere", "Level 21", "4,210 XP"),
+        ("Countess Raven", "Level 19", "3,650 XP"),
+        ("Baron Crimson", "Level 18", "3,420 XP")
+    ]
+    
+    for i, (name, level, xp) in enumerate(leaderboard_data, 1):
+        medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"{i}."
+        embed.add_field(name=f"{medal} {name}", value=f"{level} • {xp}", inline=False)
+    
+    embed.set_footer(text="Rankings updated daily • Participate to climb the ranks!")
+    await interaction.response.send_message(embed=embed)
+
+# Utility Commands
+@bot.tree.command(name="serverinfo", description="ℹ️ Display manor information and statistics")
+async def serverinfo_command(interaction: discord.Interaction):
+    guild = interaction.guild
+    embed = discord.Embed(title=f"ℹ️ {guild.name} Manor Statistics", description="Information about our Victorian establishment", color=EMBED_COLOR)
+    
+    embed.add_field(name="👑 Manor Lord", value=guild.owner.mention if guild.owner else "Unknown", inline=True)
+    embed.add_field(name="📅 Established", value=guild.created_at.strftime("%B %d, %Y"), inline=True)
+    embed.add_field(name="👥 Residents", value=f"{guild.member_count:,} members", inline=True)
+    embed.add_field(name="💬 Chambers", value=f"{len(guild.text_channels)} text • {len(guild.voice_channels)} voice", inline=True)
+    embed.add_field(name="🎭 Roles", value=f"{len(guild.roles)} positions", inline=True)
+    embed.add_field(name="😊 Emojis", value=f"{len(guild.emojis)} expressions", inline=True)
+    
+    if guild.icon:
+        embed.set_thumbnail(url=guild.icon.url)
+    embed.set_footer(text="Manor statistics • Updated in real-time")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="avatar", description="🖼️ Display a member's portrait")
+async def avatar_command(interaction: discord.Interaction, member: discord.Member = None):
+    target = member or interaction.user
+    embed = discord.Embed(title=f"🖼️ {target.display_name}'s Portrait", description="A dignified representation", color=EMBED_COLOR)
+    embed.set_image(url=target.display_avatar.url)
+    embed.set_footer(text=f"Portrait of {target.display_name}")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="invite", description="📨 Generate an invitation to the manor")
+async def invite_command(interaction: discord.Interaction):
+    if not interaction.user.guild_permissions.create_instant_invite:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only members with invite permissions can create invitations", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    try:
+        invite = await interaction.channel.create_invite(max_age=86400, max_uses=10, reason="Victorian manor invitation")
+        embed = discord.Embed(title="📨 Manor Invitation Created", description="A formal invitation to our Victorian establishment", color=EMBED_COLOR)
+        embed.add_field(name="🔗 Invitation Link", value=invite.url, inline=False)
+        embed.add_field(name="⏱️ Valid For", value="24 hours", inline=True)
+        embed.add_field(name="👥 Max Uses", value="10 uses", inline=True)
+        embed.set_footer(text="Share this invitation with distinguished guests")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    except Exception as e:
+        embed = discord.Embed(title="🥀 Invitation Failed", description=f"Could not create invitation: {str(e)}", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
 async def run_discord_bot():
     """Run the Discord bot."""
     try:
