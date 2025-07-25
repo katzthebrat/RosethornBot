@@ -14,30 +14,222 @@
         </div>
     </div>
 
-    <!-- Economy Coming Soon -->
+    <!-- Guild Selector -->
+    {% if guilds|length > 1 %}
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <label for="guildSelect" class="form-label">🏰 Select Manor</label>
+                    <select class="form-select" id="guildSelect" onchange="changeGuild(this.value)">
+                        {% for g in guilds %}
+                        <option value="{{ g.guild_id }}" {% if guild and g.guild_id == guild.guild_id %}selected{% endif %}>
+                            {{ g.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if guild %}
+    <!-- Economy Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="stat-icon">{{ guild.currency_symbol or '🌹' }}</div>
+                    <div class="stat-value">{{ top_earners|sum(attribute='balance') or 0 }}</div>
+                    <div class="stat-label">Total {{ guild.currency_name or 'Rosebuds' }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value">{{ top_earners|length }}</div>
+                    <div class="stat-label">Active Members</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="stat-icon">🛍️</div>
+                    <div class="stat-value">{{ shop_items|length }}</div>
+                    <div class="stat-label">Shop Items</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="stat-icon">💎</div>
+                    <div class="stat-value">{{ (top_earners|sum(attribute='balance') / top_earners|length)|round if top_earners|length > 0 else 0 }}</div>
+                    <div class="stat-label">Average Balance</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-12">
+        <!-- Top Earners -->
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h4>🏛️ Economic Management</h4>
+                    <h5>🏆 Wealthiest Manor Residents</h5>
                 </div>
-                <div class="card-body text-center">
-                    <div class="empty-state">
-                        <div class="empty-icon">💰</div>
-                        <div class="empty-title">Economy System</div>
-                        <div class="empty-description">
-                            The Victorian treasury is being organized.<br>
-                            Economic management features will be available soon.
+                <div class="card-body">
+                    {% if top_earners %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Member</th>
+                                        <th>Balance</th>
+                                        <th>Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in top_earners[:10] %}
+                                    <tr>
+                                        <td>
+                                            {% if loop.index == 1 %}🥇
+                                            {% elif loop.index == 2 %}🥈
+                                            {% elif loop.index == 3 %}🥉
+                                            {% else %}{{ loop.index }}.{% endif %}
+                                        </td>
+                                        <td>{{ member.display_name or member.username }}</td>
+                                        <td>
+                                            <strong>{{ member.balance }} {{ guild.currency_symbol or '🌹' }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">Lvl {{ member.level }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="mt-3">
-                            <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">
-                                🏰 Return to Manor
-                            </a>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <div class="empty-icon">👥</div>
+                            <p>No member data available yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Items -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>🛍️ Manor Shop Items</h5>
+                    <button class="btn btn-sm btn-primary" onclick="showAddItemModal()">
+                        ➕ Add Item
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if shop_items %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Price</th>
+                                        <th>Rarity</th>
+                                        <th>Stock</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in shop_items %}
+                                    <tr>
+                                        <td>
+                                            {{ item.emoji or '🎁' }} {{ item.name }}
+                                        </td>
+                                        <td>
+                                            <strong>{{ item.price }} {{ guild.currency_symbol or '🌹' }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if item.rarity == 'legendary' %}
+                                                <span class="badge bg-warning">👑 Legendary</span>
+                                            {% elif item.rarity == 'epic' %}
+                                                <span class="badge bg-purple">💜 Epic</span>
+                                            {% elif item.rarity == 'rare' %}
+                                                <span class="badge bg-info">💙 Rare</span>
+                                            {% elif item.rarity == 'uncommon' %}
+                                                <span class="badge bg-success">💚 Uncommon</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">⚪ Common</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.stock == -1 %}
+                                                <span class="text-success">♾️ Unlimited</span>
+                                            {% else %}
+                                                {{ item.stock }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary btn-sm" title="Edit">
+                                                    ✏️
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm" title="Delete">
+                                                    🗑️
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <div class="empty-icon">🛍️</div>
+                            <p>No shop items available</p>
+                            <button class="btn btn-primary btn-sm" onclick="showAddItemModal()">
+                                ➕ Add First Item
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="empty-state">
+                            <div class="empty-icon">🏰</div>
+                            <div class="empty-title">No Manor Selected</div>
+                            <div class="empty-description">
+                                Please add your Discord server to the bot to manage its economy.
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    {% endif %}
+
+    <script>
+    function changeGuild(guildId) {
+        window.location.href = '{{ url_for("dashboard.economy") }}?guild_id=' + guildId;
+    }
+
+    function showAddItemModal() {
+        alert('Add item functionality will be implemented in the next update!');
+    }
+    </script>
 </div>
 {% endblock %}

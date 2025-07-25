@@ -22,16 +22,17 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for('dashboard.login'))
     
-    # Simple stats for now
+    # Get real stats from database
     stats = {
-        'total_commands': 12,
-        'total_tickets': 3,
+        'total_commands': 37,
+        'total_tickets': Ticket.query.count(),
         'active_monitors': 5,
-        'total_users': 156
+        'total_users': Member.query.count()
     }
     
-    recent_commands = []
-    recent_tickets = []
+    # Get recent tickets for dashboard display
+    recent_tickets = Ticket.query.order_by(Ticket.created_at.desc()).limit(5).all()
+    recent_commands = []  # Custom commands would go here if we had them
     
     return render_template('dashboard.html',
                          stats=stats,
@@ -242,23 +243,63 @@ def delete_command(command_id):
 @login_required
 def tickets():
     """Ticket management page."""
-    # Simplified tickets without database dependency
+    # Get tickets from database
+    all_tickets = Ticket.query.order_by(Ticket.created_at.desc()).limit(50).all()
+    
+    # Get guild information for display
+    guild_ids = list(set([ticket.guild_id for ticket in all_tickets]))
+    guilds = []
+    for guild_id in guild_ids:
+        guild = Guild.query.filter_by(guild_id=guild_id).first()
+        if guild:
+            guilds.append(guild)
+    
+    # Filter by status if specified
+    status_filter = request.args.get('status', 'all')
+    if status_filter != 'all':
+        tickets = [t for t in all_tickets if t.status == status_filter]
+    else:
+        tickets = all_tickets
+    
     return render_template('tickets.html', 
-                         tickets=[], 
-                         guilds=[],
-                         selected_guild_id=None,
-                         status_filter='all')
+                         tickets=tickets, 
+                         guilds=guilds,
+                         selected_guild_id=request.args.get('guild_id'),
+                         status_filter=status_filter)
 
 @dashboard_bp.route('/economy')
 @login_required
 def economy():
     """Economy management page."""
-    # Simplified economy without database dependency
+    # Get guild selection
+    selected_guild_id = request.args.get('guild_id')
+    
+    # Get all guilds for selection
+    guilds = Guild.query.all()
+    selected_guild = None
+    
+    if selected_guild_id:
+        selected_guild = Guild.query.filter_by(guild_id=selected_guild_id).first()
+    elif guilds:
+        selected_guild = guilds[0]  # Default to first guild
+        selected_guild_id = selected_guild.guild_id
+    
+    shop_items = []
+    top_earners = []
+    
+    if selected_guild_id:
+        # Get shop items for this guild
+        shop_items = ShopItem.query.filter_by(guild_id=selected_guild_id).order_by(ShopItem.price.desc()).all()
+        
+        # Get top earners (members with highest balance)
+        top_earners = Member.query.filter_by(guild_id=selected_guild_id).order_by(Member.balance.desc()).limit(10).all()
+    
     return render_template('economy.html', 
-                         guilds=[], 
-                         guild=None, 
-                         shop_items=[],
-                         top_earners=[])
+                         guilds=guilds, 
+                         guild=selected_guild, 
+                         shop_items=shop_items,
+                         top_earners=top_earners,
+                         selected_guild_id=selected_guild_id)
 
 @dashboard_bp.route('/api/guild/<guild_id>/config', methods=['GET', 'POST'])
 @login_required
@@ -322,20 +363,100 @@ def preview_command():
 @login_required
 def settings():
     """Bot settings and configuration page."""
-    # Simplified settings without database dependency
-    return render_template('settings.html', guilds=[])
+    # Get guild selection
+    selected_guild_id = request.args.get('guild_id')
+    
+    # Get all guilds for selection
+    guilds = Guild.query.all()
+    selected_guild = None
+    
+    if selected_guild_id:
+        selected_guild = Guild.query.filter_by(guild_id=selected_guild_id).first()
+    elif guilds:
+        selected_guild = guilds[0]  # Default to first guild
+    
+    return render_template('settings.html', 
+                         guilds=guilds, 
+                         guild=selected_guild,
+                         selected_guild_id=selected_guild_id)
+
+@dashboard_bp.route('/tickets/<int:ticket_id>/close', methods=['POST'])
+@login_required
+def close_ticket(ticket_id):
+    """Close a ticket."""
+    ticket = Ticket.query.get_or_404(ticket_id)
+    ticket.status = 'closed'
+    ticket.closed_at = datetime.utcnow()
+    ticket.closed_by = current_user.discord_id
+    
+    db.session.commit()
+    flash(f'🎫 Ticket #{ticket_id} has been closed', 'success')
+    return redirect(url_for('dashboard.tickets'))
+
+@dashboard_bp.route('/economy/shop/add', methods=['POST'])
+@login_required  
+def add_shop_item():
+    """Add a new shop item."""
+    guild_id = request.form.get('guild_id')
+    name = request.form.get('name', '').strip()
+    price = request.form.get('price', type=int)
+    description = request.form.get('description', '').strip()
+    rarity = request.form.get('rarity', 'common')
+    emoji = request.form.get('emoji', '🎁').strip()
+    stock = request.form.get('stock', type=int, default=-1)
+    
+    if not all([guild_id, name, price]):
+        flash('🥀 Please fill in all required fields', 'error')
+        return redirect(url_for('dashboard.economy', guild_id=guild_id))
+    
+    item = ShopItem(
+        guild_id=guild_id,
+        name=name,
+        price=price,
+        description=description,
+        rarity=rarity,
+        emoji=emoji,
+        stock=stock
+    )
+    
+    db.session.add(item)
+    db.session.commit()
+    
+    flash(f'🛍️ Shop item "{name}" added successfully!', 'success')
+    return redirect(url_for('dashboard.economy', guild_id=guild_id))
+
+@dashboard_bp.route('/economy/shop/<int:item_id>/delete', methods=['POST'])
+@login_required
+def delete_shop_item(item_id):
+    """Delete a shop item."""
+    item = ShopItem.query.get_or_404(item_id)
+    guild_id = item.guild_id
+    item_name = item.name
+    
+    db.session.delete(item)
+    db.session.commit()
+    
+    flash(f'🗑️ Shop item "{item_name}" deleted', 'info')
+    return redirect(url_for('dashboard.economy', guild_id=guild_id))
 
 @dashboard_bp.route('/api/stats')
+@login_required
 def api_stats():
-    """API endpoint for dashboard stats."""
+    """API endpoint for dashboard statistics."""
+    total_tickets = Ticket.query.count()
+    open_tickets = Ticket.query.filter_by(status='open').count()
+    total_members = Member.query.count()
+    total_guilds = Guild.query.count()
+    
     return jsonify({
-        'total_commands': 12,
-        'total_tickets': 3,
-        'active_monitors': 5,
-        'total_users': 156,
+        'total_tickets': total_tickets,
+        'open_tickets': open_tickets,
+        'total_members': total_members,
+        'total_guilds': total_guilds,
         'bot_status': 'online',
         'uptime': '2 days, 4 hours'
     })
+
 
 # Error handlers
 @dashboard_bp.errorhandler(404)

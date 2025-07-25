@@ -14,30 +14,221 @@
         </div>
     </div>
 
-    <!-- Settings Coming Soon -->
-    <div class="row">
-        <div class="col-12">
+    <!-- Guild Selector -->
+    {% if guilds|length > 1 %}
+    <div class="row mb-3">
+        <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
-                    <h4>🏰 Configuration Panel</h4>
+                <div class="card-body">
+                    <label for="guildSelect" class="form-label">🏰 Select Manor</label>
+                    <select class="form-select" id="guildSelect" onchange="changeGuild(this.value)">
+                        {% for g in guilds %}
+                        <option value="{{ g.guild_id }}" {% if guild and g.guild_id == guild.guild_id %}selected{% endif %}>
+                            {{ g.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <div class="card-body text-center">
-                    <div class="empty-state">
-                        <div class="empty-icon">⚙️</div>
-                        <div class="empty-title">Settings Panel</div>
-                        <div class="empty-description">
-                            The Victorian settings chamber is being prepared.<br>
-                            Advanced configuration options will be available soon.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if guild %}
+    <form id="settingsForm" onsubmit="saveSettings(event)">
+        <div class="row">
+            <!-- Basic Settings -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>🏰 Basic Manor Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="guildName" class="form-label">Manor Name</label>
+                            <input type="text" class="form-control" id="guildName" 
+                                   value="{{ guild.name }}" readonly>
+                            <div class="form-text">The name of your Discord server</div>
                         </div>
-                        <div class="mt-3">
-                            <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">
-                                🏰 Return to Manor
-                            </a>
+
+                        <div class="mb-3">
+                            <label for="embedColor" class="form-label">Victorian Theme Color</label>
+                            <div class="input-group">
+                                <input type="color" class="form-control form-control-color" 
+                                       id="embedColor" name="embed_color" value="{{ guild.embed_color or '#711417' }}">
+                                <input type="text" class="form-control" 
+                                       value="{{ guild.embed_color or '#711417' }}" readonly>
+                            </div>
+                            <div class="form-text">The signature deep red of your manor</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="prefix" class="form-label">Command Prefix</label>
+                            <input type="text" class="form-control" id="prefix" name="prefix" 
+                                   value="{{ guild.prefix or '!' }}" maxlength="5">
+                            <div class="form-text">Prefix for text commands (slash commands don't need this)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Economy Settings -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>💰 Economy Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="currencyName" class="form-label">Currency Name</label>
+                            <input type="text" class="form-control" id="currencyName" name="currency_name" 
+                                   value="{{ guild.currency_name or 'Rosebuds' }}">
+                            <div class="form-text">The name of your manor's currency</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="currencySymbol" class="form-label">Currency Symbol</label>
+                            <input type="text" class="form-control" id="currencySymbol" name="currency_symbol" 
+                                   value="{{ guild.currency_symbol or '🌹' }}" maxlength="10">
+                            <div class="form-text">Emoji or symbol representing your currency</div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h6>💡 Economy Features</h6>
+                            <ul class="mb-0">
+                                <li>Daily rewards: /daily</li>
+                                <li>Work system: /work</li>
+                                <li>Balance checking: /balance</li>
+                                <li>Transfer system: /transfer</li>
+                                <li>Shop system: /shop</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="row mt-4">
+            <!-- Channel Configuration -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>📢 Channel Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="welcomeChannel" class="form-label">Welcome Channel</label>
+                            <input type="text" class="form-control" id="welcomeChannel" name="welcome_channel" 
+                                   value="{{ guild.welcome_channel or '' }}" placeholder="Channel ID">
+                            <div class="form-text">Channel for welcome messages (use channel ID)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="logChannel" class="form-label">Log Channel</label>
+                            <input type="text" class="form-control" id="logChannel" name="log_channel" 
+                                   value="{{ guild.log_channel or '' }}" placeholder="Channel ID">
+                            <div class="form-text">Channel for bot activity logs</div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <h6>ℹ️ Finding Channel IDs</h6>
+                            <p class="mb-0">Enable Developer Mode in Discord, then right-click a channel and select "Copy ID"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role Configuration -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>👑 Role Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="modRole" class="form-label">Moderator Role</label>
+                            <input type="text" class="form-control" id="modRole" name="mod_role" 
+                                   value="{{ guild.mod_role or '' }}" placeholder="Role ID">
+                            <div class="form-text">Role ID for moderator permissions</div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h6>🎭 Available Commands</h6>
+                            <ul class="mb-0">
+                                <li><strong>Moderation:</strong> /warn, /mute, /ban, /kick</li>
+                                <li><strong>Economy:</strong> /balance, /daily, /shop, /work</li>
+                                <li><strong>Social:</strong> /reputation, /quote, /voice</li>
+                                <li><strong>Events:</strong> /event, /spotlight, /announce</li>
+                                <li><strong>Utility:</strong> /serverinfo, /avatar, /invite</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    💾 Save Manor Configuration
+                </button>
+                <div class="mt-2">
+                    <small class="text-muted">Changes will take effect immediately</small>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="empty-state">
+                            <div class="empty-icon">🏰</div>
+                            <div class="empty-title">No Manor Selected</div>
+                            <div class="empty-description">
+                                Please add your Discord server to the bot to configure its settings.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+    function changeGuild(guildId) {
+        window.location.href = '{{ url_for("dashboard.settings") }}?guild_id=' + guildId;
+    }
+
+    function saveSettings(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(event.target);
+        const settings = Object.fromEntries(formData);
+        
+        {% if guild %}
+        fetch('{{ url_for("dashboard.guild_config_api", guild_id=guild.guild_id) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(settings)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('🌹 Settings saved successfully!');
+            } else {
+                alert('🥀 Error saving settings: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('🥀 Error saving settings: ' + error);
+        });
+        {% endif %}
+    }
+    </script>
 </div>
 {% endblock %}
