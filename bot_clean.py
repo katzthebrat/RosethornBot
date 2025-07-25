@@ -997,6 +997,140 @@ async def deletechannel_command(interaction: discord.Interaction, confirmation: 
     except Exception as e:
         await interaction.response.send_message(f"❌ Error deleting {channel_type}: {str(e)}", ephemeral=True)
 
+@bot.tree.command(name="sticky", description="📌 Create or manage sticky messages in this channel")
+@discord.app_commands.default_permissions(manage_messages=True)
+async def sticky_command(interaction: discord.Interaction, action: str = "create", message: str = ""):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can manage sticky messages", ephemeral=True)
+        return
+    
+    channel = interaction.channel
+    action = action.lower()
+    
+    if action == "create":
+        if not message:
+            await interaction.response.send_message("❌ Please provide a message to make sticky", ephemeral=True)
+            return
+        
+        # Create sticky message embed
+        embed = discord.Embed(
+            title="📌 Manor Notice",
+            description=message,
+            color=EMBED_COLOR
+        )
+        embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
+        embed.add_field(name="👨‍⚖️ Posted By", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Date", value=discord.utils.format_dt(datetime.now(), style='f'), inline=True)
+        embed.set_footer(text="📌 This message will remain pinned • Rosewood Manor")
+        
+        # Send and pin the message
+        try:
+            await interaction.response.send_message("✅ Creating sticky message...", ephemeral=True)
+            sticky_msg = await channel.send(embed=embed)
+            await sticky_msg.pin(reason=f"Sticky message created by {interaction.user}")
+            
+            # Log the sticky creation
+            await create_tracking_message("📌 Sticky Message Created", {
+                "📍 Channel": channel.mention,
+                "💬 Message": message[:100] + ("..." if len(message) > 100 else ""),
+                "👨‍⚖️ Created By": interaction.user.mention,
+                "🔗 Message ID": str(sticky_msg.id)
+            }, EMBED_COLOR, f"STICKY-{sticky_msg.id}")
+            
+        except Exception as e:
+            await interaction.followup.send(f"❌ Error creating sticky message: {str(e)}", ephemeral=True)
+    
+    elif action == "remove" or action == "delete":
+        # Get pinned messages
+        try:
+            pinned_messages = await channel.pins()
+            
+            if not pinned_messages:
+                await interaction.response.send_message("❌ No pinned messages found in this channel", ephemeral=True)
+                return
+            
+            # Find bot's sticky messages
+            bot_sticky_messages = [msg for msg in pinned_messages if msg.author == bot.user and msg.embeds and "Manor Notice" in msg.embeds[0].title]
+            
+            if not bot_sticky_messages:
+                await interaction.response.send_message("❌ No sticky messages from the bot found", ephemeral=True)
+                return
+            
+            # Remove the most recent sticky message
+            latest_sticky = bot_sticky_messages[0]
+            await latest_sticky.unpin(reason=f"Sticky message removed by {interaction.user}")
+            await latest_sticky.delete(reason=f"Sticky message removed by {interaction.user}")
+            
+            # Log the removal
+            await create_tracking_message("📌 Sticky Message Removed", {
+                "📍 Channel": channel.mention,
+                "👨‍⚖️ Removed By": interaction.user.mention,
+                "🔗 Message ID": str(latest_sticky.id)
+            }, 0xFF0000, f"STICKY-DEL-{latest_sticky.id}")
+            
+            await interaction.response.send_message("✅ Sticky message removed successfully", ephemeral=True)
+            
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error removing sticky message: {str(e)}", ephemeral=True)
+    
+    elif action == "list":
+        # List all pinned messages
+        try:
+            pinned_messages = await channel.pins()
+            
+            if not pinned_messages:
+                await interaction.response.send_message("❌ No pinned messages found in this channel", ephemeral=True)
+                return
+            
+            embed = discord.Embed(
+                title="📌 Pinned Messages in Manor",
+                description=f"Found {len(pinned_messages)} pinned message(s)",
+                color=EMBED_COLOR
+            )
+            
+            for i, msg in enumerate(pinned_messages[:10], 1):  # Limit to 10 for embed size
+                author_name = msg.author.display_name if msg.author else "Unknown"
+                content_preview = (msg.content[:50] + "...") if len(msg.content) > 50 else msg.content
+                if msg.embeds and not content_preview:
+                    content_preview = (msg.embeds[0].description[:50] + "...") if msg.embeds[0].description else "Embed message"
+                
+                embed.add_field(
+                    name=f"📌 Message {i}",
+                    value=f"**Author:** {author_name}\n**Preview:** {content_preview}\n**ID:** {msg.id}",
+                    inline=False
+                )
+            
+            embed.set_footer(text="Use /sticky remove to remove the latest bot sticky message")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error listing pinned messages: {str(e)}", ephemeral=True)
+    
+    else:
+        embed = discord.Embed(
+            title="📌 Sticky Message Commands",
+            description="Available actions for managing sticky messages",
+            color=EMBED_COLOR
+        )
+        embed.add_field(
+            name="📝 Create",
+            value="`/sticky create [message]` - Create a new sticky message",
+            inline=False
+        )
+        embed.add_field(
+            name="🗑️ Remove",
+            value="`/sticky remove` - Remove the latest bot sticky message",
+            inline=False
+        )
+        embed.add_field(
+            name="📋 List",
+            value="`/sticky list` - Show all pinned messages in this channel",
+            inline=False
+        )
+        embed.set_footer(text="Victorian manor message management • Admin only")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
 # PLAYFUL ONBOARDING TUTORIAL SYSTEM
 class TutorialStep:
     def __init__(self, title, description, action_type, action_data=None, completion_message="Well done!"):
