@@ -44,6 +44,87 @@ async def on_ready():
     except Exception as e:
         logger.error(f"🥀 Failed to sync commands: {e}")
 
+@bot.event
+async def on_member_join(member):
+    """Handle new member joining with animated welcome banner"""
+    try:
+        from services.welcome_banner import welcome_banner_service
+        from models import WelcomeBanner, WelcomeBannerHistory, db
+        
+        # Check if welcome banners are enabled for this guild
+        welcome_config = WelcomeBanner.query.filter_by(
+            guild_id=str(member.guild.id)
+        ).first()
+        
+        if not welcome_config or not welcome_config.is_enabled:
+            # Create default welcome settings if not exists
+            if not welcome_config:
+                # Look for a general or welcome channel
+                welcome_channel = None
+                for channel in member.guild.text_channels:
+                    if any(name in channel.name.lower() for name in ['welcome', 'general', 'entrance', 'arrivals']):
+                        welcome_channel = channel
+                        break
+                
+                if welcome_channel:
+                    welcome_config = WelcomeBanner(
+                        guild_id=str(member.guild.id),
+                        channel_id=str(welcome_channel.id),
+                        created_by=str(bot.user.id)
+                    )
+                    db.session.add(welcome_config)
+                    db.session.commit()
+            
+            if not welcome_config or not welcome_config.is_enabled:
+                return
+        
+        # Get welcome channel
+        welcome_channel = member.guild.get_channel(int(welcome_config.channel_id))
+        if not welcome_channel:
+            logger.warning(f"Welcome channel not found for guild {member.guild.name}")
+            return
+        
+        # Create welcome banner image
+        banner_bytes = await welcome_banner_service.create_welcome_banner(member, member.guild)
+        banner_file = discord.File(banner_bytes, filename=f"welcome_{member.id}.png")
+        
+        # Create animated embed
+        embed = await welcome_banner_service.create_animated_embed(member, member.guild)
+        
+        # Send welcome message
+        welcome_message = await welcome_channel.send(
+            file=banner_file,
+            embed=embed
+        )
+        
+        # Log to database
+        history = WelcomeBannerHistory(
+            guild_id=str(member.guild.id),
+            user_id=str(member.id),
+            channel_id=str(welcome_channel.id),
+            message_id=str(welcome_message.id),
+            banner_template=welcome_config.banner_template,
+            member_count_at_join=member.guild.member_count
+        )
+        db.session.add(history)
+        db.session.commit()
+        
+        logger.info(f"🌹 Sent welcome banner for {member.display_name} in {member.guild.name}")
+        
+        # Schedule message deletion if configured
+        if welcome_config.delete_after_hours and welcome_config.delete_after_hours > 0:
+            await asyncio.sleep(welcome_config.delete_after_hours * 3600)  # Convert hours to seconds
+            try:
+                await welcome_message.delete()
+                logger.info(f"🗑️ Auto-deleted welcome message for {member.display_name}")
+            except discord.NotFound:
+                pass  # Message already deleted
+            except Exception as e:
+                logger.error(f"Failed to auto-delete welcome message: {e}")
+                
+    except Exception as e:
+        logger.error(f"🥀 Error sending welcome banner: {e}")
+
 # ECONOMY COMMANDS
 @bot.tree.command(name="balance", description="💰 Check your rosebud currency balance")
 @discord.app_commands.default_permissions(send_messages=True)
@@ -214,9 +295,9 @@ async def purge_command(interaction: discord.Interaction, count: int = 10):
     embed.set_footer(text="Manor maintenance completed successfully")
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="announce", description="📢 Create a formal manor announcement")
+@bot.tree.command(name="simpleannounce", description="📢 Create a formal manor announcement")
 @discord.app_commands.default_permissions(manage_messages=True)
-async def announce_command(interaction: discord.Interaction, message: str):
+async def simpleannounce_command(interaction: discord.Interaction, message: str):
     embed = discord.Embed(title="📢 Manor Proclamation", description="An important message from the administration", color=EMBED_COLOR)
     embed.add_field(name="📜 Announcement", value=message, inline=False)
     embed.add_field(name="👑 Proclaimed by", value=interaction.user.mention, inline=True)
@@ -2805,6 +2886,77 @@ async def on_message(message):
     
     # Process other commands
     await bot.process_commands(message)
+
+# Welcome banner management commands
+@bot.tree.command(name="welcomebanner", description="🎨 Configure animated welcome banners")
+@discord.app_commands.default_permissions(manage_guild=True)
+async def welcomebanner_command(interaction: discord.Interaction, action: str = "status", channel: discord.TextChannel = None, template: str = "victorian_rose"):
+    try:
+        from models import WelcomeBanner, WelcomeBannerHistory, db
+        from services.welcome_banner import welcome_banner_service
+        
+        if action == "status":
+            config = WelcomeBanner.query.filter_by(guild_id=str(interaction.guild.id)).first()
+            
+            embed = discord.Embed(
+                title="🎨 Welcome Banner Settings",
+                description="Current configuration for new member banners",
+                color=EMBED_COLOR
+            )
+            
+            if config:
+                channel_obj = interaction.guild.get_channel(int(config.channel_id))
+                embed.add_field(name="📍 Channel", value=channel_obj.mention if channel_obj else "❌ Channel not found", inline=True)
+                embed.add_field(name="🎭 Status", value="✅ Enabled" if config.is_enabled else "❌ Disabled", inline=True)
+                embed.add_field(name="🎨 Template", value=config.banner_template.replace("_", " ").title(), inline=True)
+            else:
+                embed.add_field(name="⚠️ Not Configured", value="Use `/welcomebanner setup` to configure", inline=False)
+            
+            await interaction.response.send_message(embed=embed)
+        
+        elif action == "setup":
+            if not channel:
+                await interaction.response.send_message("❌ Please specify a channel for welcome banners", ephemeral=True)
+                return
+            
+            config = WelcomeBanner.query.filter_by(guild_id=str(interaction.guild.id)).first()
+            if config:
+                config.channel_id = str(channel.id)
+                config.banner_template = template
+                config.is_enabled = True
+                config.updated_at = datetime.now()
+            else:
+                config = WelcomeBanner(
+                    guild_id=str(interaction.guild.id),
+                    channel_id=str(channel.id),
+                    banner_template=template,
+                    created_by=str(interaction.user.id)
+                )
+                db.session.add(config)
+            
+            db.session.commit()
+            
+            embed = discord.Embed(
+                title="🎨 Welcome Banner Configured",
+                description="Animated welcome banners are now active!",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
+            embed.add_field(name="🎨 Template", value=template.replace("_", " ").title(), inline=True)
+            
+            await interaction.response.send_message(embed=embed)
+        
+        elif action == "test":
+            banner_bytes = await welcome_banner_service.create_welcome_banner(interaction.user, interaction.guild)
+            banner_file = discord.File(banner_bytes, filename=f"test_welcome_{interaction.user.id}.png")
+            embed = await welcome_banner_service.create_animated_embed(interaction.user, interaction.guild)
+            embed.title = "🧪 Test Welcome Banner"
+            
+            await interaction.response.send_message(file=banner_file, embed=embed, ephemeral=True)
+            
+    except Exception as e:
+        embed = discord.Embed(title="🎨 Welcome Banner Error", description=f"Error: {str(e)}", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def run_discord_bot():
     """Run the Discord bot."""

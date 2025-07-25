@@ -303,3 +303,30 @@ class ScheduledAnnouncement(db.Model):
     active = db.Column(db.Boolean, default=True)
     created_by = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class WelcomeBanner(db.Model):
+    """Welcome banner settings and history."""
+    id = db.Column(db.Integer, primary_key=True)
+    guild_id = db.Column(db.String(20), nullable=False)
+    channel_id = db.Column(db.String(20), nullable=False)
+    is_enabled = db.Column(db.Boolean, default=True)
+    banner_template = db.Column(db.String(50), default="victorian_rose")
+    custom_message = db.Column(db.Text, nullable=True)
+    show_member_count = db.Column(db.Boolean, default=True)
+    show_rules_reminder = db.Column(db.Boolean, default=True)
+    include_role_assignment = db.Column(db.Boolean, default=True)
+    delete_after_hours = db.Column(db.Integer, default=24)  # Auto-delete after X hours
+    created_by = db.Column(db.String(20), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class WelcomeBannerHistory(db.Model):
+    """Track welcome banners sent to members."""
+    id = db.Column(db.Integer, primary_key=True)
+    guild_id = db.Column(db.String(20), nullable=False)
+    user_id = db.Column(db.String(20), nullable=False)
+    channel_id = db.Column(db.String(20), nullable=False)
+    message_id = db.Column(db.String(20), nullable=True)
+    banner_template = db.Column(db.String(50), nullable=False)
+    member_count_at_join = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
