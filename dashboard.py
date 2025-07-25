@@ -91,7 +91,11 @@ def discord_callback():
         data=token_data
     )
     
+    print(f"🌹 Token response status: {token_response.status_code}")
+    print(f"🌹 Token response content: {token_response.text}")
+    
     if token_response.status_code != 200:
+        print(f"🥀 Token exchange failed: {token_response.text}")
         flash('🥀 Failed to authenticate with Discord', 'error')
         return redirect(url_for('dashboard.login'))
     
@@ -104,7 +108,11 @@ def discord_callback():
         headers={'Authorization': f'Bearer {access_token}'}
     )
     
+    print(f"🌹 User response status: {user_response.status_code}")
+    print(f"🌹 User response content: {user_response.text}")
+    
     if user_response.status_code != 200:
+        print(f"🥀 User info fetch failed: {user_response.text}")
         flash('🥀 Failed to get user information', 'error')
         return redirect(url_for('dashboard.login'))
     
