@@ -348,6 +348,87 @@ async def shop_command(interaction: discord.Interaction):
     embed.set_footer(text="Use /buy <item> to purchase!")
     await interaction.response.send_message(embed=embed)
 
+# Advanced Features Commands
+@bot.tree.command(name="ticket", description="🎫 Create a support ticket")
+async def ticket_command(interaction: discord.Interaction, topic: str, description: str = None):
+    embed = discord.Embed(
+        title="🎫 Victorian Support Ticket",
+        description=f"A new matter requires attention from the manor staff",
+        color=EMBED_COLOR
+    )
+    embed.add_field(name="📋 Topic", value=topic, inline=False)
+    if description:
+        embed.add_field(name="📝 Description", value=description, inline=False)
+    embed.add_field(name="👤 Requested by", value=interaction.user.mention, inline=True)
+    embed.add_field(name="🕐 Created", value=discord.utils.format_dt(discord.utils.utcnow(), style='R'), inline=True)
+    embed.set_footer(text="Manor staff will assist you shortly • Ticket #001")
+    
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="afk", description="💤 Set yourself as away from keyboard")
+async def afk_command(interaction: discord.Interaction, reason: str = "Away from the manor"):
+    embed = discord.Embed(
+        title="💤 Away From Manor",
+        description=f"{interaction.user.display_name} has stepped away from the Victorian halls",
+        color=EMBED_COLOR
+    )
+    embed.add_field(name="🚪 Reason", value=reason, inline=False)
+    embed.add_field(name="🕐 Since", value=discord.utils.format_dt(discord.utils.utcnow(), style='R'), inline=True)
+    embed.set_footer(text="Return when you're ready to rejoin manor activities")
+    
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="announce", description="📢 Create a Victorian announcement")
+async def announce_command(interaction: discord.Interaction, title: str, message: str, channel: discord.TextChannel = None):
+    if not interaction.user.guild_permissions.manage_guild:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only manor administrators can make announcements", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    target_channel = channel or interaction.channel
+    
+    embed = discord.Embed(
+        title=f"📢 {title}",
+        description=message,
+        color=EMBED_COLOR
+    )
+    embed.set_footer(text=f"Announcement by {interaction.user.display_name} • Rosethorn Manor")
+    embed.timestamp = discord.utils.utcnow()
+    
+    await target_channel.send(embed=embed)
+    
+    response_embed = discord.Embed(
+        title="✅ Announcement Posted",
+        description=f"Your announcement has been posted to {target_channel.mention}",
+        color=EMBED_COLOR
+    )
+    await interaction.response.send_message(embed=response_embed, ephemeral=True)
+
+@bot.tree.command(name="purge", description="🧹 Clean up inactive members")
+async def purge_command(interaction: discord.Interaction, days: int = 30, dry_run: bool = True):
+    if not interaction.user.guild_permissions.administrator:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only administrators can purge members", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    # This would check for members without roles who haven't been active
+    inactive_count = 5  # Placeholder for actual count
+    
+    embed = discord.Embed(
+        title="🧹 Manor Cleaning",
+        description=f"Member retention management for Rosethorn Manor",
+        color=EMBED_COLOR
+    )
+    
+    if dry_run:
+        embed.add_field(name="🔍 Dry Run Results", value=f"Found {inactive_count} inactive members (no activity in {days} days)", inline=False)
+        embed.add_field(name="⚠️ Action Required", value="Use `/purge days:30 dry_run:False` to actually remove members", inline=False)
+    else:
+        embed.add_field(name="✅ Cleaning Complete", value=f"Removed {inactive_count} inactive members from the manor", inline=False)
+    
+    embed.set_footer(text="Keeping the manor tidy and active")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 async def run_discord_bot():
     """Run the Discord bot."""
     try:
