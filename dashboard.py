@@ -16,7 +16,9 @@ from config import DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_UR
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    from flask import current_app
+    with current_app.app_context():
+        return User.query.get(int(user_id))
 
 @dashboard_bp.route('/')
 def index():
@@ -72,6 +74,8 @@ def discord_auth():
 @dashboard_bp.route('/auth/callback')
 def discord_callback():
     """Handle Discord OAuth2 callback."""
+    from flask import current_app
+    
     code = request.args.get('code')
     if not code:
         flash('🥀 Authentication failed', 'error')
@@ -110,24 +114,24 @@ def discord_callback():
     
     user_data = user_response.json()
     
-    # Create or update user
-    user = User.query.filter_by(discord_id=user_data['id']).first()
-    if not user:
-        user = User(
-            discord_id=user_data['id'],
-            username=user_data['username'],
-            discriminator=user_data.get('discriminator'),
-            avatar=user_data.get('avatar')
-        )
-        db.session.add(user)
-    else:
-        user.username = user_data['username']
-        user.discriminator = user_data.get('discriminator')
-        user.avatar = user_data.get('avatar')
-        user.last_login = datetime.utcnow()
-    
-    db.session.commit()
-    login_user(user)
+    # Create or update user within app context
+    with current_app.app_context():
+        user = User.query.filter_by(discord_id=user_data['id']).first()
+        if not user:
+            user = User()
+            user.discord_id = user_data['id']
+            user.username = user_data['username']
+            user.discriminator = user_data.get('discriminator')
+            user.avatar = user_data.get('avatar')
+            db.session.add(user)
+        else:
+            user.username = user_data['username']
+            user.discriminator = user_data.get('discriminator')
+            user.avatar = user_data.get('avatar')
+            user.last_login = datetime.utcnow()
+        
+        db.session.commit()
+        login_user(user)
     
     flash('🌹 Welcome to the Victorian Gothic Dashboard!', 'success')
     return redirect(url_for('dashboard.index'))
