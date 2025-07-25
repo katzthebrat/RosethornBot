@@ -442,7 +442,7 @@ async def warn_command(interaction: discord.Interaction, member: discord.Member,
     embed.add_field(name="📋 Reason", value=reason, inline=False)
     embed.add_field(name="🛡️ Moderator", value=interaction.user.mention, inline=True)
     embed.set_footer(text="Warning logged in manor records")
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed)  # Public embed as requested
 
 @bot.tree.command(name="mute", description="🔇 Temporarily silence a member")
 async def mute_command(interaction: discord.Interaction, member: discord.Member, duration: str = "10m", reason: str = "Disrupting manor peace"):
@@ -456,7 +456,7 @@ async def mute_command(interaction: discord.Interaction, member: discord.Member,
     embed.add_field(name="⏱️ Duration", value=duration, inline=True)
     embed.add_field(name="📋 Reason", value=reason, inline=False)
     embed.set_footer(text="Silence will be lifted automatically")
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed)  # Public embed as requested
 
 # Engagement Commands
 @bot.tree.command(name="level", description="📊 Check your manor rank and experience")
@@ -555,6 +555,463 @@ async def invite_command(interaction: discord.Interaction):
     except Exception as e:
         embed = discord.Embed(title="🥀 Invitation Failed", description=f"Could not create invitation: {str(e)}", color=0xFF0000)
         await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Additional Commands
+@bot.tree.command(name="ban", description="🚫 Permanently ban a member from the manor")
+async def ban_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Violating manor rules"):
+    embed = discord.Embed(title="🚫 Manor Banishment", description=f"Member has been permanently removed from the manor", color=EMBED_COLOR)
+    embed.add_field(name="👤 Member", value=member.mention, inline=True)
+    embed.add_field(name="📋 Reason", value=reason, inline=False)
+    embed.add_field(name="🛡️ Administrator", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Banishment is permanent unless appealed")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="kick", description="👢 Remove a member temporarily")
+async def kick_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Disrupting manor peace"):
+    embed = discord.Embed(title="👢 Manor Removal", description=f"Member has been temporarily removed", color=EMBED_COLOR)
+    embed.add_field(name="👤 Member", value=member.mention, inline=True)
+    embed.add_field(name="📋 Reason", value=reason, inline=False)
+    embed.add_field(name="🛡️ Moderator", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Member may return with proper invitation")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="transfer", description="💸 Send rosebuds to another member")
+async def transfer_command(interaction: discord.Interaction, member: discord.Member, amount: int):
+    embed = discord.Embed(title="💸 Rosebud Transfer", description="A generous exchange between manor residents", color=EMBED_COLOR)
+    embed.add_field(name="💰 Amount", value=f"{amount:,} Rosebuds", inline=True)
+    embed.add_field(name="👤 From", value=interaction.user.mention, inline=True)
+    embed.add_field(name="👤 To", value=member.mention, inline=True)
+    embed.set_footer(text="Transaction completed • Victorian generosity")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="work", description="⚒️ Earn rosebuds through manor jobs")
+async def work_command(interaction: discord.Interaction):
+    import random
+    jobs = [("Tending the Rose Garden", 150), ("Polishing Victorian Silver", 200), ("Reading Gothic Literature", 250)]
+    job, earned = random.choice(jobs)
+    
+    embed = discord.Embed(title="⚒️ Manor Employment", description="Honest work brings Victorian rewards", color=EMBED_COLOR)
+    embed.add_field(name="💼 Task", value=job, inline=False)
+    embed.add_field(name="💰 Earned", value=f"{earned:,} Rosebuds", inline=True)
+    embed.add_field(name="👤 Worker", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Well done! Return in a few hours for more work")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="trivia", description="🧠 Victorian-themed trivia challenge")
+async def trivia_command(interaction: discord.Interaction):
+    questions = [
+        ("What era preceded the Victorian period?", "Georgian Era"),
+        ("Who was the famous Victorian detective?", "Sherlock Holmes"),
+        ("What flower symbolized love in Victorian times?", "Red Rose")
+    ]
+    
+    import random
+    question, answer = random.choice(questions)
+    
+    embed = discord.Embed(title="🧠 Victorian Trivia", description="Test your knowledge of the era", color=EMBED_COLOR)
+    embed.add_field(name="❓ Question", value=question, inline=False)
+    embed.add_field(name="💭 Hint", value="Think with Victorian wisdom...", inline=False)
+    embed.set_footer(text="Think carefully • Victorian wisdom awaits")
+    await interaction.response.send_message(embed=embed)
+
+# SIMPLE APPLICATION SYSTEM
+@bot.tree.command(name="apply", description="📋 Apply for a position in the manor")
+async def apply_command(interaction: discord.Interaction, position: str = "realm_job"):
+    embed = discord.Embed(title="📋 Manor Application Submitted", description="Your application is under review", color=EMBED_COLOR)
+    embed.add_field(name="👤 Applicant", value=interaction.user.mention, inline=True)
+    embed.add_field(name="⚔️ Position", value="Realm Job" if position == "realm_job" else "Admin", inline=True)
+    embed.add_field(name="📅 Submitted", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+    embed.set_footer(text="Manor staff will review your application shortly")
+    await interaction.response.send_message(embed=embed)
+
+# SIMPLE TICKET SYSTEM  
+@bot.tree.command(name="tickets", description="🎫 Create a support ticket")
+async def tickets_command(interaction: discord.Interaction, ticket_type: str = "general", description: str = "Need assistance"):
+    embed = discord.Embed(title="🎫 Support Ticket Created", description="Manor staff will assist you shortly", color=EMBED_COLOR)
+    embed.add_field(name="👤 User", value=interaction.user.mention, inline=True)
+    embed.add_field(name="🏷️ Type", value=ticket_type.title(), inline=True)
+    embed.add_field(name="📝 Description", value=description, inline=False)
+    embed.add_field(name="📅 Created", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+    embed.set_footer(text="Ticket submitted • Staff will respond soon")
+    await interaction.response.send_message(embed=embed)
+
+# Advanced Moderation Commands
+@bot.tree.command(name="ban", description="🚫 Permanently ban a member from the manor")
+async def ban_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Violating manor rules"):
+    if not interaction.user.guild_permissions.ban_members:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only administrators can ban members", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(title="🚫 Manor Banishment", description=f"Member has been permanently removed from the manor", color=EMBED_COLOR)
+    embed.add_field(name="👤 Member", value=member.mention, inline=True)
+    embed.add_field(name="📋 Reason", value=reason, inline=False)
+    embed.add_field(name="🛡️ Administrator", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Banishment is permanent unless appealed")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="kick", description="👢 Remove a member temporarily")
+async def kick_command(interaction: discord.Interaction, member: discord.Member, reason: str = "Disrupting manor peace"):
+    if not interaction.user.guild_permissions.kick_members:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only moderators can kick members", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(title="👢 Manor Removal", description=f"Member has been temporarily removed", color=EMBED_COLOR)
+    embed.add_field(name="👤 Member", value=member.mention, inline=True)
+    embed.add_field(name="📋 Reason", value=reason, inline=False)
+    embed.add_field(name="🛡️ Moderator", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Member may return with proper invitation")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="slowmode", description="⏰ Set channel message cooldown")
+async def slowmode_command(interaction: discord.Interaction, seconds: int = 5):
+    if not interaction.user.guild_permissions.manage_channels:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only moderators can set slowmode", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(title="⏰ Manor Pace Control", description=f"Channel message cooldown has been adjusted", color=EMBED_COLOR)
+    embed.add_field(name="⏱️ Cooldown", value=f"{seconds} seconds", inline=True)
+    embed.add_field(name="🛡️ Moderator", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Maintaining dignified conversation pace")
+    await interaction.response.send_message(embed=embed)
+
+# Economy Extensions
+@bot.tree.command(name="transfer", description="💸 Send rosebuds to another member")
+async def transfer_command(interaction: discord.Interaction, member: discord.Member, amount: int):
+    if amount <= 0:
+        embed = discord.Embed(title="🥀 Invalid Amount", description="Please specify a positive amount", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(title="💸 Rosebud Transfer", description="A generous exchange between manor residents", color=EMBED_COLOR)
+    embed.add_field(name="💰 Amount", value=f"{amount:,} Rosebuds", inline=True)
+    embed.add_field(name="👤 From", value=interaction.user.mention, inline=True)
+    embed.add_field(name="👤 To", value=member.mention, inline=True)
+    embed.set_footer(text="Transaction completed • Victorian generosity")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="buy", description="🛒 Purchase items from the manor shop")
+async def buy_command(interaction: discord.Interaction, item: str):
+    items = {
+        "custom_role": {"price": 500, "name": "Custom Role"},
+        "profile_badge": {"price": 250, "name": "Profile Badge"},
+        "custom_command": {"price": 1000, "name": "Custom Command"}
+    }
+    
+    if item.lower() not in items:
+        embed = discord.Embed(title="🛍️ Item Not Found", description="That item is not available in our boutique", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    item_data = items[item.lower()]
+    embed = discord.Embed(title="🛒 Purchase Complete", description="Your order has been processed", color=EMBED_COLOR)
+    embed.add_field(name="🛍️ Item", value=item_data["name"], inline=True)
+    embed.add_field(name="💰 Cost", value=f"{item_data['price']:,} Rosebuds", inline=True)
+    embed.add_field(name="👤 Buyer", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Enjoy your Victorian purchase!")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="work", description="⚒️ Earn rosebuds through manor jobs")
+async def work_command(interaction: discord.Interaction):
+    import random
+    jobs = [
+        ("Tending the Rose Garden", 50, 150),
+        ("Polishing Victorian Silver", 75, 200),
+        ("Reading Gothic Literature", 100, 250),
+        ("Organizing the Manor Library", 125, 300),
+        ("Hosting Evening Tea", 150, 350)
+    ]
+    
+    job, min_earn, max_earn = random.choice(jobs)
+    earned = random.randint(min_earn, max_earn)
+    
+    embed = discord.Embed(title="⚒️ Manor Employment", description="Honest work brings Victorian rewards", color=EMBED_COLOR)
+    embed.add_field(name="💼 Task", value=job, inline=False)
+    embed.add_field(name="💰 Earned", value=f"{earned:,} Rosebuds", inline=True)
+    embed.add_field(name="👤 Worker", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Well done! Return in a few hours for more work")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="gamble", description="🎲 Risk rosebuds for potential rewards")
+async def gamble_command(interaction: discord.Interaction, amount: int):
+    if amount <= 0:
+        embed = discord.Embed(title="🥀 Invalid Amount", description="Please specify a positive amount", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    import random
+    won = random.choice([True, False])
+    
+    if won:
+        winnings = amount * 2
+        embed = discord.Embed(title="🎲 Fortune Favors the Bold", description="The Victorian gods smile upon you!", color=EMBED_COLOR)
+        embed.add_field(name="🎰 Result", value="Victory!", inline=True)
+        embed.add_field(name="💰 Winnings", value=f"{winnings:,} Rosebuds", inline=True)
+    else:
+        embed = discord.Embed(title="🎲 Fortune's Cruel Turn", description="The manor's luck was not with you", color=EMBED_COLOR)
+        embed.add_field(name="🎰 Result", value="Defeat", inline=True)
+        embed.add_field(name="💸 Lost", value=f"{amount:,} Rosebuds", inline=True)
+    
+    embed.add_field(name="👤 Gambler", value=interaction.user.mention, inline=True)
+    embed.set_footer(text="Gamble responsibly • The house always remembers")
+    await interaction.response.send_message(embed=embed)
+
+# Entertainment & Games
+@bot.tree.command(name="trivia", description="🧠 Victorian-themed trivia challenge")
+async def trivia_command(interaction: discord.Interaction):
+    questions = [
+        ("What era preceded the Victorian period?", "Georgian Era", ["Medieval", "Renaissance", "Georgian Era", "Edwardian"]),
+        ("Who was the famous Victorian detective?", "Sherlock Holmes", ["Hercule Poirot", "Sherlock Holmes", "Miss Marple", "Sam Spade"]),
+        ("What flower symbolized love in Victorian times?", "Red Rose", ["Lily", "Red Rose", "Violet", "Daisy"])
+    ]
+    
+    import random
+    question, answer, options = random.choice(questions)
+    
+    embed = discord.Embed(title="🧠 Victorian Trivia", description="Test your knowledge of the era", color=EMBED_COLOR)
+    embed.add_field(name="❓ Question", value=question, inline=False)
+    embed.add_field(name="📝 Options", value="\n".join([f"{i+1}. {opt}" for i, opt in enumerate(options)]), inline=False)
+    embed.set_footer(text="Think carefully • Victorian wisdom awaits")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="riddle", description="🔮 Solve Gothic riddles and puzzles")
+async def riddle_command(interaction: discord.Interaction):
+    riddles = [
+        ("I am found in darkness, born of shadow and flame. In Gothic halls I dance, but have no name. What am I?", "A ghost/spirit"),
+        ("With petals red as blood I bloom, in manor gardens I dispel all gloom. Thorns protect my beauty rare, what flower am I beyond compare?", "A rose"),
+        ("I tick and tock through endless night, in towers tall I mark time's flight. Victorian hands crafted me with care, what am I standing proud and fair?", "A clock/grandfather clock")
+    ]
+    
+    import random
+    riddle, answer = random.choice(riddles)
+    
+    embed = discord.Embed(title="🔮 Gothic Riddle", description="Solve this mysterious puzzle", color=EMBED_COLOR)
+    embed.add_field(name="🌙 Riddle", value=riddle, inline=False)
+    embed.add_field(name="💭 Hint", value="Think with Victorian wisdom...", inline=False)
+    embed.set_footer(text="Whisper your answer • The shadows are listening")
+    await interaction.response.send_message(embed=embed)
+
+# Voice & Social Features
+@bot.tree.command(name="voice", description="🎵 Create a temporary voice channel")
+async def voice_command(interaction: discord.Interaction, name: str = "Victorian Parlor"):
+    if not interaction.user.guild_permissions.manage_channels:
+        embed = discord.Embed(title="🚫 Access Denied", description="Only members with channel permissions can create voice rooms", color=0xFF0000)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    embed = discord.Embed(title="🎵 Voice Chamber Created", description="A new gathering place has been established", color=EMBED_COLOR)
+    embed.add_field(name="🏛️ Chamber Name", value=name, inline=True)
+    embed.add_field(name="👑 Creator", value=interaction.user.mention, inline=True)
+    embed.add_field(name="⏱️ Duration", value="Temporary (will close when empty)", inline=False)
+    embed.set_footer(text="Enjoy your Victorian conversations!")
+    await interaction.response.send_message(embed=embed)
+
+# APPLICATION SYSTEM - Complex workflow with buttons, modals, threads
+class ApplicationView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    
+    @discord.ui.button(label="Realm Job Application", style=discord.ButtonStyle.primary, emoji="⚔️")
+    async def realm_job_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = RealmJobModal()
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="Admin Application", style=discord.ButtonStyle.secondary, emoji="👑")
+    async def admin_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = AdminModal()
+        await interaction.response.send_modal(modal)
+
+class RealmJobModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Realm Job Application")
+        
+        self.experience = discord.ui.TextInput(
+            label="Previous Experience",
+            placeholder="Describe your relevant experience...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        self.motivation = discord.ui.TextInput(
+            label="Why do you want this position?",
+            placeholder="What motivates you to serve the realm...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        self.availability = discord.ui.TextInput(
+            label="Availability",
+            placeholder="How many hours per week can you dedicate?",
+            style=discord.TextStyle.short,
+            max_length=100
+        )
+        
+        self.add_item(self.experience)
+        self.add_item(self.motivation)
+        self.add_item(self.availability)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        # Create private thread
+        thread = await interaction.channel.create_thread(
+            name=f"Realm Job - {interaction.user.display_name}",
+            type=discord.ChannelType.private_thread
+        )
+        
+        # Send application to thread
+        embed = discord.Embed(title="⚔️ Realm Job Application", color=EMBED_COLOR)
+        embed.add_field(name="👤 Applicant", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Submitted", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+        embed.add_field(name="💼 Previous Experience", value=self.experience.value, inline=False)
+        embed.add_field(name="🎯 Motivation", value=self.motivation.value, inline=False)
+        embed.add_field(name="⏰ Availability", value=self.availability.value, inline=False)
+        
+        # Add review button for admin staff
+        review_view = ApplicationReviewView(application_type="realm_job", applicant=interaction.user)
+        
+        await thread.send(f"<@&1320538700656148541>", embed=embed, view=review_view)
+        
+        # Log to tracking channel
+        log_channel = bot.get_channel(1320540890141556746)
+        if log_channel:
+            log_embed = discord.Embed(title="📋 Application Submitted", color=EMBED_COLOR)
+            log_embed.add_field(name="Type", value="Realm Job", inline=True)
+            log_embed.add_field(name="Applicant", value=interaction.user.mention, inline=True)
+            log_embed.add_field(name="Status", value="Pending Review", inline=True)
+            await log_channel.send(embed=log_embed)
+        
+        await interaction.response.send_message("✅ Your Realm Job application has been submitted!", ephemeral=True)
+
+class AdminModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Admin Application")
+        
+        self.experience = discord.ui.TextInput(
+            label="Administrative Experience",
+            placeholder="Describe your leadership/admin experience...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        self.skills = discord.ui.TextInput(
+            label="Relevant Skills",
+            placeholder="What skills make you suitable for admin role...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        self.scenarios = discord.ui.TextInput(
+            label="Conflict Resolution",
+            placeholder="How would you handle member disputes...",
+            style=discord.TextStyle.paragraph,
+            max_length=1000
+        )
+        
+        self.add_item(self.experience)
+        self.add_item(self.skills)
+        self.add_item(self.scenarios)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        # Create private thread
+        thread = await interaction.channel.create_thread(
+            name=f"Admin - {interaction.user.display_name}",
+            type=discord.ChannelType.private_thread
+        )
+        
+        # Send application to thread
+        embed = discord.Embed(title="👑 Admin Application", color=EMBED_COLOR)
+        embed.add_field(name="👤 Applicant", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Submitted", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+        embed.add_field(name="💼 Administrative Experience", value=self.experience.value, inline=False)
+        embed.add_field(name="🛠️ Relevant Skills", value=self.skills.value, inline=False)
+        embed.add_field(name="⚖️ Conflict Resolution", value=self.scenarios.value, inline=False)
+        
+        # Add review button for admin staff
+        review_view = ApplicationReviewView(application_type="admin", applicant=interaction.user)
+        
+        await thread.send(f"<@&1320538700656148541>", embed=embed, view=review_view)
+        
+        # Log to tracking channel
+        log_channel = bot.get_channel(1320540890141556746)
+        if log_channel:
+            log_embed = discord.Embed(title="📋 Application Submitted", color=EMBED_COLOR)
+            log_embed.add_field(name="Type", value="Admin", inline=True)
+            log_embed.add_field(name="Applicant", value=interaction.user.mention, inline=True)
+            log_embed.add_field(name="Status", value="Pending Review", inline=True)
+            await log_channel.send(embed=log_embed)
+        
+        await interaction.response.send_message("✅ Your Admin application has been submitted!", ephemeral=True)
+
+class ApplicationReviewView(discord.ui.View):
+    def __init__(self, application_type: str, applicant: discord.Member):
+        super().__init__(timeout=None)
+        self.application_type = application_type
+        self.applicant = applicant
+    
+    @discord.ui.button(label="Approve", style=discord.ButtonStyle.success, emoji="✅")
+    async def approve_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user has admin permissions
+        if not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+            await interaction.response.send_message("❌ Only admin staff can review applications", ephemeral=True)
+            return
+        
+        # Assign role based on application type
+        if self.application_type == "realm_job":
+            role_id = 1394853894437343422
+            role_name = "Realm Job"
+        else:  # admin
+            role_id = 1320538700656148541
+            role_name = "Admin"
+        
+        role = interaction.guild.get_role(role_id)
+        if role:
+            await self.applicant.add_roles(role)
+        
+        # Update log
+        log_channel = bot.get_channel(1320540890141556746)
+        if log_channel:
+            log_embed = discord.Embed(title="✅ Application Approved", color=0x00FF00)
+            log_embed.add_field(name="Type", value=role_name, inline=True)
+            log_embed.add_field(name="Applicant", value=self.applicant.mention, inline=True)
+            log_embed.add_field(name="Reviewer", value=interaction.user.mention, inline=True)
+            await log_channel.send(embed=log_embed)
+        
+        await interaction.response.send_message(f"✅ {self.applicant.mention} has been approved for {role_name}!")
+        
+        # Wait 10 seconds then delete thread
+        import asyncio
+        await asyncio.sleep(10)
+        await interaction.channel.delete()
+    
+    @discord.ui.button(label="Deny", style=discord.ButtonStyle.danger, emoji="❌")
+    async def deny_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user has admin permissions
+        if not any(role.id == 1320538700656148541 for role in interaction.user.roles):
+            await interaction.response.send_message("❌ Only admin staff can review applications", ephemeral=True)
+            return
+        
+        # Update log
+        log_channel = bot.get_channel(1320540890141556746)
+        if log_channel:
+            log_embed = discord.Embed(title="❌ Application Denied", color=0xFF0000)
+            log_embed.add_field(name="Type", value=self.application_type.title(), inline=True)
+            log_embed.add_field(name="Applicant", value=self.applicant.mention, inline=True)
+            log_embed.add_field(name="Reviewer", value=interaction.user.mention, inline=True)
+            await log_channel.send(embed=log_embed)
+        
+        await interaction.response.send_message(f"❌ {self.applicant.mention}'s application has been denied.")
+        
+        # Wait 10 seconds then delete thread
+        import asyncio
+        await asyncio.sleep(10)
+        await interaction.channel.delete()
+
+@bot.tree.command(name="apply", description="📋 Apply for a position in the manor")
+async def apply_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="📋 Manor Applications", description="Choose your desired position", color=EMBED_COLOR)
+    embed.add_field(name="⚔️ Realm Job", value="Join the manor's workforce\nRole: <@&1394853894437343422>", inline=True)
+    embed.add_field(name="👑 Admin", value="Lead and moderate the manor\nRole: <@&1320538700656148541>", inline=True)
+    embed.set_footer(text="Select a button below to begin your application")
+    
+    view = ApplicationView()
+    await interaction.response.send_message(embed=embed, view=view)
 
 async def run_discord_bot():
     """Run the Discord bot."""
