@@ -58,33 +58,47 @@ A comprehensive AI-powered Discord server management bot with a beautiful Victor
 
 ## Recent Changes
 *Date: July 25, 2025*
-- **Core Features Implemented**:
-  - Successfully added complete economy system (/balance, /daily, /shop, /transfer, /work)
-  - Implemented rosenotes system for member lore (/rosenotes)
-  - Added comprehensive ticket and application systems (/tickets, /apply)
-  - Created moderation tools (/warn, /mute, /ban, /kick)
-  - Added engagement features (/level, /leaderboard, /trivia)
+
+- **Playful Onboarding Tutorial System**:
+  - Implemented interactive tutorial with Lady Rosalind character guide
+  - Created 6-step guided tour covering key commands (balance, rosenotes, trivia/8ball, tickets)
+  - Added automatic progress tracking that detects when users complete tutorial steps
+  - Built reward system (100 Rosebuds + Manor Initiate title upon completion)
+  - Interactive UI with buttons, progress indicators, and skip functionality
+
+- **Complete Registration & Approval Workflow**:
+  - Added /onboard command with modal form (preferred name, gamertag, birthdate, referral)
+  - Created approval system with individual tracking embeds that update through lifecycle
+  - Approval assigns role 1311529774946193460 and changes nickname to "Preferred name [gamertag]"
+  - Denial system prompts admin reason modal and DMs member with feedback
+  - All submissions/approvals logged to channel 1320540890141556746
+
+- **Rules Agreement System**:
+  - Implemented /rules command displaying complete manor rules from user specifications
+  - Added "I Agree" button that assigns role 1394518008570970172
+  - Rules embed includes all 12 specified rules with Victorian Gothic formatting
+  - Agreement tracking and logging system
+
+- **Simplified DM Onboarding**:
+  - "thorn" DM trigger sends simplified onboarding guide
+  - Explains registration process and directs users to Discord server
+  - Automatic logging of DM interactions for admin tracking
+
+- **Core Features Previously Implemented**:
+  - Complete economy system (/balance, /daily, /shop, /transfer, /work)
+  - Rosenotes system for member lore (/rosenotes)
+  - Comprehensive ticket and application systems (/tickets, /apply)
+  - Moderation tools (/warn, /mute, /ban, /kick, /purgechat, /deletechannel)
+  - Engagement features (/level, /leaderboard, /trivia)
   - Utility commands (/serverinfo, /avatar, /invite)
   - AFK detection and member management (/afk, /purge, /announce)
-  - Total of 25+ Discord slash commands now available
-
-- **VPS Deployment Ready**:
-  - Created comprehensive deployment script (vps_deploy.sh)
-  - Implemented Victorian Gothic SSH integration (ssh_integration.py)
-  - Added automated service management with systemd
-  - Created restart and status monitoring scripts
-
-- **Documentation Complete**:
-  - Comprehensive README.md with full feature documentation
-  - VPS deployment instructions with Gothic theming
-  - SSH integration with Victorian welcome messages
-  - User-friendly command previews on dashboard
+  - Total of 29+ Discord slash commands now available
 
 - **Technical Architecture**:
   - Maintained #711417 deep red color scheme throughout
-  - All commands feature Victorian Gothic theming
-  - Preview system working on Commands dashboard page
-  - Bot successfully connecting and syncing commands
+  - All commands feature Victorian Gothic theming with Lady Rosalind character
+  - Individual tracking messages for each ticket/application/registration
+  - Bot successfully connecting and syncing 29 commands
 
 ## User Preferences
 *To be updated as user expresses preferences*

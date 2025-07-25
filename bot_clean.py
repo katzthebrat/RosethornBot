@@ -1184,6 +1184,333 @@ class TutorialView(discord.ui.View):
 # Tutorial tracking for command completion
 tutorial_tracking = {}
 
+# ONBOARDING MODAL AND APPROVAL SYSTEM
+class OnboardingModal(discord.ui.Modal, title="Rosewood Manor Registration"):
+    def __init__(self):
+        super().__init__()
+        
+    preferred_name = discord.ui.TextInput(
+        label="Preferred Name for Discord",
+        placeholder="What should we call you in our manor?",
+        required=True,
+        max_length=32
+    )
+    
+    gamertag = discord.ui.TextInput(
+        label="Gamertag",
+        placeholder="Your Minecraft/Gaming username",
+        required=True,
+        max_length=32
+    )
+    
+    birthdate = discord.ui.TextInput(
+        label="Birthdate",
+        placeholder="MM/DD/YYYY (for age verification)",
+        required=True,
+        max_length=10
+    )
+    
+    referral = discord.ui.TextInput(
+        label="How did you hear about us?",
+        placeholder="Friend, social media, search, etc.",
+        required=False,
+        max_length=100
+    )
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        # Create approval embed
+        embed = discord.Embed(
+            title="🌹 New Manor Registration",
+            description="A new member seeks entry to our Victorian estate",
+            color=EMBED_COLOR
+        )
+        
+        embed.add_field(name="👤 Preferred Name", value=self.preferred_name.value, inline=True)
+        embed.add_field(name="🎮 Gamertag", value=self.gamertag.value, inline=True)
+        embed.add_field(name="📅 Birthdate", value=self.birthdate.value, inline=True)
+        embed.add_field(name="📢 Referral", value=self.referral.value or "Not specified", inline=True)
+        embed.add_field(name="📍 Discord User", value=interaction.user.mention, inline=True)
+        embed.add_field(name="🕐 Submitted", value=discord.utils.format_dt(datetime.now(), style='f'), inline=True)
+        embed.add_field(name="📊 Status", value="⏳ **Pending Review**", inline=False)
+        
+        embed.set_footer(text=f"Registration ID: REG-{interaction.user.id}")
+        
+        # Create approval view
+        view = OnboardingApprovalView(interaction.user.id, self.preferred_name.value, self.gamertag.value)
+        
+        # Send to logging channel
+        logging_channel = bot.get_channel(1320540890141556746)
+        if logging_channel:
+            approval_message = await logging_channel.send(embed=embed, view=view)
+            
+            # Store message ID for tracking
+            view.approval_message_id = approval_message.id
+        
+        # Confirm submission to user
+        confirm_embed = discord.Embed(
+            title="✅ Registration Submitted",
+            description="Your application to join Rosewood Manor has been submitted for review.",
+            color=0x00FF00
+        )
+        confirm_embed.add_field(
+            name="⏳ What's Next?",
+            value="• Our admins will review your application\n• You'll receive a DM with the decision\n• If approved, you'll gain access to member areas",
+            inline=False
+        )
+        confirm_embed.set_footer(text="Thank you for your patience • Manor Administration")
+        
+        await interaction.response.send_message(embed=confirm_embed, ephemeral=True)
+
+class OnboardingApprovalView(discord.ui.View):
+    def __init__(self, user_id, preferred_name, gamertag):
+        super().__init__(timeout=None)
+        self.user_id = user_id
+        self.preferred_name = preferred_name
+        self.gamertag = gamertag
+        self.approval_message_id = None
+    
+    @discord.ui.button(label="Approve", style=discord.ButtonStyle.success, emoji="✅")
+    async def approve_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user has admin role
+        if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+            await interaction.response.send_message("❌ Only administrators can approve registrations", ephemeral=True)
+            return
+        
+        # Get the user to approve
+        user = bot.get_user(self.user_id)
+        guild = interaction.guild
+        member = guild.get_member(self.user_id)
+        
+        if not member:
+            await interaction.response.send_message("❌ Member not found in server", ephemeral=True)
+            return
+        
+        try:
+            # Change nickname to "Preferred name [gamertag]" format
+            new_nickname = f"{self.preferred_name} [{self.gamertag}]"
+            await member.edit(nick=new_nickname)
+            
+            # Add member role (1311529774946193460)
+            member_role = guild.get_role(1311529774946193460)
+            if member_role:
+                await member.add_roles(member_role)
+            
+            # Update the approval embed
+            original_embed = interaction.message.embeds[0]
+            original_embed.set_field_at(6, name="📊 Status", value="✅ **Approved**", inline=False)
+            original_embed.add_field(name="👨‍⚖️ Approved By", value=interaction.user.mention, inline=True)
+            original_embed.add_field(name="⏰ Approved At", value=discord.utils.format_dt(datetime.now(), style='f'), inline=True)
+            original_embed.color = 0x00FF00
+            
+            # Send DM to approved member
+            try:
+                dm_embed = discord.Embed(
+                    title="🌹 Welcome to Rosewood Manor!",
+                    description=f"Congratulations, {self.preferred_name}! Your registration has been approved.",
+                    color=0x00FF00
+                )
+                dm_embed.add_field(
+                    name="🎉 You now have access to:",
+                    value="• Member-only channels\n• Special commands and features\n• Community events and activities",
+                    inline=False
+                )
+                dm_embed.add_field(
+                    name="🌹 Next Steps:",
+                    value="• Explore the manor with `/tutorial`\n• Check out `/rules` to review our guidelines\n• Visit member channels to introduce yourself",
+                    inline=False
+                )
+                dm_embed.set_footer(text="Welcome to our Victorian community!")
+                
+                await user.send(embed=dm_embed)
+            except:
+                pass  # DM failed, continue anyway
+            
+            # Disable buttons and update message
+            for item in self.children:
+                item.disabled = True
+            
+            await interaction.response.edit_message(embed=original_embed, view=self)
+            
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error processing approval: {str(e)}", ephemeral=True)
+    
+    @discord.ui.button(label="Deny", style=discord.ButtonStyle.danger, emoji="❌")
+    async def deny_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user has admin role
+        if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+            await interaction.response.send_message("❌ Only administrators can deny registrations", ephemeral=True)
+            return
+        
+        # Show denial reason modal
+        modal = DenialReasonModal(self.user_id, self.preferred_name, interaction.message)
+        await interaction.response.send_modal(modal)
+
+class DenialReasonModal(discord.ui.Modal, title="Registration Denial Reason"):
+    def __init__(self, user_id, preferred_name, approval_message):
+        super().__init__()
+        self.user_id = user_id
+        self.preferred_name = preferred_name
+        self.approval_message = approval_message
+    
+    reason = discord.ui.TextInput(
+        label="Reason for Denial",
+        placeholder="Please provide a clear reason for denying this registration...",
+        style=discord.TextStyle.paragraph,
+        required=True,
+        max_length=500
+    )
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        user = bot.get_user(self.user_id)
+        
+        # Update the approval embed
+        original_embed = self.approval_message.embeds[0]
+        original_embed.set_field_at(6, name="📊 Status", value="❌ **Denied**", inline=False)
+        original_embed.add_field(name="👨‍⚖️ Denied By", value=interaction.user.mention, inline=True)
+        original_embed.add_field(name="⏰ Denied At", value=discord.utils.format_dt(datetime.now(), style='f'), inline=True)
+        original_embed.add_field(name="📝 Denial Reason", value=self.reason.value, inline=False)
+        original_embed.color = 0xFF0000
+        
+        # Send DM to denied member
+        try:
+            dm_embed = discord.Embed(
+                title="🥀 Registration Update",
+                description=f"Dear {self.preferred_name}, your registration to Rosewood Manor requires attention.",
+                color=0xFF0000
+            )
+            dm_embed.add_field(
+                name="📝 Admin Feedback:",
+                value=self.reason.value,
+                inline=False
+            )
+            dm_embed.add_field(
+                name="🔄 Next Steps:",
+                value="• Please address the feedback provided\n• You may resubmit your registration\n• Contact an admin if you need clarification",
+                inline=False
+            )
+            dm_embed.set_footer(text="We appreciate your understanding • Manor Administration")
+            
+            await user.send(embed=dm_embed)
+        except:
+            pass  # DM failed, continue anyway
+        
+        # Disable buttons and update message
+        view = discord.ui.View()
+        for item in view.children:
+            item.disabled = True
+        
+        await interaction.response.edit_message(embed=original_embed, view=view)
+
+# RULES COMMAND AND AGREEMENT SYSTEM
+class RulesAgreementView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    
+    @discord.ui.button(label="I Agree", style=discord.ButtonStyle.success, emoji="✅")
+    async def agree_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Add rules agreement role (1394518008570970172)
+        guild = interaction.guild
+        member = interaction.user
+        rules_role = guild.get_role(1394518008570970172)
+        
+        if rules_role:
+            if rules_role in member.roles:
+                await interaction.response.send_message("✅ You have already agreed to the rules!", ephemeral=True)
+                return
+            
+            await member.add_roles(rules_role)
+            
+            embed = discord.Embed(
+                title="✅ Rules Agreement Confirmed",
+                description="Thank you for agreeing to the Rosewood Manor rules!",
+                color=0x00FF00
+            )
+            embed.add_field(
+                name="🌹 Welcome to the Community",
+                value="You now have full access to member features and can participate in all manor activities.",
+                inline=False
+            )
+            embed.set_footer(text="Remember to follow the rules at all times • Manor Administration")
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            
+            # Log the agreement
+            await create_tracking_message("📜 Rules Agreement", {
+                "👤 Member": interaction.user.mention,
+                "📅 Agreed At": discord.utils.format_dt(datetime.now(), style='f'),
+                "✅ Status": "Confirmed"
+            }, 0x00FF00, f"RULES-{interaction.user.id}")
+            
+        else:
+            await interaction.response.send_message("❌ Rules role not found. Please contact an administrator.", ephemeral=True)
+
+@bot.tree.command(name="onboard", description="🌹 Begin your registration to Rosewood Manor")
+@discord.app_commands.default_permissions(send_messages=True)
+async def onboard_command(interaction: discord.Interaction):
+    modal = OnboardingModal()
+    await interaction.response.send_modal(modal)
+
+@bot.tree.command(name="rules", description="📜 View and agree to the manor rules")
+@discord.app_commands.default_permissions(send_messages=True)
+async def rules_command(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="📜 Rosewood Manor Rules",
+        description="Please read and agree to our community guidelines",
+        color=EMBED_COLOR
+    )
+    
+    rules_text = """
+**1. Building Restrictions**
+Do **NOT** build within 1000 blocks of spawn in any direction. If your base is visible from spawn, you are too close and will be asked to move.
+
+**2. No Stealing or Griefing**
+Theft, destruction, or griefing will **not** be tolerated. Violators **will** be caught and permanently banned—no second chances.
+
+**3. No Spamming**
+Avoid excessive messaging in-game or on Discord. Due to varying time zones, responses may be delayed.
+
+**4. Respect Messaging Boundaries**
+Do **NOT** DM members without their permission. Use <#1325432475387957288> before reaching out. Do **NOT** DM admins about open tickets.
+
+**5. Respect Personal Space**
+Avoid building too close to others. If you can see another player's base from yours, you're too close. Set up your land claim to protect your base.
+
+**6. Auto Farms Regulations**
+All auto farms **must receive admin approval**, be designated for community use, & include a manual on/off switch to prevent lag.
+
+**7. Zero Tolerance for Harassment**
+Treat everyone with respect. **Harassment, witch-hunting, racism, sexism, and hate speech are strictly forbidden**—violators will be immediately banned.
+
+**8. Keep Chats Organized**
+Use the appropriate channels for discussions. We aim to keep the server welcoming and cozy for all members.
+"""
+    
+    embed.add_field(name="🏰 Core Rules", value=rules_text, inline=False)
+    
+    additional_rules = """
+**9. Member Mode Requirements**
+To access member mode, you must:
+✅ Add your gamertag 
+✅ Confirm agreement to these rules
+✅ Respond to bot DM (Message "Thorn" if you can't find it)
+
+**10. Realm Code Sharing**
+Sharing the realm code requires admin approval. New players must join Discord and agree to the rules.
+
+**11. Admin Requests**
+Admins will only provide basic building blocks. Support community shops by purchasing resources from fellow players.
+
+**12. Ticket System**
+Once a ticket is opened, you have **12 hours** to respond. Do **NOT** DM admins regarding open tickets.
+"""
+    
+    embed.add_field(name="📋 Additional Guidelines", value=additional_rules, inline=False)
+    embed.add_field(name="⚖️ Violations", value="If you violate any rules, a ticket will be created to review the situation, allowing you to explain your perspective.", inline=False)
+    embed.set_footer(text="By clicking 'I Agree', you accept these rules • Updated regularly")
+    
+    view = RulesAgreementView()
+    await interaction.response.send_message(embed=embed, view=view)
+
 @bot.tree.command(name="tutorial", description="🎭 Begin your guided tour of Rosewood Manor")
 @discord.app_commands.default_permissions(send_messages=True)
 async def tutorial_command(interaction: discord.Interaction):
@@ -1273,6 +1600,62 @@ async def check_tutorial_progress(user_id, command_used):
                 await user.send(embed=embed)
         except:
             pass  # Silently fail if can't DM user
+
+# SIMPLIFIED DM ONBOARDING SYSTEM
+@bot.event
+async def on_message(message):
+    # Check if it's a DM and the message is "thorn" or "Thorn"
+    if (message.author != bot.user and 
+        isinstance(message.channel, discord.DMChannel) and 
+        message.content.lower() == "thorn"):
+        
+        # Send simplified onboarding
+        embed = discord.Embed(
+            title="🌹 Welcome to Rosewood Manor",
+            description="Greetings! I am the Rosewood Manor bot, here to guide you through our Victorian community.",
+            color=EMBED_COLOR
+        )
+        
+        embed.add_field(
+            name="🏰 About Our Manor",
+            value="We are a Victorian Gothic themed Minecraft realm and Discord community focused on building, creativity, and respectful collaboration.",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="📋 Quick Start Steps:",
+            value="1️⃣ Join our Discord server\n2️⃣ Use `/onboard` to register\n3️⃣ Read and agree to `/rules`\n4️⃣ Get approved by our admins\n5️⃣ Receive realm access!",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🎭 New Member Features:",
+            value="• Use `/tutorial` for a guided tour\n• Try `/balance` to check your Rosebuds\n• Create `/tickets` if you need help\n• Explore with `/help` for all commands",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🌹 Ready to Begin?",
+            value="Head to our Discord server and use the `/onboard` command to start your registration process!",
+            inline=False
+        )
+        
+        embed.set_footer(text="We look forward to welcoming you to our manor • Rosewood Administration")
+        
+        try:
+            await message.author.send(embed=embed)
+        except:
+            pass  # If DM fails, silently continue
+        
+        # Log the DM interaction
+        await create_tracking_message("📱 DM Onboarding Triggered", {
+            "👤 User": f"{message.author.display_name} ({message.author.id})",
+            "💬 Trigger": "DM: 'thorn'",
+            "📅 Time": discord.utils.format_dt(datetime.now(), style='f')
+        }, EMBED_COLOR, f"DM-{message.author.id}")
+    
+    # Process other commands
+    await bot.process_commands(message)
 
 async def run_discord_bot():
     """Run the Discord bot."""
