@@ -3117,6 +3117,392 @@ async def restart_command(interaction: discord.Interaction, confirmation: str = 
         # Fallback - just disconnect and let process manager restart
         await bot.close()
 
+# Import modal service
+try:
+    from services.modal_service import modal_service, CustomModalForm
+except ImportError:
+    modal_service = None
+    logger.warning("Modal service not available")
+
+# Custom Modal Form Commands
+@bot.tree.command(name="createform", description="📝 Create a custom modal form with questions")
+@discord.app_commands.default_permissions(manage_messages=True)
+@discord.app_commands.describe(
+    form_id="Unique identifier for the form",
+    title="Title of the form",
+    log_channel="Channel to send responses to (optional)"
+)
+@handle_errors
+async def create_form_command(interaction: discord.Interaction, form_id: str, title: str, log_channel: discord.TextChannel = None):
+    # Check if user has admin role
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can create forms", ephemeral=True)
+        return
+    
+    if not modal_service:
+        await interaction.response.send_message("❌ Modal service not available", ephemeral=True)
+        return
+    
+    # Check if form already exists
+    if modal_service.get_form(form_id):
+        await interaction.response.send_message(f"❌ Form with ID '{form_id}' already exists", ephemeral=True)
+        return
+    
+    # Create interactive form builder
+    class FormBuilderView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=300)
+            self.questions = []
+            self.current_form_config = {
+                'title': title,
+                'questions': [],
+                'show_summary': True,
+                'timeout': 300
+            }
+            if log_channel:
+                self.current_form_config['log_channel_id'] = log_channel.id
+        
+        @discord.ui.button(label="Add Question", style=discord.ButtonStyle.primary, emoji="➕")
+        async def add_question(self, interaction: discord.Interaction, button: discord.ui.Button):
+            if len(self.questions) >= 5:
+                await interaction.response.send_message("❌ Maximum 5 questions allowed per form", ephemeral=True)
+                return
+            
+            # Modal to add question
+            class QuestionModal(discord.ui.Modal, title="Add Question"):
+                question_label = discord.ui.TextInput(
+                    label="Question Label",
+                    placeholder="What is your question?",
+                    required=True,
+                    max_length=45
+                )
+                placeholder_text = discord.ui.TextInput(
+                    label="Placeholder Text (optional)",
+                    placeholder="Hint text for the user...",
+                    required=False,
+                    max_length=100
+                )
+                required_toggle = discord.ui.TextInput(
+                    label="Required? (yes/no)",
+                    placeholder="yes",
+                    default="yes",
+                    required=True,
+                    max_length=3
+                )
+                multiline_toggle = discord.ui.TextInput(
+                    label="Long text? (yes/no)",
+                    placeholder="no",
+                    default="no",
+                    required=True,
+                    max_length=3
+                )
+                
+                async def on_submit(self, interaction: discord.Interaction):
+                    question_config = {
+                        'id': f'q{len(parent_view.questions) + 1}',
+                        'label': str(self.question_label.value),
+                        'placeholder': str(self.placeholder_text.value) if self.placeholder_text.value else '',
+                        'required': str(self.required_toggle.value).lower() in ['yes', 'y', 'true', '1'],
+                        'multiline': str(self.multiline_toggle.value).lower() in ['yes', 'y', 'true', '1'],
+                        'max_length': 1024 if str(self.multiline_toggle.value).lower() in ['yes', 'y', 'true', '1'] else 200
+                    }
+                    
+                    parent_view.questions.append(question_config)
+                    parent_view.current_form_config['questions'] = parent_view.questions
+                    
+                    # Update embed
+                    await parent_view.update_embed(interaction)
+            
+            parent_view = self
+            await interaction.response.send_modal(QuestionModal())
+        
+        @discord.ui.button(label="Remove Last Question", style=discord.ButtonStyle.secondary, emoji="➖")
+        async def remove_question(self, interaction: discord.Interaction, button: discord.ui.Button):
+            if not self.questions:
+                await interaction.response.send_message("❌ No questions to remove", ephemeral=True)
+                return
+            
+            self.questions.pop()
+            self.current_form_config['questions'] = self.questions
+            await self.update_embed(interaction)
+        
+        @discord.ui.button(label="Create Form", style=discord.ButtonStyle.success, emoji="✅")
+        async def create_form(self, interaction: discord.Interaction, button: discord.ui.Button):
+            if not self.questions:
+                await interaction.response.send_message("❌ Add at least one question before creating the form", ephemeral=True)
+                return
+            
+            # Create the form
+            success = modal_service.create_form(form_id, self.current_form_config)
+            
+            if success:
+                embed = discord.Embed(
+                    title="✅ Form Created Successfully",
+                    description=f"Form **{title}** has been created with ID: `{form_id}`",
+                    color=0x00FF00
+                )
+                embed.add_field(name="📝 Questions", value=str(len(self.questions)), inline=True)
+                embed.add_field(name="🆔 Form ID", value=f"`{form_id}`", inline=True)
+                embed.add_field(name="📍 Log Channel", value=log_channel.mention if log_channel else "None", inline=True)
+                embed.add_field(name="📋 Usage", value=f"`/showform {form_id}` to display the form", inline=False)
+                embed.set_footer(text="Users can now fill out this form • Rosewood Manor")
+                
+                # Disable all buttons
+                for item in self.children:
+                    item.disabled = True
+                
+                await interaction.response.edit_message(embed=embed, view=self)
+            else:
+                await interaction.response.send_message("❌ Failed to create form", ephemeral=True)
+        
+        @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger, emoji="❌")
+        async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+            embed = discord.Embed(
+                title="❌ Form Creation Cancelled",
+                description="Form builder has been cancelled",
+                color=0xFF0000
+            )
+            
+            # Disable all buttons
+            for item in self.children:
+                item.disabled = True
+            
+            await interaction.response.edit_message(embed=embed, view=self)
+        
+        async def update_embed(self, interaction: discord.Interaction):
+            embed = discord.Embed(
+                title="📝 Form Builder",
+                description=f"Creating form: **{title}**\nForm ID: `{form_id}`",
+                color=0x711417
+            )
+            
+            if log_channel:
+                embed.add_field(name="📍 Log Channel", value=log_channel.mention, inline=True)
+            
+            embed.add_field(name="📊 Questions Added", value=f"{len(self.questions)}/5", inline=True)
+            
+            if self.questions:
+                questions_text = ""
+                for i, q in enumerate(self.questions, 1):
+                    required = "✅" if q.get('required', True) else "⚪"
+                    multiline = "📄" if q.get('multiline', False) else "📝"
+                    questions_text += f"{i}. {required} {multiline} {q['label']}\n"
+                
+                embed.add_field(name="❓ Current Questions", value=questions_text[:1024], inline=False)
+            else:
+                embed.add_field(name="❓ Current Questions", value="*No questions added yet*", inline=False)
+            
+            embed.add_field(name="📋 Next Steps", value="• Add questions using the ➕ button\n• Click ✅ when ready to create form", inline=False)
+            embed.set_footer(text="Form Builder • Use buttons below to manage questions")
+            
+            await interaction.response.edit_message(embed=embed, view=self)
+    
+    # Initial embed
+    embed = discord.Embed(
+        title="📝 Form Builder",
+        description=f"Creating form: **{title}**\nForm ID: `{form_id}`",
+        color=0x711417
+    )
+    
+    if log_channel:
+        embed.add_field(name="📍 Log Channel", value=log_channel.mention, inline=True)
+    
+    embed.add_field(name="📊 Questions Added", value="0/5", inline=True)
+    embed.add_field(name="❓ Current Questions", value="*No questions added yet*", inline=False)
+    embed.add_field(name="📋 Next Steps", value="• Add questions using the ➕ button\n• Click ✅ when ready to create form", inline=False)
+    embed.set_footer(text="Form Builder • Use buttons below to manage questions")
+    
+    view = FormBuilderView()
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+@bot.tree.command(name="showform", description="📋 Display a custom form for users to fill out")
+@discord.app_commands.default_permissions(manage_messages=True)
+@discord.app_commands.describe(form_id="ID of the form to display")
+@handle_errors
+async def show_form_command(interaction: discord.Interaction, form_id: str):
+    # Check if user has admin role
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can show forms", ephemeral=True)
+        return
+    
+    if not modal_service:
+        await interaction.response.send_message("❌ Modal service not available", ephemeral=True)
+        return
+    
+    form_config = modal_service.get_form(form_id)
+    if not form_config:
+        await interaction.response.send_message(f"❌ Form '{form_id}' not found", ephemeral=True)
+        return
+    
+    # Create form display with button to open modal
+    class FormDisplayView(discord.ui.View):
+        def __init__(self, form_config):
+            super().__init__(timeout=None)  # Persistent view
+            self.form_config = form_config
+        
+        @discord.ui.button(label="Fill Out Form", style=discord.ButtonStyle.primary, emoji="📝")
+        async def fill_form(self, interaction: discord.Interaction, button: discord.ui.Button):
+            modal = modal_service.create_modal(form_id)
+            if modal:
+                await interaction.response.send_modal(modal)
+            else:
+                await interaction.response.send_message("❌ Error creating form", ephemeral=True)
+    
+    # Create display embed
+    embed = discord.Embed(
+        title=f"📝 {form_config['title']}",
+        description="Click the button below to fill out this form",
+        color=0x711417
+    )
+    
+    # Add preview of questions
+    questions_preview = ""
+    for i, question in enumerate(form_config['questions'], 1):
+        required = "✅ Required" if question.get('required', True) else "⚪ Optional"
+        questions_preview += f"{i}. **{question['label']}** ({required})\n"
+    
+    embed.add_field(name="❓ Questions", value=questions_preview[:1024], inline=False)
+    embed.add_field(name="🆔 Form ID", value=f"`{form_id}`", inline=True)
+    embed.add_field(name="📊 Total Questions", value=str(len(form_config['questions'])), inline=True)
+    embed.set_footer(text="Victorian manor form system • Rosewood Manor")
+    
+    view = FormDisplayView(form_config)
+    await interaction.response.send_message(embed=embed, view=view)
+
+@bot.tree.command(name="formresponses", description="📊 View responses to a custom form")
+@discord.app_commands.default_permissions(manage_messages=True)
+@discord.app_commands.describe(
+    form_id="ID of the form to view responses for",
+    action="Action to perform with responses"
+)
+@discord.app_commands.choices(action=[
+    discord.app_commands.Choice(name="View Summary", value="summary"),
+    discord.app_commands.Choice(name="Export All", value="export"),
+    discord.app_commands.Choice(name="Clear All", value="clear")
+])
+@handle_errors
+async def form_responses_command(interaction: discord.Interaction, form_id: str, action: str = "summary"):
+    # Check if user has admin role
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can view form responses", ephemeral=True)
+        return
+    
+    if not modal_service:
+        await interaction.response.send_message("❌ Modal service not available", ephemeral=True)
+        return
+    
+    form_config = modal_service.get_form(form_id)
+    if not form_config:
+        await interaction.response.send_message(f"❌ Form '{form_id}' not found", ephemeral=True)
+        return
+    
+    responses = modal_service.get_responses(form_id)
+    
+    if action == "summary":
+        embed = discord.Embed(
+            title=f"📊 {form_config['title']} - Response Summary",
+            color=0x711417
+        )
+        
+        embed.add_field(name="📝 Total Responses", value=str(len(responses)), inline=True)
+        embed.add_field(name="🆔 Form ID", value=f"`{form_id}`", inline=True)
+        embed.add_field(name="📅 Created", value=discord.utils.format_dt(form_config['created_at'], style='R'), inline=True)
+        
+        if responses:
+            recent_responses = ""
+            for response in responses[-5:]:  # Last 5 responses
+                user_id = response['user_id']
+                submitted = response['submitted_at']
+                recent_responses += f"<@{user_id}>: {discord.utils.format_dt(submitted, style='R')}\n"
+            
+            embed.add_field(name="🕒 Recent Responses", value=recent_responses[:1024], inline=False)
+        else:
+            embed.add_field(name="📭 Status", value="No responses yet", inline=False)
+        
+        embed.set_footer(text="Use 'export' action to download all responses")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    elif action == "export":
+        if not responses:
+            await interaction.response.send_message("❌ No responses to export", ephemeral=True)
+            return
+        
+        export_text = modal_service.export_responses(form_id)
+        if export_text:
+            # Create file
+            import io
+            file_content = io.StringIO(export_text)
+            file = discord.File(file_content, filename=f"{form_id}_responses.txt")
+            
+            embed = discord.Embed(
+                title="📤 Form Responses Export",
+                description=f"Exported {len(responses)} responses from **{form_config['title']}**",
+                color=0x711417
+            )
+            
+            await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+        else:
+            await interaction.response.send_message("❌ Failed to export responses", ephemeral=True)
+    
+    elif action == "clear":
+        if not responses:
+            await interaction.response.send_message("❌ No responses to clear", ephemeral=True)
+            return
+        
+        # Confirmation
+        embed = discord.Embed(
+            title="⚠️ Confirm Response Deletion",
+            description=f"This will permanently delete **{len(responses)}** responses from **{form_config['title']}**",
+            color=0xFF6B35
+        )
+        embed.add_field(name="📋 To Confirm", value=f"`/formresponses {form_id} clear_confirmed`", inline=False)
+        embed.set_footer(text="This action cannot be undone")
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@bot.tree.command(name="listforms", description="📋 List all available custom forms")
+@discord.app_commands.default_permissions(manage_messages=True)
+@handle_errors
+async def list_forms_command(interaction: discord.Interaction):
+    # Check if user has admin role
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can list forms", ephemeral=True)
+        return
+    
+    if not modal_service:
+        await interaction.response.send_message("❌ Modal service not available", ephemeral=True)
+        return
+    
+    forms = modal_service.list_forms()
+    
+    if not forms:
+        embed = discord.Embed(
+            title="📋 Custom Forms",
+            description="No forms have been created yet",
+            color=0x711417
+        )
+        embed.add_field(name="💡 Get Started", value="Use `/createform` to create your first custom form", inline=False)
+    else:
+        embed = discord.Embed(
+            title="📋 Available Custom Forms",
+            description=f"Found {len(forms)} custom form(s)",
+            color=0x711417
+        )
+        
+        forms_text = ""
+        for form_id in forms:
+            form_config = modal_service.get_form(form_id)
+            if form_config:
+                response_count = len(modal_service.get_responses(form_id))
+                forms_text += f"**{form_config['title']}**\n"
+                forms_text += f"└ ID: `{form_id}` • {len(form_config['questions'])} questions • {response_count} responses\n\n"
+        
+        embed.add_field(name="📝 Forms", value=forms_text[:1024], inline=False)
+        embed.add_field(name="📋 Commands", value="`/showform <id>` - Display form\n`/formresponses <id>` - View responses", inline=False)
+    
+    embed.set_footer(text="Custom modal form system • Rosewood Manor")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 # Add error demonstration commands
 @bot.tree.command(name="errortest", description="🧪 Test the elegant error message system")
 @discord.app_commands.default_permissions(administrator=True)
