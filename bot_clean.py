@@ -611,12 +611,27 @@ async def afk_command(interaction: discord.Interaction, reason: str = "Away from
 @bot.tree.command(name="createvoice", description="🎵 Create a temporary voice channel")
 @discord.app_commands.default_permissions(manage_channels=True)
 async def createvoice_command(interaction: discord.Interaction, name: str = "Victorian Parlor"):
-    embed = discord.Embed(title="🎵 Voice Chamber Created", description="A new gathering place has been established", color=EMBED_COLOR)
-    embed.add_field(name="🏛️ Chamber Name", value=name, inline=True)
-    embed.add_field(name="👑 Creator", value=interaction.user.mention, inline=True)
-    embed.add_field(name="⏱️ Duration", value="Temporary (will close when empty)", inline=False)
-    embed.set_footer(text="Enjoy your Victorian conversations!")
-    await interaction.response.send_message(embed=embed)
+    try:
+        # Get the specified category
+        category = interaction.guild.get_channel(1325707607133913170)
+        
+        # Create the voice channel in the category
+        voice_channel = await interaction.guild.create_voice_channel(
+            name=name,
+            category=category,
+            reason=f"Temporary voice channel created by {interaction.user}"
+        )
+        
+        embed = discord.Embed(title="🎵 Voice Chamber Created", description="A new gathering place has been established", color=EMBED_COLOR)
+        embed.add_field(name="🏛️ Chamber Name", value=voice_channel.mention, inline=True)
+        embed.add_field(name="👑 Creator", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📍 Category", value=category.name if category else "Default", inline=True)
+        embed.add_field(name="⏱️ Duration", value="Temporary (will close when empty)", inline=False)
+        embed.set_footer(text="Enjoy your Victorian conversations!")
+        await interaction.response.send_message(embed=embed)
+        
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Error creating voice channel: {str(e)}", ephemeral=True)
 
 # ADVANCED APPLICATION SYSTEM - Buttons → Modals → Threads → Role Assignment
 class ApplicationView(discord.ui.View):
@@ -938,11 +953,30 @@ class PermissionsTicketModal(discord.ui.Modal):
 
     async def create_ticket(self, interaction: discord.Interaction, ticket_type: str, details: str):
         try:
-            # Create private thread
-            thread = await interaction.channel.create_thread(
-                name=f"{ticket_type} - {interaction.user.display_name}",
-                auto_archive_duration=1440
+            # Get the specified category for ticket channels
+            ticket_category = interaction.guild.get_channel(1325707607133913170)
+            
+            # Create ticket channel in the category instead of thread
+            overwrites = {
+                interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+                interaction.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, manage_messages=True)
+            }
+            
+            # Add admin permissions
+            admin_role = interaction.guild.get_role(1320538700656148541)
+            if admin_role:
+                overwrites[admin_role] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
+            
+            ticket_channel = await interaction.guild.create_text_channel(
+                name=f"{ticket_type.lower()}-{interaction.user.display_name}",
+                category=ticket_category,
+                overwrites=overwrites,
+                reason=f"{ticket_type} ticket created by {interaction.user}"
             )
+            
+            # Use ticket_channel instead of thread for the rest of the function
+            thread = ticket_channel
             
             # Send ticket details to thread
             embed = discord.Embed(title=f"🎫 {ticket_type} Ticket", color=EMBED_COLOR)
