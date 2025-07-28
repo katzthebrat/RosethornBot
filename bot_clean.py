@@ -2887,6 +2887,204 @@ class RulesAgreementView(discord.ui.View):
                 return
             
             await member.add_roles(rules_role)
+
+
+# MEMBER COUNT CHANNEL UPDATER
+@bot.tree.command(name="membercounter", description="🔢 Set up automatic member count in channel names")
+@discord.app_commands.default_permissions(manage_channels=True)
+@discord.app_commands.describe(
+    action="Action to perform with member counter",
+    channel="Channel to update with member count",
+    template="Template for channel name (use {count} for member count)"
+)
+@discord.app_commands.choices(action=[
+    discord.app_commands.Choice(name="Setup Channel", value="setup"),
+    discord.app_commands.Choice(name="Remove Counter", value="remove"),
+    discord.app_commands.Choice(name="List Active", value="list"),
+    discord.app_commands.Choice(name="Update Now", value="update")
+])
+@handle_errors
+async def membercounter_command(interaction: discord.Interaction, action: str = "list", channel: discord.TextChannel = None, template: str = ""):
+    # Check if user has admin role
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can manage member counters", ephemeral=True)
+        return
+    
+    # Initialize member counter storage if not exists
+    if not hasattr(bot, 'member_counters'):
+        bot.member_counters = {}
+    
+    if action == "setup":
+        if not channel:
+            await interaction.response.send_message("❌ Please specify a channel to set up member counting", ephemeral=True)
+            return
+        
+        if not template:
+            template = f"{channel.name} ({{count}} members)"
+        
+        # Validate template
+        if "{count}" not in template:
+            await interaction.response.send_message("❌ Template must include {count} placeholder", ephemeral=True)
+            return
+        
+        # Store counter configuration
+        bot.member_counters[channel.id] = {
+            'template': template,
+            'original_name': channel.name,
+            'guild_id': interaction.guild.id
+        }
+        
+        # Update channel name immediately
+        member_count = interaction.guild.member_count
+        new_name = template.format(count=member_count)
+        
+        try:
+            await channel.edit(name=new_name)
+            
+            embed = discord.Embed(
+                title="🔢 Member Counter Setup",
+                description="Channel member counter has been configured",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
+            embed.add_field(name="📝 Template", value=template, inline=True)
+            embed.add_field(name="👥 Current Count", value=str(member_count), inline=True)
+            embed.add_field(name="🔄 Updates", value="Automatic when members join/leave", inline=False)
+            embed.set_footer(text="Channel name will update automatically")
+            
+            await interaction.response.send_message(embed=embed)
+            
+            # Log the setup
+            await create_tracking_message("🔢 Member Counter Setup", {
+                "📍 Channel": channel.mention,
+                "📝 Template": template,
+                "👨‍⚖️ Setup By": interaction.user.mention
+            }, EMBED_COLOR, f"COUNTER-{channel.id}")
+            
+        except discord.Forbidden:
+            await interaction.response.send_message("❌ I don't have permission to edit that channel name", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error setting up counter: {str(e)}", ephemeral=True)
+    
+    elif action == "remove":
+        if not channel:
+            await interaction.response.send_message("❌ Please specify a channel to remove member counting from", ephemeral=True)
+            return
+        
+        if channel.id not in bot.member_counters:
+            await interaction.response.send_message("❌ That channel doesn't have member counting enabled", ephemeral=True)
+            return
+        
+        # Restore original name
+        counter_data = bot.member_counters[channel.id]
+        original_name = counter_data.get('original_name', channel.name.split(' (')[0])
+        
+        try:
+            await channel.edit(name=original_name)
+            del bot.member_counters[channel.id]
+            
+            embed = discord.Embed(
+                title="🔢 Member Counter Removed",
+                description="Channel member counter has been disabled",
+                color=0xFF6B6B
+            )
+            embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
+            embed.add_field(name="🔄 Name Restored", value=original_name, inline=True)
+            
+            await interaction.response.send_message(embed=embed)
+            
+        except discord.Forbidden:
+            await interaction.response.send_message("❌ I don't have permission to edit that channel name", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error removing counter: {str(e)}", ephemeral=True)
+    
+    elif action == "list":
+        if not bot.member_counters:
+            embed = discord.Embed(
+                title="🔢 Member Counters",
+                description="No member counters are currently active",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="💡 Get Started", value="Use `/membercounter setup` to create a member counter", inline=False)
+        else:
+            embed = discord.Embed(
+                title="🔢 Active Member Counters",
+                description=f"Currently tracking member count in {len(bot.member_counters)} channel(s)",
+                color=EMBED_COLOR
+            )
+            
+            for channel_id, counter_data in bot.member_counters.items():
+                channel = bot.get_channel(channel_id)
+                if channel:
+                    embed.add_field(
+                        name=f"📍 {channel.name}",
+                        value=f"Template: `{counter_data['template']}`",
+                        inline=False
+                    )
+        
+        embed.set_footer(text="Member counters update automatically when members join/leave")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    elif action == "update":
+        if not bot.member_counters:
+            await interaction.response.send_message("❌ No member counters are active", ephemeral=True)
+            return
+        
+        updated_count = 0
+        for channel_id, counter_data in bot.member_counters.items():
+            channel = bot.get_channel(channel_id)
+            if channel and channel.guild.id == interaction.guild.id:
+                try:
+                    member_count = channel.guild.member_count
+                    new_name = counter_data['template'].format(count=member_count)
+                    await channel.edit(name=new_name)
+                    updated_count += 1
+                except:
+                    pass
+        
+        embed = discord.Embed(
+            title="🔄 Member Counters Updated",
+            description=f"Successfully updated {updated_count} member counter(s)",
+            color=EMBED_COLOR
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Event handler for member count updates
+@bot.event
+async def on_member_join(member):
+    """Update member count channels when someone joins"""
+    await update_member_count_channels(member.guild)
+
+@bot.event
+async def on_member_remove(member):
+    """Update member count channels when someone leaves"""
+    await update_member_count_channels(member.guild)
+
+async def update_member_count_channels(guild):
+    """Update all member count channels for a guild"""
+    if not hasattr(bot, 'member_counters'):
+        return
+    
+    for channel_id, counter_data in bot.member_counters.items():
+        if counter_data.get('guild_id') == guild.id:
+            channel = bot.get_channel(channel_id)
+            if channel:
+                try:
+                    member_count = guild.member_count
+                    new_name = counter_data['template'].format(count=member_count)
+                    
+                    # Only update if name has actually changed
+                    if channel.name != new_name:
+                        await channel.edit(name=new_name)
+                        logger.info(f"🔢 Updated member counter for {channel.name} to {member_count}")
+                        
+                except discord.HTTPException as e:
+                    # Rate limit or other HTTP error
+                    logger.warning(f"🔢 Failed to update member counter for {channel.name}: {e}")
+                except Exception as e:
+                    logger.error(f"🔢 Error updating member counter: {e}")
+
+
             
             embed = discord.Embed(
                 title="✅ Rules Agreement Confirmed",
