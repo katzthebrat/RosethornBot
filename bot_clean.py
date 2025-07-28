@@ -2929,7 +2929,8 @@ class RulesAgreementView(discord.ui.View):
 @discord.app_commands.describe(
     action="Action to perform with member counter",
     channel="Channel to update with member count",
-    template="Template for channel name (use {count} for member count)"
+    template="Template for channel name (use {count} for member count)",
+    count_type="What to count (members, humans, bots, or online)"
 )
 @discord.app_commands.choices(action=[
     discord.app_commands.Choice(name="Setup Channel", value="setup"),
@@ -2937,8 +2938,14 @@ class RulesAgreementView(discord.ui.View):
     discord.app_commands.Choice(name="List Active", value="list"),
     discord.app_commands.Choice(name="Update Now", value="update")
 ])
+@discord.app_commands.choices(count_type=[
+    discord.app_commands.Choice(name="All Members", value="all"),
+    discord.app_commands.Choice(name="Humans Only", value="humans"),
+    discord.app_commands.Choice(name="Bots Only", value="bots"),
+    discord.app_commands.Choice(name="Online Members", value="online")
+])
 @handle_errors
-async def membercounter_command(interaction: discord.Interaction, action: str = "list", channel: discord.TextChannel = None, template: str = ""):
+async def membercounter_command(interaction: discord.Interaction, action: str = "list", channel: discord.TextChannel = None, template: str = "", count_type: str = "all"):
     # Check if user has admin role
     if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
         await interaction.response.send_message("❌ Only administrators can manage member counters", ephemeral=True)
@@ -2965,11 +2972,27 @@ async def membercounter_command(interaction: discord.Interaction, action: str = 
         bot.member_counters[channel.id] = {
             'template': template,
             'original_name': channel.name,
-            'guild_id': interaction.guild.id
+            'guild_id': interaction.guild.id,
+            'count_type': count_type
         }
         
-        # Update channel name immediately
-        member_count = interaction.guild.member_count
+        # Calculate count based on type
+        if count_type == "all":
+            member_count = interaction.guild.member_count
+            count_description = "all members"
+        elif count_type == "humans":
+            member_count = len([m for m in interaction.guild.members if not m.bot])
+            count_description = "human members"
+        elif count_type == "bots":
+            member_count = len([m for m in interaction.guild.members if m.bot])
+            count_description = "bot members"
+        elif count_type == "online":
+            member_count = len([m for m in interaction.guild.members if m.status != discord.Status.offline and not m.bot])
+            count_description = "online members"
+        else:
+            member_count = interaction.guild.member_count
+            count_description = "all members"
+        
         new_name = template.format(count=member_count)
         
         try:
@@ -2982,7 +3005,8 @@ async def membercounter_command(interaction: discord.Interaction, action: str = 
             )
             embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
             embed.add_field(name="📝 Template", value=template, inline=True)
-            embed.add_field(name="👥 Current Count", value=str(member_count), inline=True)
+            embed.add_field(name="👥 Current Count", value=f"{member_count} ({count_description})", inline=True)
+            embed.add_field(name="🏷️ Count Type", value=count_type.title(), inline=True)
             embed.add_field(name="🔄 Updates", value="Automatic when members join/leave", inline=False)
             embed.set_footer(text="Channel name will update automatically")
             
@@ -3104,13 +3128,26 @@ async def update_member_count_channels(guild):
             channel = bot.get_channel(channel_id)
             if channel:
                 try:
-                    member_count = guild.member_count
+                    # Calculate count based on type
+                    count_type = counter_data.get('count_type', 'all')
+                    
+                    if count_type == "all":
+                        member_count = guild.member_count
+                    elif count_type == "humans":
+                        member_count = len([m for m in guild.members if not m.bot])
+                    elif count_type == "bots":
+                        member_count = len([m for m in guild.members if m.bot])
+                    elif count_type == "online":
+                        member_count = len([m for m in guild.members if m.status != discord.Status.offline and not m.bot])
+                    else:
+                        member_count = guild.member_count
+                    
                     new_name = counter_data['template'].format(count=member_count)
                     
                     # Only update if name has actually changed
                     if channel.name != new_name:
                         await channel.edit(name=new_name)
-                        logger.info(f"🔢 Updated member counter for {channel.name} to {member_count}")
+                        logger.info(f"🔢 Updated {count_type} counter for {channel.name} to {member_count}")
                         
                 except discord.HTTPException as e:
                     # Rate limit or other HTTP error
