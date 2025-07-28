@@ -2934,6 +2934,42 @@ class RulesAgreementView(discord.ui.View):
             await member.add_roles(rules_role)
 
 
+# Realm Code Joined Button View
+class RealmCodeJoinedView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    
+    @discord.ui.button(label="I've Joined the Realm", style=discord.ButtonStyle.success, emoji="✅")
+    async def joined_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Create thank you embed without the realm code
+        thank_you_embed = discord.Embed(
+            title="🌹 Thank You for Your Discretion",
+            description="The realm code has been removed from this message for security.",
+            color=0x00FF00
+        )
+        thank_you_embed.add_field(
+            name="🎉 Welcome to the Realm!",
+            value="Thank you for joining our Victorian manor realm! We appreciate your commitment to keeping our community secure by not sharing the realm code.",
+            inline=False
+        )
+        thank_you_embed.add_field(
+            name="🏰 What's Next?",
+            value="• Explore the realm and find a place to build\n• Follow all realm rules while playing\n• Ask staff if you need any assistance\n• Enjoy your time in our Victorian world!",
+            inline=False
+        )
+        thank_you_embed.add_field(
+            name="🔐 Security Notice",
+            value="The realm code has been hidden to protect our community. If you need it again, contact an administrator.",
+            inline=False
+        )
+        thank_you_embed.set_footer(text="Welcome to our Victorian manor realm! • Rosewood Administration")
+        
+        # Disable the button
+        for item in self.children:
+            item.disabled = True
+        
+        await interaction.response.edit_message(embed=thank_you_embed, view=self)
+
 # MEMBER COUNT CHANNEL UPDATER
 @bot.tree.command(name="realmcode", description="🗝️ Manage Minecraft realm access codes")
 @discord.app_commands.default_permissions(send_messages=True)
@@ -3129,7 +3165,9 @@ async def realmcode_command(interaction: discord.Interaction, action: str = "vie
             dm_embed.add_field(name="⚠️ Important", value="Keep this code private and don't share it without permission from administrators.", inline=False)
             dm_embed.set_footer(text=f"Granted by {interaction.user.display_name} • Enjoy the realm!")
             
-            await member.send(embed=dm_embed)
+            # Add the "Joined" button view
+            joined_view = RealmCodeJoinedView()
+            await member.send(embed=dm_embed, view=joined_view)
             dm_sent = True
         except:
             dm_sent = False
