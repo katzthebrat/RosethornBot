@@ -3635,11 +3635,53 @@ async def update_member_count_channels(guild):
         else:
             await interaction.response.send_message("❌ Rules role not found. Please contact an administrator.", ephemeral=True)
 
-@bot.tree.command(name="onboard", description="🌹 Begin your registration to Rosewood Manor")
-@discord.app_commands.default_permissions(send_messages=True)
+class OnboardingView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    
+    @discord.ui.button(label="Onboard", style=discord.ButtonStyle.primary, emoji="🌹")
+    async def onboard_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = OnboardingModal()
+        await interaction.response.send_modal(modal)
+
+@bot.tree.command(name="onboard", description="🌹 Post onboarding message for new members to join the realm")
+@discord.app_commands.default_permissions(manage_messages=True)
 async def onboard_command(interaction: discord.Interaction):
-    modal = OnboardingModal()
-    await interaction.response.send_modal(modal)
+    # Check if user has admin role
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can post onboarding messages", ephemeral=True)
+        return
+    
+    embed = discord.Embed(
+        title="🌹 Welcome to Rosewood Manor",
+        description="Greetings, distinguished guest! Welcome to our Victorian Gothic community where shadows dance with moonlight and every corner holds mysteries waiting to be discovered.",
+        color=EMBED_COLOR
+    )
+    
+    embed.add_field(
+        name="🏰 About Our Manor",
+        value="We are a Victorian Gothic themed Discord community and Minecraft realm focused on creativity, collaboration, and respectful manor life.",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="📋 Ready to Join?",
+        value="Click the **Onboard** button below to begin your registration process and gain access to our exclusive Minecraft realm!",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="🎭 What You'll Get:",
+        value="• Access to our Victorian manor channels\n• Minecraft realm code and permissions\n• Custom roles and manor features\n• Community events and activities",
+        inline=False
+    )
+    
+    embed.set_footer(text="Click below to start your journey • Rosewood Manor Administration")
+    
+    view = OnboardingView()
+    # Send as standalone message to channel, not as reply
+    await interaction.response.send_message("✅ Onboarding message posted!", ephemeral=True)
+    await interaction.channel.send(embed=embed, view=view)
 
 @bot.tree.command(name="rules", description="📜 View and agree to the manor rules")
 @discord.app_commands.default_permissions(send_messages=True)
