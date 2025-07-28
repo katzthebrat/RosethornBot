@@ -1863,6 +1863,15 @@ async def seed_quotes():
     db.session.commit()
 
 @bot.tree.command(name="voice", description="🎵 Voice channel activity and statistics")
+@discord.app_commands.describe(
+    action="Choose what voice information to display",
+    member="Member to check voice stats for (only for 'stats' action)"
+)
+@discord.app_commands.choices(action=[
+    discord.app_commands.Choice(name="Personal Stats", value="stats"),
+    discord.app_commands.Choice(name="Leaderboard", value="leaderboard"),
+    discord.app_commands.Choice(name="Live Channel Stats", value="channels")
+])
 async def voice_command(interaction: discord.Interaction, action: str = "stats", member: discord.Member = None):
     target = member or interaction.user
     
@@ -1947,6 +1956,77 @@ async def voice_command(interaction: discord.Interaction, action: str = "stats",
                     continue
         
         embed.set_footer(text="Active participation in manor voice channels")
+        await interaction.response.send_message(embed=embed)
+    
+    elif action == "channels":
+        # Real-time voice channel statistics
+        embed = discord.Embed(
+            title="🎵 Live Voice Channel Statistics",
+            description="Current activity across all manor voice chambers",
+            color=EMBED_COLOR
+        )
+        
+        # Overall statistics
+        total_voice_channels = len(interaction.guild.voice_channels)
+        total_users_in_voice = sum(len(vc.members) for vc in interaction.guild.voice_channels)
+        total_bots_in_voice = sum(len([m for m in vc.members if m.bot]) for vc in interaction.guild.voice_channels)
+        total_humans_in_voice = total_users_in_voice - total_bots_in_voice
+        active_channels = [vc for vc in interaction.guild.voice_channels if len(vc.members) > 0]
+        
+        embed.add_field(name="🏰 Total Voice Channels", value=str(total_voice_channels), inline=True)
+        embed.add_field(name="🎪 Active Channels", value=str(len(active_channels)), inline=True)
+        embed.add_field(name="👥 Total Users", value=str(total_users_in_voice), inline=True)
+        embed.add_field(name="👤 Humans", value=str(total_humans_in_voice), inline=True)
+        embed.add_field(name="🤖 Bots", value=str(total_bots_in_voice), inline=True)
+        embed.add_field(name="📊 Activity Rate", value=f"{(len(active_channels)/total_voice_channels)*100:.1f}%" if total_voice_channels > 0 else "0%", inline=True)
+        
+        # Show detailed info for active channels
+        if active_channels:
+            channel_details = []
+            for vc in active_channels[:8]:  # Limit to 8 channels to avoid embed limits
+                humans = [m for m in vc.members if not m.bot]
+                bots = [m for m in vc.members if m.bot]
+                
+                channel_info = f"**{vc.name}**\n"
+                channel_info += f"👤 {len(humans)} humans, 🤖 {len(bots)} bots"
+                
+                if len(humans) > 0:
+                    # Show first few human members
+                    member_names = [m.display_name for m in humans[:3]]
+                    if len(humans) > 3:
+                        member_names.append(f"... +{len(humans)-3} more")
+                    channel_info += f"\n👥 {', '.join(member_names)}"
+                
+                channel_details.append(channel_info)
+            
+            # Split into multiple fields if needed
+            if len(channel_details) <= 4:
+                embed.add_field(
+                    name="🎪 Active Voice Channels",
+                    value="\n\n".join(channel_details),
+                    inline=False
+                )
+            else:
+                # Split into two columns
+                mid = len(channel_details) // 2
+                embed.add_field(
+                    name="🎪 Active Channels (1/2)",
+                    value="\n\n".join(channel_details[:mid]),
+                    inline=True
+                )
+                embed.add_field(
+                    name="🎪 Active Channels (2/2)",
+                    value="\n\n".join(channel_details[mid:]),
+                    inline=True
+                )
+        else:
+            embed.add_field(
+                name="🔇 Voice Status",
+                value="No members currently in voice channels",
+                inline=False
+            )
+        
+        embed.set_footer(text="Live voice statistics • Updates in real-time")
         await interaction.response.send_message(embed=embed)
 
 def get_voice_rank(minutes):
