@@ -3029,17 +3029,28 @@ async def membercounter_command(interaction: discord.Interaction, action: str = 
             await interaction.response.send_message("❌ Please specify a channel to remove member counting from", ephemeral=True)
             return
         
-        if channel.id not in bot.member_counters:
-            await interaction.response.send_message("❌ That channel doesn't have member counting enabled", ephemeral=True)
+        # Check if counter exists in memory or if channel name suggests it has a counter
+        has_counter_data = channel.id in bot.member_counters
+        channel_name_has_counter = '(' in channel.name and ('member' in channel.name.lower() or any(char.isdigit() for char in channel.name))
+        
+        if not has_counter_data and not channel_name_has_counter:
+            await interaction.response.send_message("❌ That channel doesn't appear to have member counting enabled", ephemeral=True)
             return
         
-        # Restore original name
-        counter_data = bot.member_counters[channel.id]
-        original_name = counter_data.get('original_name', channel.name.split(' (')[0])
+        # Try to restore original name
+        if has_counter_data:
+            counter_data = bot.member_counters[channel.id]
+            original_name = counter_data.get('original_name', channel.name.split(' (')[0])
+        else:
+            # Guess original name by removing the counter part
+            original_name = channel.name.split(' (')[0]
         
         try:
             await channel.edit(name=original_name)
-            del bot.member_counters[channel.id]
+            
+            # Remove from memory if it exists
+            if has_counter_data:
+                del bot.member_counters[channel.id]
             
             embed = discord.Embed(
                 title="🔢 Member Counter Removed",
@@ -3048,6 +3059,9 @@ async def membercounter_command(interaction: discord.Interaction, action: str = 
             )
             embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
             embed.add_field(name="🔄 Name Restored", value=original_name, inline=True)
+            
+            if not has_counter_data:
+                embed.add_field(name="⚠️ Note", value="Counter was not in memory (likely due to bot restart), but channel name was reset", inline=False)
             
             await interaction.response.send_message(embed=embed)
             
