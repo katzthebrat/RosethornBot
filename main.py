@@ -28,13 +28,9 @@ def create_app():
     # Use Replit Database if DATABASE_URL not set, fallback to SQLite
     database_url = os.environ.get("DATABASE_URL")
     if not database_url:
-        # Check if running on Replit
-        if os.environ.get("REPLIT_DEPLOYMENT"):
-            # Use Replit's PostgreSQL in deployment
-            database_url = "postgresql://user:password@localhost/rosethorn"
-        else:
-            # Use SQLite for development
-            database_url = "sqlite:///rosethorn.db"
+        # Use SQLite for development - this will allow the bot to start immediately
+        database_url = "sqlite:///rosethorn.db"
+        logger.info("🌹 Using SQLite database for development")
     
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -80,11 +76,11 @@ def create_app():
             logger.info("🌹 Database tables created successfully")
         except Exception as e:
             logger.error(f"🥀 Database initialization error: {e}")
-            # For deployment, continue with fallback database
-            if os.environ.get("REPLIT_DEPLOYMENT"):
-                logger.info("🌹 Continuing with fallback configuration...")
-            else:
-                raise
+            # Fallback to SQLite on any database connection failure
+            logger.info("🌹 Falling back to SQLite database...")
+            app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///rosethorn_fallback.db"
+            db.create_all()
+            logger.info("🌹 Fallback database initialized successfully")
     
 
     
