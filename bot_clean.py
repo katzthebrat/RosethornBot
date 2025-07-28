@@ -644,6 +644,38 @@ class ApplicationReviewView(discord.ui.View):
             return
         
         try:
+            # Send DM to the applicant first
+            try:
+                dm_embed = discord.Embed(
+                    title="🥀 Application Update",
+                    description=f"Your {self.application_type} application for **{interaction.guild.name}** has been reviewed.",
+                    color=0xFF0000
+                )
+                dm_embed.add_field(
+                    name="📊 Decision",
+                    value="❌ **Application Denied**",
+                    inline=False
+                )
+                dm_embed.add_field(
+                    name="📝 Feedback",
+                    value="Your application did not meet our current requirements. You may reapply in the future after addressing any concerns.",
+                    inline=False
+                )
+                dm_embed.add_field(
+                    name="🔄 Next Steps",
+                    value="• Review our server rules and guidelines\n• Consider improving your application\n• You may reapply after some time",
+                    inline=False
+                )
+                dm_embed.set_footer(text="Thank you for your interest in our Victorian community")
+                
+                await self.applicant.send(embed=dm_embed)
+                logger.info(f"🌹 Sent denial DM to {self.applicant.display_name}")
+                
+            except discord.Forbidden:
+                logger.warning(f"🥀 Could not send DM to {self.applicant.display_name} - DMs blocked")
+            except Exception as dm_error:
+                logger.error(f"🥀 Error sending DM to {self.applicant.display_name}: {dm_error}")
+            
             # Find and update the tracking message
             log_channel = bot.get_channel(1320540890141556746)
             if log_channel:
@@ -659,7 +691,7 @@ class ApplicationReviewView(discord.ui.View):
                         }, 0xFF0000)
                         break
             
-            await interaction.response.send_message(f"❌ {self.applicant.mention}'s application has been denied.")
+            await interaction.response.send_message(f"❌ {self.applicant.mention}'s application has been denied. DM notification sent.")
             
             # Wait 10 seconds then delete thread
             await asyncio.sleep(10)
