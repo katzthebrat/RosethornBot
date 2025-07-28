@@ -3654,26 +3654,8 @@ async def onboard_command(interaction: discord.Interaction):
     
     embed = discord.Embed(
         title="🌹 Welcome to Rosewood Manor",
-        description="Greetings, distinguished guest! Welcome to our Victorian Gothic community where shadows dance with moonlight and every corner holds mysteries waiting to be discovered.",
+        description="Welcome to our Victorian Gothic Discord community and Minecraft realm! We're a creative community focused on collaboration and respectful manor life. Click the **Onboard** button below to register and gain access to our exclusive realm, channels, and community features.",
         color=EMBED_COLOR
-    )
-    
-    embed.add_field(
-        name="🏰 About Our Manor",
-        value="We are a Victorian Gothic themed Discord community and Minecraft realm focused on creativity, collaboration, and respectful manor life.",
-        inline=False
-    )
-    
-    embed.add_field(
-        name="📋 Ready to Join?",
-        value="Click the **Onboard** button below to begin your registration process and gain access to our exclusive Minecraft realm!",
-        inline=False
-    )
-    
-    embed.add_field(
-        name="🎭 What You'll Get:",
-        value="• Access to our Victorian manor channels\n• Minecraft realm code and permissions\n• Custom roles and manor features\n• Community events and activities",
-        inline=False
     )
     
     embed.set_footer(text="Click below to start your journey • Rosewood Manor Administration")
