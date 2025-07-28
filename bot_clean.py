@@ -3597,7 +3597,7 @@ async def commands_command(interaction: discord.Interaction):
     # Admin Tools
     embed.add_field(
         name="👑 Admin Tools",
-        value="`/sync` - Sync bot commands\n`/botstatus` - Bot performance metrics\n`/restart` - Restart bot process\n`/createform` - Custom modal forms\n`/showform` - Display custom forms",
+        value="`/sync` - Sync bot commands\n`/botstatus` - Bot performance metrics\n`/restart` - Restart bot process\n`/createform` - Custom modal forms\n`/showform` - Display custom forms\n`/dmall` - Send DM to all members",
         inline=False
     )
     
@@ -3622,6 +3622,153 @@ async def commands_command(interaction: discord.Interaction):
     
     embed.set_footer(text="Victorian manor bot • Use commands with elegance and grace")
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@bot.tree.command(name="dmall", description="📨 Send a direct message to all server members")
+@discord.app_commands.default_permissions(administrator=True)
+@discord.app_commands.describe(
+    message="The message to send to all members",
+    confirmation="Type 'CONFIRM' to proceed with mass DM"
+)
+@handle_errors
+async def dmall_command(interaction: discord.Interaction, message: str, confirmation: str = ""):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can send mass DMs", ephemeral=True)
+        return
+    
+    if confirmation.upper() != "CONFIRM":
+        embed = discord.Embed(
+            title="⚠️ Mass DM Confirmation Required",
+            description=f"This will send a DM to **{interaction.guild.member_count}** members in {interaction.guild.name}",
+            color=0xFF6B35
+        )
+        embed.add_field(
+            name="📝 Message Preview",
+            value=f"```{message[:500]}{'...' if len(message) > 500 else ''}```",
+            inline=False
+        )
+        embed.add_field(
+            name="⚠️ Warning",
+            value="• This action cannot be undone\n• Members may report spam\n• Use responsibly for important announcements only",
+            inline=False
+        )
+        embed.add_field(
+            name="✅ To Confirm",
+            value=f"`/dmall message:{message[:50]}... confirmation:CONFIRM`",
+            inline=False
+        )
+        embed.set_footer(text="Mass DM system • Use with extreme caution")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    # Start the mass DM process
+    await interaction.response.send_message("📨 Starting mass DM process...", ephemeral=True)
+    
+    # Create the DM embed
+    dm_embed = discord.Embed(
+        title="📢 Manor Announcement",
+        description=message,
+        color=EMBED_COLOR
+    )
+    dm_embed.add_field(
+        name="👑 From",
+        value=f"{interaction.guild.name} Administration",
+        inline=True
+    )
+    dm_embed.add_field(
+        name="📅 Date",
+        value=discord.utils.format_dt(datetime.now(), style='f'),
+        inline=True
+    )
+    dm_embed.set_footer(text=f"Sent from {interaction.guild.name} • Reply to this message will not reach staff")
+    
+    # Track results
+    successful_dms = 0
+    failed_dms = 0
+    blocked_dms = 0
+    
+    # Get all members (excluding bots)
+    members = [member for member in interaction.guild.members if not member.bot]
+    total_members = len(members)
+    
+    # Send progress update
+    progress_embed = discord.Embed(
+        title="📨 Mass DM in Progress",
+        description=f"Sending messages to {total_members} members...",
+        color=EMBED_COLOR
+    )
+    progress_embed.add_field(name="📊 Progress", value="0%", inline=True)
+    progress_embed.add_field(name="✅ Sent", value="0", inline=True)
+    progress_embed.add_field(name="❌ Failed", value="0", inline=True)
+    
+    try:
+        progress_msg = await interaction.followup.send(embed=progress_embed, ephemeral=True)
+    except:
+        progress_msg = None
+    
+    # Send DMs in batches to avoid rate limits
+    batch_size = 5
+    for i in range(0, len(members), batch_size):
+        batch = members[i:i + batch_size]
+        
+        for member in batch:
+            try:
+                await member.send(embed=dm_embed)
+                successful_dms += 1
+                await asyncio.sleep(1)  # Rate limit protection
+                
+            except discord.Forbidden:
+                blocked_dms += 1
+                logger.info(f"🥀 Could not DM {member.display_name} - DMs blocked")
+                
+            except Exception as e:
+                failed_dms += 1
+                logger.error(f"🥀 Error DMing {member.display_name}: {e}")
+        
+        # Update progress every batch
+        if progress_msg and i % (batch_size * 4) == 0:  # Update every 4 batches
+            progress_percent = int((i / len(members)) * 100)
+            progress_embed.set_field_at(0, name="📊 Progress", value=f"{progress_percent}%", inline=True)
+            progress_embed.set_field_at(1, name="✅ Sent", value=str(successful_dms), inline=True)
+            progress_embed.set_field_at(2, name="❌ Failed/Blocked", value=str(failed_dms + blocked_dms), inline=True)
+            
+            try:
+                await progress_msg.edit(embed=progress_embed)
+            except:
+                pass
+        
+        # Small delay between batches
+        await asyncio.sleep(2)
+    
+    # Final results
+    results_embed = discord.Embed(
+        title="✅ Mass DM Complete",
+        description="Mass direct message operation has finished",
+        color=0x00FF00
+    )
+    results_embed.add_field(name="📊 Total Members", value=str(total_members), inline=True)
+    results_embed.add_field(name="✅ Successfully Sent", value=str(successful_dms), inline=True)
+    results_embed.add_field(name="🚫 DMs Blocked", value=str(blocked_dms), inline=True)
+    results_embed.add_field(name="❌ Other Failures", value=str(failed_dms), inline=True)
+    results_embed.add_field(name="📈 Success Rate", value=f"{(successful_dms/total_members)*100:.1f}%", inline=True)
+    results_embed.add_field(name="👨‍⚖️ Sent By", value=interaction.user.mention, inline=True)
+    
+    if progress_msg:
+        try:
+            await progress_msg.edit(embed=results_embed)
+        except:
+            await interaction.followup.send(embed=results_embed, ephemeral=True)
+    else:
+        await interaction.followup.send(embed=results_embed, ephemeral=True)
+    
+    # Log the mass DM
+    await create_tracking_message("📨 Mass DM Sent", {
+        "👨‍⚖️ Sent By": interaction.user.mention,
+        "📊 Total Members": str(total_members),
+        "✅ Successful": str(successful_dms),
+        "❌ Failed": str(failed_dms + blocked_dms),
+        "💬 Message": message[:100] + ("..." if len(message) > 100 else "")
+    }, EMBED_COLOR, f"MASS-DM-{interaction.id}")
 
 @bot.tree.command(name="errortest", description="🧪 Test the elegant error message system")
 @discord.app_commands.default_permissions(administrator=True)
