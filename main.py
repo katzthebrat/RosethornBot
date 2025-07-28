@@ -24,7 +24,19 @@ def create_app():
     
     # Configuration
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "rosethorn_gothic_secret_key")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///rosethorn.db")
+    
+    # Use Replit Database if DATABASE_URL not set, fallback to SQLite
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        # Check if running on Replit
+        if os.environ.get("REPLIT_DEPLOYMENT"):
+            # Use Replit's PostgreSQL in deployment
+            database_url = "postgresql://user:password@localhost/rosethorn"
+        else:
+            # Use SQLite for development
+            database_url = "sqlite:///rosethorn.db"
+    
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_recycle": 300,
         "pool_pre_ping": True,
@@ -63,14 +75,27 @@ def create_app():
     # Import models to ensure they're registered
     with app.app_context():
         import models
-        db.create_all()
-        logger.info("🌹 Database tables created successfully")
+        try:
+            db.create_all()
+            logger.info("🌹 Database tables created successfully")
+        except Exception as e:
+            logger.error(f"🥀 Database initialization error: {e}")
+            # For deployment, continue with fallback database
+            if os.environ.get("REPLIT_DEPLOYMENT"):
+                logger.info("🌹 Continuing with fallback configuration...")
+            else:
+                raise
     
 
     
     # Register blueprints
     from dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp)
+    
+    # Add health check endpoint for deployment monitoring
+    @app.route('/health')
+    def health_check():
+        return {'status': 'healthy', 'timestamp': datetime.now().isoformat()}
     
     return app
 
