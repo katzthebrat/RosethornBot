@@ -3633,19 +3633,150 @@ async def commands_command(interaction: discord.Interaction):
     embed.set_footer(text="Victorian manor bot • Use commands with elegance and grace")
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="dmall", description="📨 Send a direct message to all server members")
+@bot.tree.command(name="dm", description="📨 Send a direct message to a specific member")
 @discord.app_commands.default_permissions(administrator=True)
 @discord.app_commands.describe(
-    message="The message to send to all members",
-    confirmation="Type 'CONFIRM' to proceed with mass DM"
+    member="The member to send the message to",
+    message="The message to send"
 )
 @handle_errors
-async def dmall_command(interaction: discord.Interaction, message: str, confirmation: str = ""):
+async def dm_command(interaction: discord.Interaction, member: discord.Member, message: str):
     # Check if user has admin role (1320538700656148541)
     if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
-        await interaction.response.send_message("❌ Only administrators can send mass DMs", ephemeral=True)
+        await interaction.response.send_message("❌ Only administrators can send DMs", ephemeral=True)
         return
     
+    # Create the DM embed
+    dm_embed = discord.Embed(
+        title="📢 Manor Message",
+        description=message,
+        color=EMBED_COLOR
+    )
+    dm_embed.add_field(
+        name="👑 From",
+        value=f"{interaction.guild.name} Administration",
+        inline=True
+    )
+    dm_embed.add_field(
+        name="📅 Date",
+        value=discord.utils.format_dt(datetime.now(), style='f'),
+        inline=True
+    )
+    dm_embed.set_footer(text=f"Sent from {interaction.guild.name} • Reply to this message will not reach staff")
+    
+    try:
+        await member.send(embed=dm_embed)
+        
+        # Confirmation embed
+        success_embed = discord.Embed(
+            title="✅ DM Sent Successfully",
+            description=f"Your message has been delivered to {member.display_name}",
+            color=0x00FF00
+        )
+        success_embed.add_field(name="👤 Recipient", value=member.mention, inline=True)
+        success_embed.add_field(name="💬 Message", value=message[:100] + ("..." if len(message) > 100 else ""), inline=False)
+        
+        await interaction.response.send_message(embed=success_embed, ephemeral=True)
+        
+        # Log the DM
+        await create_tracking_message("📨 Direct Message Sent", {
+            "👨‍⚖️ Sent By": interaction.user.mention,
+            "👤 Recipient": member.mention,
+            "💬 Message": message[:100] + ("..." if len(message) > 100 else "")
+        }, EMBED_COLOR, f"DM-{interaction.id}")
+        
+    except discord.Forbidden:
+        error_embed = discord.Embed(
+            title="❌ DM Failed",
+            description=f"Could not send DM to {member.display_name} - they may have DMs disabled",
+            color=0xFF0000
+        )
+        await interaction.response.send_message(embed=error_embed, ephemeral=True)
+        
+    except Exception as e:
+        error_embed = discord.Embed(
+            title="❌ DM Error",
+            description=f"An error occurred while sending the DM: {str(e)}",
+            color=0xFF0000
+        )
+        await interaction.response.send_message(embed=error_embed, ephemeral=True)
+
+@bot.tree.command(name="dmall", description="📨 Send a direct message to all server members or a specific member")
+@discord.app_commands.default_permissions(administrator=True)
+@discord.app_commands.describe(
+    message="The message to send",
+    confirmation="Type 'CONFIRM' to proceed with mass DM (not needed for single member)",
+    member="Optional: Send to specific member only (leave blank for all members)"
+)
+@handle_errors
+async def dmall_command(interaction: discord.Interaction, message: str, confirmation: str = "", member: discord.Member = None):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can send DMs", ephemeral=True)
+        return
+    
+    # Handle single member DM
+    if member:
+        # Create the DM embed
+        dm_embed = discord.Embed(
+            title="📢 Manor Message",
+            description=message,
+            color=EMBED_COLOR
+        )
+        dm_embed.add_field(
+            name="👑 From",
+            value=f"{interaction.guild.name} Administration",
+            inline=True
+        )
+        dm_embed.add_field(
+            name="📅 Date",
+            value=discord.utils.format_dt(datetime.now(), style='f'),
+            inline=True
+        )
+        dm_embed.set_footer(text=f"Sent from {interaction.guild.name} • Reply to this message will not reach staff")
+        
+        try:
+            await member.send(embed=dm_embed)
+            
+            # Confirmation embed
+            success_embed = discord.Embed(
+                title="✅ DM Sent Successfully",
+                description=f"Your message has been delivered to {member.display_name}",
+                color=0x00FF00
+            )
+            success_embed.add_field(name="👤 Recipient", value=member.mention, inline=True)
+            success_embed.add_field(name="💬 Message", value=message[:100] + ("..." if len(message) > 100 else ""), inline=False)
+            
+            await interaction.response.send_message(embed=success_embed, ephemeral=True)
+            
+            # Log the DM
+            await create_tracking_message("📨 Direct Message Sent", {
+                "👨‍⚖️ Sent By": interaction.user.mention,
+                "👤 Recipient": member.mention,
+                "💬 Message": message[:100] + ("..." if len(message) > 100 else "")
+            }, EMBED_COLOR, f"DM-{interaction.id}")
+            
+            return
+            
+        except discord.Forbidden:
+            error_embed = discord.Embed(
+                title="❌ DM Failed",
+                description=f"Could not send DM to {member.display_name} - they may have DMs disabled",
+                color=0xFF0000
+            )
+            await interaction.response.send_message(embed=error_embed, ephemeral=True)
+            return
+            
+        except Exception as e:
+            error_embed = discord.Embed(
+                title="❌ DM Error",
+                description=f"An error occurred while sending the DM: {str(e)}",
+                color=0xFF0000
+            )
+            await interaction.response.send_message(embed=error_embed, ephemeral=True)
+            return
+    
+    # Mass DM logic (existing code)
     if confirmation.upper() != "CONFIRM":
         embed = discord.Embed(
             title="⚠️ Mass DM Confirmation Required",
