@@ -2239,6 +2239,17 @@ async def spotlight_command(interaction: discord.Interaction, action: str = "cur
 
 @bot.tree.command(name="announce", description="📢 Create and schedule manor announcements")
 @discord.app_commands.default_permissions(manage_messages=True)
+@discord.app_commands.describe(
+    action="Choose how to send the announcement",
+    content="The announcement message content",
+    schedule="Schedule time (YYYY-MM-DD HH:MM) for scheduled announcements",
+    title="Optional custom title for the announcement"
+)
+@discord.app_commands.choices(action=[
+    discord.app_commands.Choice(name="Send Now", value="now"),
+    discord.app_commands.Choice(name="Schedule for Later", value="schedule"),
+    discord.app_commands.Choice(name="List Scheduled", value="list")
+])
 async def announce_command(interaction: discord.Interaction, action: str = "now", content: str = "", schedule: str = "", title: str = ""):
     # Check if user has admin role
     if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
@@ -2258,7 +2269,9 @@ async def announce_command(interaction: discord.Interaction, action: str = "now"
         embed.add_field(name="📅 Date", value=discord.utils.format_dt(datetime.now(), style='F'), inline=True)
         embed.set_footer(text="Official announcement from Rosewood Manor administration")
         
-        await interaction.response.send_message(embed=embed)
+        # Send as standalone message, not reply
+        await interaction.response.send_message("✅ Announcement posted!", ephemeral=True)
+        await interaction.channel.send(embed=embed)
         
         # Log the announcement
         await create_tracking_message("📢 Manor Announcement", {
