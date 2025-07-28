@@ -1183,8 +1183,6 @@ async def sticky_command(interaction: discord.Interaction, action: str = "status
         
         # No fields to add - keeping it simple with just title and description
         
-        embed.set_footer(text="📌 This message automatically stays at the bottom • Rosewood Manor")
-        
         try:
             # Send initial sticky message
             await interaction.response.send_message("✅ Creating auto-resending sticky message...", ephemeral=True)

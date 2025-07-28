@@ -90,8 +90,6 @@ class StickyMessageService:
             
             # No fields to add - keeping it simple with just title and description
             
-            embed.set_footer(text="📌 This message automatically stays at the bottom • Rosewood Manor")
-            
             # Send new sticky message
             new_message = await channel.send(embed=embed)
             sticky_config['last_message_id'] = new_message.id
