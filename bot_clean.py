@@ -2275,7 +2275,6 @@ async def announce_command(interaction: discord.Interaction, action: str = "now"
             return
         
         try:
-            from datetime import datetime
             schedule_time = datetime.strptime(schedule, "%Y-%m-%d %H:%M")
             
             from models import ScheduledAnnouncement
