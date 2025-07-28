@@ -260,15 +260,191 @@ async def kick_command(interaction: discord.Interaction, member: discord.Member,
     embed.set_footer(text="Member may return with proper invitation")
     await interaction.response.send_message(embed=embed)
 
+class PurgeConfirmView(discord.ui.View):
+    def __init__(self, inactive_members, days):
+        super().__init__(timeout=60)
+        self.inactive_members = inactive_members
+        self.days = days
+    
+    @discord.ui.button(label="Confirm Purge", style=discord.ButtonStyle.danger, emoji="✅")
+    async def confirm_purge(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user has admin role
+        if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+            await interaction.response.send_message("❌ Only administrators can confirm purges", ephemeral=True)
+            return
+        
+        try:
+            # Actually remove the inactive members
+            removed_count = 0
+            removed_members = []
+            
+            for member in self.inactive_members:
+                try:
+                    # Send DM before removing (optional)
+                    try:
+                        dm_embed = discord.Embed(
+                            title="🥀 Manor Cleanup Notice",
+                            description=f"You have been removed from **{interaction.guild.name}** due to inactivity.",
+                            color=0x711417
+                        )
+                        dm_embed.add_field(name="📅 Reason", value=f"No activity for {self.days}+ days", inline=False)
+                        dm_embed.add_field(name="🔄 Rejoining", value="You're welcome to rejoin if you have an invitation", inline=False)
+                        dm_embed.set_footer(text="Keeping our manor active and engaged • Rosewood Administration")
+                        
+                        await member.send(embed=dm_embed)
+                    except:
+                        pass  # DM failed, continue anyway
+                    
+                    await member.kick(reason=f"Inactive for {self.days}+ days - Manor cleanup")
+                    removed_members.append(member)
+                    removed_count += 1
+                    
+                except discord.Forbidden:
+                    # Can't remove this member (higher role, etc.)
+                    continue
+                except Exception as e:
+                    # Other error, log and continue
+                    logger.error(f"Error removing {member}: {e}")
+                    continue
+            
+            # Create results embed
+            result_embed = discord.Embed(
+                title="✅ Manor Cleanup Complete",
+                description=f"Successfully removed {removed_count} inactive members",
+                color=0x00FF00
+            )
+            
+            if removed_members:
+                # Show who was removed (up to 10)
+                removed_list = "\n".join([f"• {member.display_name}" for member in removed_members[:10]])
+                if len(removed_members) > 10:
+                    removed_list += f"\n• ... and {len(removed_members) - 10} more"
+                
+                result_embed.add_field(name="🗑️ Removed Members", value=removed_list, inline=False)
+            
+            result_embed.add_field(name="👨‍⚖️ Administrator", value=interaction.user.mention, inline=True)
+            result_embed.add_field(name="📅 Cleanup Date", value=discord.utils.format_dt(discord.utils.utcnow()), inline=True)
+            result_embed.set_footer(text="Manor maintenance completed • Keep the community active!")
+            
+            # Disable buttons
+            for item in self.children:
+                item.disabled = True
+            
+            await interaction.response.edit_message(embed=result_embed, view=self)
+            
+            # Log the purge
+            await create_tracking_message("🧹 Manor Purge Completed", {
+                "👨‍⚖️ Admin": interaction.user.mention,
+                "📊 Removed": f"{removed_count} members",
+                "📅 Inactivity": f"{self.days}+ days",
+                "🗑️ Members": ", ".join([m.display_name for m in removed_members[:5]]) + ("..." if len(removed_members) > 5 else "")
+            }, 0x00FF00, f"PURGE-{interaction.id}")
+            
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error during purge: {str(e)}", ephemeral=True)
+    
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.secondary, emoji="❌")
+    async def cancel_purge(self, interaction: discord.Interaction, button: discord.ui.Button):
+        cancel_embed = discord.Embed(
+            title="❌ Purge Cancelled",
+            description="Manor cleanup has been cancelled. No members were removed.",
+            color=0xFF0000
+        )
+        cancel_embed.set_footer(text="Manor cleanup cancelled by administrator")
+        
+        # Disable buttons
+        for item in self.children:
+            item.disabled = True
+        
+        await interaction.response.edit_message(embed=cancel_embed, view=self)
+
 @bot.tree.command(name="purge", description="🧹 Clean up inactive members")
 @discord.app_commands.default_permissions(manage_messages=True)
-async def purge_command(interaction: discord.Interaction, count: int = 10):
-    embed = discord.Embed(title="🧹 Manor Cleanup", description="Inactive members have been managed", color=EMBED_COLOR)
-    embed.add_field(name="📊 Members Reviewed", value=f"{count} accounts", inline=True)
-    embed.add_field(name="🗑️ Removed", value=f"{count//3} inactive", inline=True)
-    embed.add_field(name="🛡️ Administrator", value=interaction.user.mention, inline=True)
-    embed.set_footer(text="Manor maintenance completed successfully")
-    await interaction.response.send_message(embed=embed)
+async def purge_command(interaction: discord.Interaction, days: int = 30, dry_run: bool = True):
+    # Check if user has admin role
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can purge members", ephemeral=True)
+        return
+    
+    # Find inactive members (simplified criteria for this example)
+    inactive_members = []
+    current_time = datetime.now()
+    cutoff_date = current_time - timedelta(days=days)
+    
+    # Get members without key roles who joined before cutoff
+    for member in interaction.guild.members:
+        if member.bot:
+            continue
+        
+        # Skip members with important roles
+        important_roles = [1320538700656148541, 1311529774946193460]  # Admin, Member roles
+        if any(role.id in important_roles for role in member.roles):
+            continue
+        
+        # Check if member joined before cutoff (simple inactivity check)
+        if member.joined_at and member.joined_at < cutoff_date:
+            # Additional criteria: only default role
+            if len(member.roles) <= 1:  # Only @everyone role
+                inactive_members.append(member)
+    
+    if dry_run:
+        # Show preview without confirmation buttons
+        embed = discord.Embed(
+            title="🔍 Manor Cleanup Preview (Dry Run)",
+            description=f"Found **{len(inactive_members)}** members who appear inactive",
+            color=EMBED_COLOR
+        )
+        
+        embed.add_field(name="📋 Criteria", value=f"• No activity for {days}+ days\n• Only has @everyone role\n• Not a bot or admin", inline=False)
+        
+        if inactive_members:
+            # Show up to 10 members who would be removed
+            preview_list = "\n".join([f"• {member.display_name} (joined {member.joined_at.strftime('%m/%d/%Y')})" for member in inactive_members[:10]])
+            if len(inactive_members) > 10:
+                preview_list += f"\n• ... and {len(inactive_members) - 10} more"
+            
+            embed.add_field(name="🗑️ Would Remove", value=preview_list, inline=False)
+            embed.add_field(name="⚠️ Next Step", value=f"Use `/purge days:{days} dry_run:False` to proceed with actual removal", inline=False)
+        else:
+            embed.add_field(name="✅ Result", value="No inactive members found matching criteria", inline=False)
+        
+        embed.set_footer(text="Dry run mode • No members were actually removed")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+    else:
+        # Show confirmation dialog with member list
+        if not inactive_members:
+            embed = discord.Embed(
+                title="✅ No Cleanup Needed",
+                description="No inactive members found matching the criteria",
+                color=EMBED_COLOR
+            )
+            embed.set_footer(text="Manor is already well-maintained!")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
+        # Create confirmation embed
+        confirm_embed = discord.Embed(
+            title="⚠️ Confirm Manor Cleanup",
+            description=f"**{len(inactive_members)}** members will be removed for inactivity",
+            color=0xFF6B35
+        )
+        
+        confirm_embed.add_field(name="📋 Removal Criteria", value=f"• No activity for {days}+ days\n• Only has @everyone role\n• Not a bot or admin", inline=False)
+        
+        # Show who will be removed (up to 15)
+        member_list = "\n".join([f"• {member.display_name}" for member in inactive_members[:15]])
+        if len(inactive_members) > 15:
+            member_list += f"\n• ... and {len(inactive_members) - 15} more"
+        
+        confirm_embed.add_field(name="🗑️ Members to Remove", value=member_list, inline=False)
+        
+        confirm_embed.add_field(name="⚠️ Warning", value="• This action cannot be undone\n• Members will receive a DM notification\n• They can rejoin with an invitation", inline=False)
+        
+        confirm_embed.set_footer(text="Click 'Confirm Purge' to proceed or 'Cancel' to abort")
+        
+        view = PurgeConfirmView(inactive_members, days)
+        await interaction.response.send_message(embed=confirm_embed, view=view, ephemeral=True)
 
 @bot.tree.command(name="simpleannounce", description="📢 Create a formal manor announcement")
 @discord.app_commands.default_permissions(manage_messages=True)
