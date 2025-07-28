@@ -3065,7 +3065,7 @@ async def bot_status_command(interaction: discord.Interaction):
 @bot.tree.command(name="sync", description="🔄 Manually sync bot commands")
 @discord.app_commands.default_permissions(manage_messages=True)
 @handle_errors
-async def sync_command(interaction: discord.Interaction):
+async def sync_command(interaction: discord.Interaction, guild_only: bool = False):
     # Check if user has admin role (1320538700656148541)
     if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
         await interaction.response.send_message("❌ Only administrators can sync commands", ephemeral=True)
@@ -3074,23 +3074,33 @@ async def sync_command(interaction: discord.Interaction):
     await interaction.response.send_message("🔄 Syncing commands...", ephemeral=True)
     
     try:
-        # Sync globally
-        synced = await bot.tree.sync()
+        if guild_only:
+            # Sync only for current guild (faster)
+            guild_synced = await bot.tree.sync(guild=interaction.guild)
+            
+            embed = discord.Embed(
+                title="🔄 Guild Command Sync Complete",
+                description="Bot commands have been synchronized for this server only",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="🏰 Guild Sync", value=f"{len(guild_synced)} commands", inline=True)
+            embed.add_field(name="✅ Status", value="Guild sync successful", inline=True)
+            embed.set_footer(text="Commands should appear immediately in this server")
+        else:
+            # Sync globally and for guild
+            synced = await bot.tree.sync()
+            guild_synced = await bot.tree.sync(guild=interaction.guild)
+            
+            embed = discord.Embed(
+                title="🔄 Command Sync Complete",
+                description="Bot commands have been synchronized",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="🌐 Global Sync", value=f"{len(synced)} commands", inline=True)
+            embed.add_field(name="🏰 Guild Sync", value=f"{len(guild_synced)} commands", inline=True)
+            embed.add_field(name="✅ Status", value="Sync successful", inline=True)
+            embed.set_footer(text="Commands may take up to 1 hour to appear globally")
         
-        # Sync for current guild
-        guild_synced = await bot.tree.sync(guild=interaction.guild)
-        
-        embed = discord.Embed(
-            title="🔄 Command Sync Complete",
-            description="Bot commands have been synchronized",
-            color=EMBED_COLOR
-        )
-        
-        embed.add_field(name="🌐 Global Sync", value=f"{len(synced)} commands", inline=True)
-        embed.add_field(name="🏰 Guild Sync", value=f"{len(guild_synced)} commands", inline=True)
-        embed.add_field(name="✅ Status", value="Sync successful", inline=True)
-        
-        embed.set_footer(text="Commands may take up to 1 hour to appear globally")
         await interaction.followup.send(embed=embed, ephemeral=True)
         
     except Exception as e:
