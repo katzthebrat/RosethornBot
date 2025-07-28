@@ -25,12 +25,11 @@ def create_app():
     # Configuration
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "rosethorn_gothic_secret_key")
     
-    # Use Replit Database if DATABASE_URL not set, fallback to SQLite
+    # Use Replit Database - should be automatically set when you create a database
     database_url = os.environ.get("DATABASE_URL")
     if not database_url:
-        # Use SQLite for development - this will allow the bot to start immediately
-        database_url = "sqlite:///rosethorn.db"
-        logger.info("🌹 Using SQLite database for development")
+        logger.error("🥀 DATABASE_URL not found! Please create a database in Replit.")
+        raise ValueError("DATABASE_URL environment variable is required")
     
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -76,11 +75,8 @@ def create_app():
             logger.info("🌹 Database tables created successfully")
         except Exception as e:
             logger.error(f"🥀 Database initialization error: {e}")
-            # Fallback to SQLite on any database connection failure
-            logger.info("🌹 Falling back to SQLite database...")
-            app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///rosethorn_fallback.db"
-            db.create_all()
-            logger.info("🌹 Fallback database initialized successfully")
+            logger.error("🥀 Please check your DATABASE_URL environment variable")
+            raise
     
 
     
