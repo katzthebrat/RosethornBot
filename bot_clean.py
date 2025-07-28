@@ -2255,7 +2255,6 @@ async def announce_command(interaction: discord.Interaction, action: str = "now"
             description=content,
             color=EMBED_COLOR
         )
-        embed.add_field(name="👨‍⚖️ Announced By", value=interaction.user.mention, inline=True)
         embed.add_field(name="📅 Date", value=discord.utils.format_dt(datetime.now(), style='F'), inline=True)
         embed.set_footer(text="Official announcement from Rosewood Manor administration")
         
