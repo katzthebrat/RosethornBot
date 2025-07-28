@@ -2996,7 +2996,21 @@ async def membercounter_command(interaction: discord.Interaction, action: str = 
         new_name = template.format(count=member_count)
         
         try:
-            await channel.edit(name=new_name)
+            # First respond to the interaction to prevent timeout
+            await interaction.response.defer()
+            
+            # Try to update the channel name
+            try:
+                await channel.edit(name=new_name)
+                channel_updated = True
+                status_message = "Channel name updated successfully"
+            except discord.HTTPException as e:
+                if e.status == 429:  # Rate limited
+                    channel_updated = False
+                    retry_after = getattr(e, 'retry_after', 300)  # Default to 5 minutes
+                    status_message = f"⚠️ Rate limited. Channel will update in ~{int(retry_after/60)} minutes"
+                else:
+                    raise e
             
             embed = discord.Embed(
                 title="🔢 Member Counter Setup",
@@ -3005,24 +3019,34 @@ async def membercounter_command(interaction: discord.Interaction, action: str = 
             )
             embed.add_field(name="📍 Channel", value=channel.mention, inline=True)
             embed.add_field(name="📝 Template", value=template, inline=True)
-            embed.add_field(name="👥 Current Count", value=f"{member_count} ({count_description})", inline=True)
+            embed.add_field(name="👥 Target Count", value=f"{member_count} ({count_description})", inline=True)
             embed.add_field(name="🏷️ Count Type", value=count_type.title(), inline=True)
             embed.add_field(name="🔄 Updates", value="Automatic when members join/leave", inline=False)
-            embed.set_footer(text="Channel name will update automatically")
+            embed.add_field(name="📊 Status", value=status_message, inline=False)
             
-            await interaction.response.send_message(embed=embed)
+            if not channel_updated:
+                embed.add_field(
+                    name="💡 Note", 
+                    value="Counter is active and will update the channel name when rate limits reset", 
+                    inline=False
+                )
+            
+            embed.set_footer(text="Counter configured successfully • May be delayed due to Discord rate limits")
+            
+            await interaction.followup.send(embed=embed)
             
             # Log the setup
             await create_tracking_message("🔢 Member Counter Setup", {
                 "📍 Channel": channel.mention,
                 "📝 Template": template,
-                "👨‍⚖️ Setup By": interaction.user.mention
+                "👨‍⚖️ Setup By": interaction.user.mention,
+                "⚠️ Rate Limited": "Yes" if not channel_updated else "No"
             }, EMBED_COLOR, f"COUNTER-{channel.id}")
             
         except discord.Forbidden:
-            await interaction.response.send_message("❌ I don't have permission to edit that channel name", ephemeral=True)
+            await interaction.followup.send("❌ I don't have permission to edit that channel name", ephemeral=True)
         except Exception as e:
-            await interaction.response.send_message(f"❌ Error setting up counter: {str(e)}", ephemeral=True)
+            await interaction.followup.send(f"❌ Error setting up counter: {str(e)}", ephemeral=True)
     
     elif action == "remove":
         if not channel:
@@ -3137,10 +3161,24 @@ async def update_member_count_channels(guild):
     if not hasattr(bot, 'member_counters'):
         return
     
+    # Add rate limit tracking
+    if not hasattr(bot, 'counter_rate_limits'):
+        bot.counter_rate_limits = {}
+    
     for channel_id, counter_data in bot.member_counters.items():
         if counter_data.get('guild_id') == guild.id:
             channel = bot.get_channel(channel_id)
             if channel:
+                # Check if channel is rate limited
+                rate_limit_key = f"counter_{channel_id}"
+                if rate_limit_key in bot.counter_rate_limits:
+                    if datetime.now() < bot.counter_rate_limits[rate_limit_key]:
+                        logger.info(f"🔢 Skipping {channel.name} - still rate limited")
+                        continue
+                    else:
+                        # Rate limit expired, remove it
+                        del bot.counter_rate_limits[rate_limit_key]
+                
                 try:
                     # Calculate count based on type
                     count_type = counter_data.get('count_type', 'all')
@@ -3164,8 +3202,12 @@ async def update_member_count_channels(guild):
                         logger.info(f"🔢 Updated {count_type} counter for {channel.name} to {member_count}")
                         
                 except discord.HTTPException as e:
-                    # Rate limit or other HTTP error
-                    logger.warning(f"🔢 Failed to update member counter for {channel.name}: {e}")
+                    if e.status == 429:  # Rate limited
+                        retry_after = getattr(e, 'retry_after', 600)  # Default to 10 minutes
+                        bot.counter_rate_limits[rate_limit_key] = datetime.now() + timedelta(seconds=retry_after)
+                        logger.warning(f"🔢 Rate limited updating {channel.name}, will retry in {int(retry_after/60)} minutes")
+                    else:
+                        logger.warning(f"🔢 HTTP error updating member counter for {channel.name}: {e}")
                 except Exception as e:
                     logger.error(f"🔢 Error updating member counter: {e}")
 
