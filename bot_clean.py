@@ -3534,6 +3534,95 @@ async def list_forms_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # Add error demonstration commands
+@bot.tree.command(name="commands", description="📋 View all available bot commands organized by category")
+@discord.app_commands.default_permissions(send_messages=True)
+@handle_errors
+async def commands_command(interaction: discord.Interaction):
+    """Display comprehensive list of all bot commands"""
+    embed = discord.Embed(
+        title="📋 RosethornBot Command Directory",
+        description="Complete guide to our Victorian manor's capabilities",
+        color=EMBED_COLOR
+    )
+    
+    # Economy Commands
+    embed.add_field(
+        name="💰 Economy & Currency",
+        value="`/balance` - Check rosebud balance\n`/daily` - Daily reward claim\n`/shop` - Browse manor boutique\n`/transfer` - Send rosebuds to others\n`/work` - Earn through manor jobs",
+        inline=False
+    )
+    
+    # Moderation Commands (Admin Only)
+    embed.add_field(
+        name="🛡️ Moderation (Admin Only)",
+        value="`/warn` - Issue formal warnings\n`/mute` - Temporarily silence members\n`/ban` - Permanent banishment\n`/kick` - Temporary removal\n`/purgechat` - Delete multiple messages\n`/deletechannel` - Remove channels/threads",
+        inline=False
+    )
+    
+    # Support & Applications
+    embed.add_field(
+        name="🎫 Support & Applications",
+        value="`/tickets` - Create support tickets\n`/apply` - Apply for manor positions\n`/rosenotes` - Member lore system",
+        inline=False
+    )
+    
+    # Engagement & Social
+    embed.add_field(
+        name="🎭 Engagement & Social",
+        value="`/level` - Check experience & rank\n`/leaderboard` - Top manor residents\n`/trivia` - Victorian knowledge test\n`/riddle` - Gothic puzzles\n`/giveaway` - Host community events\n`/reputation` - Victorian virtue system",
+        inline=False
+    )
+    
+    # Utility & Information
+    embed.add_field(
+        name="⚙️ Utility & Information",
+        value="`/serverinfo` - Manor statistics\n`/avatar` - Member portraits\n`/invite` - Create invitations\n`/afk` - Set away status\n`/voice` - Voice activity stats",
+        inline=False
+    )
+    
+    # Manor Management
+    embed.add_field(
+        name="🏰 Manor Management",
+        value="`/event` - Create manor gatherings\n`/quote` - Victorian wisdom collection\n`/spotlight` - Weekly member recognition\n`/announce` - Manor proclamations\n`/rolemanage` - Custom role assignment",
+        inline=False
+    )
+    
+    # Special Features
+    embed.add_field(
+        name="✨ Special Features",
+        value="`/sticky` - Auto-resending messages\n`/onboard` - New member registration\n`/rules` - View & agree to rules\n`/tutorial` - Guided manor tour\n`/welcomebanner` - Animated welcome setup",
+        inline=False
+    )
+    
+    # Admin Tools
+    embed.add_field(
+        name="👑 Admin Tools",
+        value="`/sync` - Sync bot commands\n`/botstatus` - Bot performance metrics\n`/restart` - Restart bot process\n`/createform` - Custom modal forms\n`/showform` - Display custom forms",
+        inline=False
+    )
+    
+    # AI & Testing
+    embed.add_field(
+        name="🤖 AI & Testing",
+        value="`/aitest` - Test sentiment analysis\n`/aiinfo` - AI feature information\n`/errortest` - Error system testing",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="📊 Command Statistics",
+        value=f"**Total Commands:** 48+\n**Categories:** 9\n**Admin Commands:** 15+\n**Member Commands:** 30+",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🌹 Getting Started",
+        value="New to the manor? Try:\n• `/tutorial` for guided tour\n• `/balance` to check currency\n• `/rules` to read guidelines\n• `/onboard` to register",
+        inline=True
+    )
+    
+    embed.set_footer(text="Victorian manor bot • Use commands with elegance and grace")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 @bot.tree.command(name="errortest", description="🧪 Test the elegant error message system")
 @discord.app_commands.default_permissions(administrator=True)
 @discord.app_commands.describe(error_type="Type of error to demonstrate")
