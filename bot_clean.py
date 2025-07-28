@@ -2935,6 +2935,355 @@ class RulesAgreementView(discord.ui.View):
 
 
 # MEMBER COUNT CHANNEL UPDATER
+@bot.tree.command(name="realmcode", description="🗝️ Manage Minecraft realm access codes")
+@discord.app_commands.default_permissions(send_messages=True)
+@discord.app_commands.describe(
+    action="Action to perform with realm codes",
+    code="The realm code to set (admin only)",
+    member="Member to grant access to (admin only)"
+)
+@discord.app_commands.choices(action=[
+    discord.app_commands.Choice(name="Setup Realm Code", value="setup"),
+    discord.app_commands.Choice(name="View Current Code", value="view"),
+    discord.app_commands.Choice(name="Request Access", value="request"),
+    discord.app_commands.Choice(name="Grant Access", value="grant"),
+    discord.app_commands.Choice(name="Revoke Access", value="revoke"),
+    discord.app_commands.Choice(name="List Authorized", value="list"),
+    discord.app_commands.Choice(name="Change Code", value="change")
+])
+@handle_errors
+async def realmcode_command(interaction: discord.Interaction, action: str = "view", code: str = "", member: discord.Member = None):
+    """Manage Minecraft realm access codes and permissions"""
+    
+    # Initialize realm code storage if not exists
+    if not hasattr(bot, 'realm_codes'):
+        bot.realm_codes = {}
+    
+    guild_id = interaction.guild.id
+    is_admin = hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)
+    
+    if action == "setup":
+        if not is_admin:
+            await interaction.response.send_message("❌ Only administrators can setup realm codes", ephemeral=True)
+            return
+        
+        if not code:
+            await interaction.response.send_message("❌ Please provide a realm code to set up", ephemeral=True)
+            return
+        
+        # Initialize guild realm data
+        bot.realm_codes[guild_id] = {
+            'code': code,
+            'authorized_members': set(),
+            'setup_by': interaction.user.id,
+            'setup_date': datetime.now(),
+            'access_requests': []
+        }
+        
+        embed = discord.Embed(
+            title="🗝️ Realm Code Setup Complete",
+            description="Minecraft realm access has been configured for this manor",
+            color=EMBED_COLOR
+        )
+        embed.add_field(name="🔐 Code Set", value="✅ Realm code securely stored", inline=True)
+        embed.add_field(name="👨‍⚖️ Setup By", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Date", value=discord.utils.format_dt(datetime.now(), style='d'), inline=True)
+        embed.add_field(name="⚙️ Access Control", value="• Admins have automatic access\n• Members must request access\n• Use `/realmcode grant` to approve", inline=False)
+        embed.set_footer(text="Realm code management system active • Victorian manor security")
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        # Log the setup
+        await create_tracking_message("🗝️ Realm Code Setup", {
+            "👨‍⚖️ Setup By": interaction.user.mention,
+            "🏰 Guild": interaction.guild.name,
+            "📅 Date": discord.utils.format_dt(datetime.now(), style='f')
+        }, EMBED_COLOR, f"REALM-SETUP-{guild_id}")
+    
+    elif action == "view":
+        if guild_id not in bot.realm_codes:
+            embed = discord.Embed(
+                title="🗝️ No Realm Code Set",
+                description="No Minecraft realm has been configured for this manor",
+                color=EMBED_COLOR
+            )
+            if is_admin:
+                embed.add_field(name="💡 Admin Setup", value="Use `/realmcode setup <code>` to configure realm access", inline=False)
+            else:
+                embed.add_field(name="📋 Information", value="Contact an administrator to set up realm access", inline=False)
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
+        realm_data = bot.realm_codes[guild_id]
+        
+        if is_admin or interaction.user.id in realm_data['authorized_members']:
+            # Show code to authorized users
+            embed = discord.Embed(
+                title="🗝️ Minecraft Realm Access",
+                description="Your access to the Victorian manor realm",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="🔐 Realm Code", value=f"```{realm_data['code']}```", inline=False)
+            embed.add_field(name="📋 Instructions", value="1. Open Minecraft\n2. Go to 'Play' → 'Friends'\n3. Click 'Join Realm'\n4. Enter the code above", inline=False)
+            embed.add_field(name="⚠️ Important", value="Keep this code private • Do not share without permission", inline=False)
+            embed.set_footer(text="Enjoy your time in our Victorian realm!")
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            # Show request option to unauthorized users
+            embed = discord.Embed(
+                title="🗝️ Realm Access Required",
+                description="You need permission to access the Victorian manor realm",
+                color=EMBED_COLOR
+            )
+            embed.add_field(name="📋 Access Status", value="❌ **Not Authorized**", inline=True)
+            embed.add_field(name="👥 Authorized Members", value=str(len(realm_data['authorized_members'])), inline=True)
+            embed.add_field(name="🎫 Request Access", value="Use `/realmcode request` to request realm access", inline=False)
+            embed.add_field(name="📜 Requirements", value="• Follow all manor rules\n• Complete registration if required\n• Admin approval needed", inline=False)
+            embed.set_footer(text="Realm access is granted by manor administrators")
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    elif action == "request":
+        if guild_id not in bot.realm_codes:
+            await interaction.response.send_message("❌ No realm has been configured for this server", ephemeral=True)
+            return
+        
+        realm_data = bot.realm_codes[guild_id]
+        
+        if interaction.user.id in realm_data['authorized_members']:
+            await interaction.response.send_message("✅ You already have realm access! Use `/realmcode view` to see the code", ephemeral=True)
+            return
+        
+        # Check if already requested
+        if any(req['user_id'] == interaction.user.id for req in realm_data['access_requests']):
+            await interaction.response.send_message("⏳ You already have a pending access request", ephemeral=True)
+            return
+        
+        # Add request
+        request_data = {
+            'user_id': interaction.user.id,
+            'username': interaction.user.display_name,
+            'requested_at': datetime.now(),
+            'status': 'pending'
+        }
+        realm_data['access_requests'].append(request_data)
+        
+        # Send confirmation to user
+        embed = discord.Embed(
+            title="🎫 Realm Access Request Submitted",
+            description="Your request to join the Victorian manor realm has been submitted",
+            color=EMBED_COLOR
+        )
+        embed.add_field(name="📋 Status", value="⏳ **Pending Admin Review**", inline=True)
+        embed.add_field(name="👤 Requested By", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Submitted", value=discord.utils.format_dt(datetime.now(), style='R'), inline=True)
+        embed.add_field(name="⏰ Next Steps", value="• Admins will review your request\n• You'll be notified of the decision\n• Check `/realmcode view` after approval", inline=False)
+        embed.set_footer(text="Thank you for your patience • Manor administration")
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        # Notify admins in logging channel
+        await create_tracking_message("🎫 Realm Access Request", {
+            "👤 Requested By": interaction.user.mention,
+            "📅 Date": discord.utils.format_dt(datetime.now(), style='f'),
+            "⚠️ Action Required": "Admin approval needed"
+        }, 0xFFA500, f"REALM-REQ-{interaction.user.id}")
+    
+    elif action == "grant":
+        if not is_admin:
+            await interaction.response.send_message("❌ Only administrators can grant realm access", ephemeral=True)
+            return
+        
+        if not member:
+            await interaction.response.send_message("❌ Please specify a member to grant access to", ephemeral=True)
+            return
+        
+        if guild_id not in bot.realm_codes:
+            await interaction.response.send_message("❌ No realm code has been set up yet", ephemeral=True)
+            return
+        
+        realm_data = bot.realm_codes[guild_id]
+        
+        if member.id in realm_data['authorized_members']:
+            await interaction.response.send_message(f"✅ {member.display_name} already has realm access", ephemeral=True)
+            return
+        
+        # Grant access
+        realm_data['authorized_members'].add(member.id)
+        
+        # Remove from pending requests if exists
+        realm_data['access_requests'] = [req for req in realm_data['access_requests'] if req['user_id'] != member.id]
+        
+        # Send DM to member with code
+        try:
+            dm_embed = discord.Embed(
+                title="🗝️ Realm Access Granted!",
+                description=f"Welcome to the **{interaction.guild.name}** Minecraft realm!",
+                color=0x00FF00
+            )
+            dm_embed.add_field(name="🔐 Realm Code", value=f"```{realm_data['code']}```", inline=False)
+            dm_embed.add_field(name="📋 How to Join", value="1. Open Minecraft\n2. Go to 'Play' → 'Friends'\n3. Click 'Join Realm'\n4. Enter the code above", inline=False)
+            dm_embed.add_field(name="📜 Realm Rules", value="• Follow all server rules in-game\n• Be respectful to other players\n• No griefing or stealing\n• Ask staff if you need help", inline=False)
+            dm_embed.add_field(name="⚠️ Important", value="Keep this code private and don't share it without permission from administrators.", inline=False)
+            dm_embed.set_footer(text=f"Granted by {interaction.user.display_name} • Enjoy the realm!")
+            
+            await member.send(embed=dm_embed)
+            dm_sent = True
+        except:
+            dm_sent = False
+        
+        # Confirmation embed
+        embed = discord.Embed(
+            title="✅ Realm Access Granted",
+            description=f"**{member.display_name}** now has access to the manor realm",
+            color=0x00FF00
+        )
+        embed.add_field(name="👤 Member", value=member.mention, inline=True)
+        embed.add_field(name="👨‍⚖️ Granted By", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Date", value=discord.utils.format_dt(datetime.now(), style='d'), inline=True)
+        embed.add_field(name="💌 DM Status", value="✅ Code sent" if dm_sent else "❌ DM failed", inline=True)
+        embed.add_field(name="👥 Total Authorized", value=str(len(realm_data['authorized_members'])), inline=True)
+        
+        await interaction.response.send_message(embed=embed)
+        
+        # Log the grant
+        await create_tracking_message("✅ Realm Access Granted", {
+            "👤 Member": member.mention,
+            "👨‍⚖️ Granted By": interaction.user.mention,
+            "💌 DM Sent": "Yes" if dm_sent else "No"
+        }, 0x00FF00, f"REALM-GRANT-{member.id}")
+    
+    elif action == "revoke":
+        if not is_admin:
+            await interaction.response.send_message("❌ Only administrators can revoke realm access", ephemeral=True)
+            return
+        
+        if not member:
+            await interaction.response.send_message("❌ Please specify a member to revoke access from", ephemeral=True)
+            return
+        
+        if guild_id not in bot.realm_codes:
+            await interaction.response.send_message("❌ No realm code has been set up yet", ephemeral=True)
+            return
+        
+        realm_data = bot.realm_codes[guild_id]
+        
+        if member.id not in realm_data['authorized_members']:
+            await interaction.response.send_message(f"❌ {member.display_name} doesn't have realm access", ephemeral=True)
+            return
+        
+        # Revoke access
+        realm_data['authorized_members'].remove(member.id)
+        
+        embed = discord.Embed(
+            title="🚫 Realm Access Revoked",
+            description=f"**{member.display_name}**'s access to the manor realm has been revoked",
+            color=0xFF0000
+        )
+        embed.add_field(name="👤 Member", value=member.mention, inline=True)
+        embed.add_field(name="👨‍⚖️ Revoked By", value=interaction.user.mention, inline=True)
+        embed.add_field(name="👥 Remaining Authorized", value=str(len(realm_data['authorized_members'])), inline=True)
+        
+        await interaction.response.send_message(embed=embed)
+        
+        # Log the revocation
+        await create_tracking_message("🚫 Realm Access Revoked", {
+            "👤 Member": member.mention,
+            "👨‍⚖️ Revoked By": interaction.user.mention
+        }, 0xFF0000, f"REALM-REVOKE-{member.id}")
+    
+    elif action == "list":
+        if not is_admin:
+            await interaction.response.send_message("❌ Only administrators can view the access list", ephemeral=True)
+            return
+        
+        if guild_id not in bot.realm_codes:
+            await interaction.response.send_message("❌ No realm code has been set up yet", ephemeral=True)
+            return
+        
+        realm_data = bot.realm_codes[guild_id]
+        
+        embed = discord.Embed(
+            title="🗝️ Realm Access Management",
+            description=f"Minecraft realm access for **{interaction.guild.name}**",
+            color=EMBED_COLOR
+        )
+        
+        # Authorized members
+        if realm_data['authorized_members']:
+            authorized_list = []
+            for user_id in list(realm_data['authorized_members'])[:10]:  # Limit to 10
+                user = bot.get_user(user_id)
+                if user:
+                    authorized_list.append(f"• {user.display_name}")
+            
+            embed.add_field(
+                name=f"✅ Authorized Members ({len(realm_data['authorized_members'])})",
+                value="\n".join(authorized_list) if authorized_list else "None",
+                inline=False
+            )
+        else:
+            embed.add_field(name="✅ Authorized Members", value="None", inline=False)
+        
+        # Pending requests
+        if realm_data['access_requests']:
+            pending_list = []
+            for req in realm_data['access_requests'][:5]:  # Limit to 5
+                pending_list.append(f"• {req['username']} ({discord.utils.format_dt(req['requested_at'], style='R')})")
+            
+            embed.add_field(
+                name=f"⏳ Pending Requests ({len(realm_data['access_requests'])})",
+                value="\n".join(pending_list),
+                inline=False
+            )
+        else:
+            embed.add_field(name="⏳ Pending Requests", value="None", inline=False)
+        
+        embed.add_field(
+            name="📋 Management Commands",
+            value="`/realmcode grant @member` - Grant access\n`/realmcode revoke @member` - Revoke access",
+            inline=False
+        )
+        
+        embed.set_footer(text="Realm access management • Victorian manor security")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    elif action == "change":
+        if not is_admin:
+            await interaction.response.send_message("❌ Only administrators can change the realm code", ephemeral=True)
+            return
+        
+        if not code:
+            await interaction.response.send_message("❌ Please provide the new realm code", ephemeral=True)
+            return
+        
+        if guild_id not in bot.realm_codes:
+            await interaction.response.send_message("❌ No realm code has been set up yet. Use `/realmcode setup` first", ephemeral=True)
+            return
+        
+        old_code = bot.realm_codes[guild_id]['code']
+        bot.realm_codes[guild_id]['code'] = code
+        
+        embed = discord.Embed(
+            title="🔄 Realm Code Updated",
+            description="The Victorian manor realm code has been changed",
+            color=EMBED_COLOR
+        )
+        embed.add_field(name="👨‍⚖️ Changed By", value=interaction.user.mention, inline=True)
+        embed.add_field(name="📅 Date", value=discord.utils.format_dt(datetime.now(), style='d'), inline=True)
+        embed.add_field(name="⚠️ Notice", value=f"All authorized members ({len(bot.realm_codes[guild_id]['authorized_members'])}) will need the new code", inline=False)
+        embed.set_footer(text="Consider notifying authorized members of the code change")
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        # Log the change
+        await create_tracking_message("🔄 Realm Code Changed", {
+            "👨‍⚖️ Changed By": interaction.user.mention,
+            "👥 Affected Members": str(len(bot.realm_codes[guild_id]['authorized_members']))
+        }, EMBED_COLOR, f"REALM-CHANGE-{guild_id}")
+
 @bot.tree.command(name="membercounter", description="🔢 Set up automatic member count in channel names")
 @discord.app_commands.default_permissions(manage_channels=True)
 @discord.app_commands.describe(
