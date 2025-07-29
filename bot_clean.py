@@ -4704,6 +4704,142 @@ async def dm_command(interaction: discord.Interaction, member: discord.Member, m
         )
         await interaction.response.send_message(embed=error_embed, ephemeral=True)
 
+@bot.tree.command(name="dmrole", description="📨 Send a direct message to all members with a specific role")
+@discord.app_commands.default_permissions(administrator=True)
+@discord.app_commands.describe(
+    role="The role whose members will receive the message",
+    message="The message to send",
+    confirmation="Type 'CONFIRM' to proceed with role DM"
+)
+@handle_errors
+async def dmrole_command(interaction: discord.Interaction, role: discord.Role, message: str, confirmation: str = ""):
+    # Check if user has admin role (1320538700656148541)
+    if not (hasattr(interaction.user, 'roles') and any(role.id == 1320538700656148541 for role in interaction.user.roles)):
+        await interaction.response.send_message("❌ Only administrators can send DMs", ephemeral=True)
+        return
+    
+    # Get members with the specified role
+    role_members = [member for member in role.members if not member.bot]
+    
+    if not role_members:
+        embed = discord.Embed(
+            title="❌ No Members Found",
+            description=f"No non-bot members found with the role {role.mention}",
+            color=0xFF0000
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    # Require confirmation for role DMs
+    if confirmation.upper() != "CONFIRM":
+        embed = discord.Embed(
+            title="⚠️ Role DM Confirmation Required",
+            description=f"This will send a DM to **{len(role_members)}** members with the role {role.mention}",
+            color=0xFF6B35
+        )
+        embed.add_field(
+            name="📝 Message Preview",
+            value=f"```{message[:500]}{'...' if len(message) > 500 else ''}```",
+            inline=False
+        )
+        embed.add_field(
+            name="👥 Target Members",
+            value=f"**Role:** {role.mention}\n**Member Count:** {len(role_members)}",
+            inline=False
+        )
+        embed.add_field(
+            name="⚠️ Warning",
+            value="• This action cannot be undone\n• Members may report spam\n• Use responsibly for important announcements only",
+            inline=False
+        )
+        embed.add_field(
+            name="✅ To Confirm",
+            value=f"`/dmrole role:{role.name} message:{message[:30]}... confirmation:CONFIRM`",
+            inline=False
+        )
+        embed.set_footer(text="Role DM system • Use with caution")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    # Start the role DM process
+    await interaction.response.send_message(f"📨 Starting DM process for {role.mention} members...", ephemeral=True)
+    
+    # Create the DM embed
+    dm_embed = discord.Embed(
+        title="📢 Manor Message",
+        description=message,
+        color=EMBED_COLOR
+    )
+    dm_embed.add_field(
+        name="👑 From",
+        value=f"{interaction.guild.name} Administration",
+        inline=True
+    )
+    dm_embed.add_field(
+        name="🎭 Role",
+        value=role.name,
+        inline=True
+    )
+    dm_embed.add_field(
+        name="📅 Date",
+        value=discord.utils.format_dt(datetime.now(), style='f'),
+        inline=True
+    )
+    dm_embed.set_footer(text=f"Sent to {role.name} members • Reply to this message will not reach staff")
+    
+    # Send DMs to all role members
+    successful_dms = 0
+    failed_dms = 0
+    
+    for member in role_members:
+        try:
+            await member.send(embed=dm_embed)
+            successful_dms += 1
+            await asyncio.sleep(1)  # Rate limiting - 1 second between DMs
+        except discord.Forbidden:
+            failed_dms += 1
+        except Exception:
+            failed_dms += 1
+    
+    # Create completion report
+    report_embed = discord.Embed(
+        title="📨 Role DM Report",
+        description=f"Mass DM to {role.mention} members completed",
+        color=EMBED_COLOR
+    )
+    report_embed.add_field(
+        name="📊 Statistics",
+        value=f"**✅ Successful:** {successful_dms}\n**❌ Failed:** {failed_dms}\n**👥 Total Attempted:** {len(role_members)}",
+        inline=True
+    )
+    report_embed.add_field(
+        name="🎭 Target Role",
+        value=role.mention,
+        inline=True
+    )
+    report_embed.add_field(
+        name="💬 Message",
+        value=message[:100] + ("..." if len(message) > 100 else ""),
+        inline=False
+    )
+    report_embed.set_footer(text=f"Completed by {interaction.user.display_name}")
+    
+    # Send report to the user
+    try:
+        await interaction.user.send(embed=report_embed)
+    except:
+        # If DM fails, try to send in channel (but this might not work if interaction is expired)
+        pass
+    
+    # Log the mass DM
+    await create_tracking_message("📨 Role Mass DM", {
+        "👨‍⚖️ Sent By": interaction.user.mention,
+        "🎭 Target Role": role.mention,
+        "✅ Successful": str(successful_dms),
+        "❌ Failed": str(failed_dms),
+        "💬 Message": message[:100] + ("..." if len(message) > 100 else "")
+    }, EMBED_COLOR, f"RoleDM-{interaction.id}")
+
 @bot.tree.command(name="dmall", description="📨 Send a direct message to all server members or a specific member")
 @discord.app_commands.default_permissions(administrator=True)
 @discord.app_commands.describe(
