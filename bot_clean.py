@@ -11,6 +11,7 @@ import discord
 from discord.ext import commands
 from datetime import datetime, timedelta
 import random
+import time
 
 # Import error handling system
 from services.error_handler import error_handler, handle_errors, ErrorType, ErrorSeverity
@@ -26,6 +27,25 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+
+# Keep-alive mechanism
+async def keep_alive():
+    """Keep the bot alive and log periodic status updates."""
+    while True:
+        try:
+            await asyncio.sleep(300)  # 5 minutes
+            logger.info(f"🌹 Bot keep-alive: Connected to {len(bot.guilds)} guilds, {len(bot.users)} users")
+            
+            # Update member count channels if any exist
+            if hasattr(bot, 'member_counters') and bot.member_counters:
+                for guild in bot.guilds:
+                    await update_member_count_channels(guild)
+                    
+        except Exception as e:
+            logger.error(f"🥀 Keep-alive error: {e}")
+            await asyncio.sleep(60)  # Wait a minute before retrying
+
+
 EMBED_COLOR = 0x711417  # Deep red Victorian color
 
 # Bot setup
@@ -36,6 +56,9 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
+    # Set startup time for uptime tracking
+    bot.start_time = time.time()
+    
     logger.info(f"🌹 RosethornBot is online as {bot.user}")
     logger.info(f"🌹 Connected to {len(bot.guilds)} guilds")
     
@@ -57,6 +80,11 @@ async def on_ready():
                 logger.error(f"🥀 Failed to sync for guild {guild.name}: {e}")
     except Exception as e:
         logger.error(f"🥀 Failed to sync commands: {e}")
+    
+    # Start keep-alive task
+    if not hasattr(bot, 'keep_alive_task'):
+        bot.keep_alive_task = asyncio.create_task(keep_alive())
+        logger.info("🌹 Keep-alive task started")
 
 @bot.event
 async def on_member_join(member):

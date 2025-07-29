@@ -78,7 +78,10 @@ def create_app():
             logger.info("🌹 Database tables created successfully")
             
             # Initialize sample data in proper context
-            init_sample_data()
+            try:
+                init_sample_data()
+            except Exception as sample_error:
+                logger.error(f"🥀 Sample data error (non-critical): {sample_error}")
             
         except Exception as e:
             logger.error(f"🥀 Database initialization error: {e}")
@@ -100,6 +103,12 @@ def init_sample_data():
     """Initialize sample data for testing dashboard functionality."""
     try:
         from models import Guild, Member, Ticket, ShopItem
+        
+        # Check if we already have data to avoid duplicates
+        existing_guild = Guild.query.filter_by(guild_id="1234567890123456789").first()
+        if existing_guild:
+            logger.info("🌹 Sample data already exists, skipping initialization")
+            return
         
         if Guild.query.count() == 0:
             # Create a sample guild for testing
@@ -196,18 +205,37 @@ def init_sample_data():
         db.session.rollback()
 
 def run_bot_async():
-    """Run the Discord bot asynchronously."""
-    try:
-        from bot_clean import run_discord_bot
-        
-        # Create new event loop for the thread
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        
-        # Run the bot
-        loop.run_until_complete(run_discord_bot())
-    except Exception as e:
-        logger.error(f"🥀 Discord bot error: {e}")
+    """Run the Discord bot asynchronously with restart protection."""
+    max_retries = 3
+    retry_count = 0
+    
+    while retry_count < max_retries:
+        try:
+            from bot_clean import run_discord_bot
+            
+            # Create new event loop for the thread
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            logger.info(f"🌹 Starting Discord bot (attempt {retry_count + 1}/{max_retries})")
+            
+            # Run the bot
+            loop.run_until_complete(run_discord_bot())
+            
+        except KeyboardInterrupt:
+            logger.info("🌹 Bot shutdown requested")
+            break
+        except Exception as e:
+            retry_count += 1
+            logger.error(f"🥀 Discord bot error (attempt {retry_count}/{max_retries}): {e}")
+            
+            if retry_count < max_retries:
+                logger.info(f"🌹 Restarting bot in 5 seconds...")
+                import time
+                time.sleep(5)
+            else:
+                logger.error("🥀 Max retries reached, bot will not restart automatically")
+                break
 
 def run_flask_app():
     """Run the Flask web application."""
